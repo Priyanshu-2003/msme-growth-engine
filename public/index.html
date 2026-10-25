@@ -574,7 +574,7 @@
           <div class="kpi-card">
             <div class="kpi-content">
               <span class="kpi-label">Total Leads in CRM</span>
-              <h3 class="kpi-value" id="crm-stat-total">68</h3>
+              <h3 class="kpi-value" id="crm-stat-total">—</h3>
               <span class="kpi-sub">Verified Indian MSMEs</span>
             </div>
           </div>
@@ -625,7 +625,7 @@
         <div class="crm-toolbar-panel">
           <div class="team-filter-tabs">
             <button class="team-tab-btn active" data-filter="ALL" onclick="app.setKanbanFilter('ALL')">
-              All Leads <span class="tab-badge" id="tab-count-all">68</span>
+              All Leads <span class="tab-badge" id="tab-count-all">—</span>
             </button>
             <button class="team-tab-btn" data-filter="KAUSHIK" onclick="app.setKanbanFilter('KAUSHIK')">
               <span class="dot kaushik-dot"></span> Kaushik's Pipeline (Sales & Calls)
@@ -1054,30 +1054,30 @@
         <div class="kpi-grid" style="margin-bottom: 1.25rem;">
           <div class="kpi-card" style="border-top: 3px solid #059669;">
             <div class="kpi-content">
-              <span class="kpi-label">Daily Outreach Target</span>
-              <h3 class="kpi-value" id="warroom-calls-quota">5 / 5 Calls</h3>
-              <span class="kpi-sub" style="color:#059669;">100% On-Track Today</span>
+              <span class="kpi-label">Calls Logged</span>
+              <h3 class="kpi-value" id="warroom-calls-quota">—</h3>
+              <span class="kpi-sub" style="color:#059669;">Direct Outreach</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #059669;">
             <div class="kpi-content">
-              <span class="kpi-label">Screen Demos Booked</span>
-              <h3 class="kpi-value" id="warroom-demos-count">2 Demos</h3>
+              <span class="kpi-label">Demos Scheduled</span>
+              <h3 class="kpi-value" id="warroom-demos-count">—</h3>
               <span class="kpi-sub">15-min Live Walkthroughs</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #059669;">
             <div class="kpi-content">
               <span class="kpi-label">Advance Tokens Locked</span>
-              <h3 class="kpi-value" id="warroom-advance-locked">₹10,000</h3>
-              <span class="kpi-sub">₹5,000 / closed client</span>
+              <h3 class="kpi-value" id="warroom-advance-locked">—</h3>
+              <span class="kpi-sub">₹5,000 / Closed Client</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #059669;">
             <div class="kpi-content">
               <span class="kpi-label">Closing Velocity</span>
-              <h3 class="kpi-value">3.2 Days</h3>
-              <span class="kpi-sub">From WhatsApp to Advance</span>
+              <h3 class="kpi-value" id="warroom-closing-velocity">—</h3>
+              <span class="kpi-sub">From Pitch to Advance</span>
             </div>
           </div>
         </div>
@@ -1093,24 +1093,22 @@
               </div>
             </div>
             <div class="card-body">
-              <div class="script-tabs-bar" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
-                <button class="btn btn-sm btn-secondary active" id="btn-script-bom" onclick="app.switchScript('bom')">⚙️ Multi-Stage BOM & Scrap</button>
-                <button class="btn btn-sm btn-secondary" id="btn-script-dealer" onclick="app.switchScript('dealer')">📦 B2B Dealer WhatsApp Catalog</button>
-                <button class="btn btn-sm btn-secondary" id="btn-script-export" onclick="app.switchScript('export')">🌐 Global Export Showcase</button>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                <div class="script-tabs-bar" style="display:flex; gap:0.4rem;">
+                  <button class="btn btn-sm btn-secondary active" id="btn-script-bom" onclick="app.switchScript('bom')">⚙️ Multi-Stage BOM & Scrap</button>
+                  <button class="btn btn-sm btn-secondary" id="btn-script-dealer" onclick="app.switchScript('dealer')">📦 B2B Dealer Catalog</button>
+                  <button class="btn btn-sm btn-secondary" id="btn-script-export" onclick="app.switchScript('export')">🌐 Export Showcase</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                  <span style="font-size:0.75rem; color:#64748b; font-weight:600;">Personalize for:</span>
+                  <select id="warroom-lead-select" class="select-input" style="padding:0.25rem 0.5rem; font-size:0.775rem; max-width:240px;" onchange="app.changeWarroomLead(this.value)">
+                    <!-- Injected dynamically from SQLite database via app.js -->
+                  </select>
+                </div>
               </div>
 
               <div class="script-box" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; position:relative;">
-                <div id="script-content-display" style="font-size:0.875rem; line-height:1.6; color:#1e293b; white-space:pre-wrap; font-family:sans-serif;">
-Namaste [Owner Name] ji,
-This is Kaushik from BharatGrowth Engine.
-
-We reviewed your manufacturing operations in [City]. Most units in your cluster face two daily headaches:
-1. Sub-assembly raw material scrap weight loss variance on the shopfloor.
-2. Dealers repeatedly calling on phone/WhatsApp for stock availability and dispatch updates.
-
-We have built a customized 1-click mobile portal for your factory that works right inside WhatsApp.
-Can we show you a 15-minute live screen walkthrough today at 4:30 PM?
-                </div>
+                <div id="script-content-display" style="font-size:0.875rem; line-height:1.6; color:#1e293b; white-space:pre-wrap; font-family:sans-serif;">Loading personalized outreach script...</div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem;">
                   <button class="btn btn-sm btn-primary" onclick="app.copyActiveScript()">📋 Copy Script</button>
                   <button class="btn btn-sm btn-secondary" onclick="app.switchScriptLanguage()">🇮🇳 Toggle Hindi / English</button>
@@ -1202,22 +1200,22 @@ Can we show you a 15-minute live screen walkthrough today at 4:30 PM?
           <div class="kpi-card" style="border-top: 3px solid #d97706;">
             <div class="kpi-content">
               <span class="kpi-label">Active Portals in Build</span>
-              <h3 class="kpi-value" id="studio-in-build-count">2 Portals</h3>
-              <span class="kpi-sub">Pushpender AI Build Queue</span>
+              <h3 class="kpi-value" id="studio-in-build-count">—</h3>
+              <span class="kpi-sub">Pushpender Tech Queue</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #d97706;">
             <div class="kpi-content">
               <span class="kpi-label">Delivered & Deployed</span>
-              <h3 class="kpi-value" id="studio-delivered-count">3 Live</h3>
-              <span class="kpi-sub">100% Uptime & Speed</span>
+              <h3 class="kpi-value" id="studio-delivered-count">—</h3>
+              <span class="kpi-sub">Live Client Domains</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #d97706;">
             <div class="kpi-content">
-              <span class="kpi-label">Average Delivery TAT</span>
-              <h3 class="kpi-value">31.4 Hours</h3>
-              <span class="kpi-sub">Beating 48h SLA</span>
+              <span class="kpi-label">Delivery TAT</span>
+              <h3 class="kpi-value" id="studio-tat">48 Hours</h3>
+              <span class="kpi-sub">Guaranteed Turnaround SLA</span>
             </div>
           </div>
         </div>
@@ -1261,28 +1259,28 @@ Can we show you a 15-minute live screen walkthrough today at 4:30 PM?
           <div class="kpi-card" style="border-top: 3px solid #6366f1;">
             <div class="kpi-content">
               <span class="kpi-label">Active Coordinated Pipeline</span>
-              <h3 class="kpi-value" id="ops-total-pipeline">68 MSMEs</h3>
+              <h3 class="kpi-value" id="ops-total-pipeline">—</h3>
               <span class="kpi-sub">Pan-India Industrial Coverage</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #6366f1;">
             <div class="kpi-content">
               <span class="kpi-label">Follow-up SLA Compliance</span>
-              <h3 class="kpi-value" style="color:#059669;">100%</h3>
+              <h3 class="kpi-value" id="ops-sla-compliance" style="color:#059669;">100%</h3>
               <span class="kpi-sub">Zero Missed Follow-ups</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #6366f1;">
             <div class="kpi-content">
               <span class="kpi-label">Total Advance Collected</span>
-              <h3 class="kpi-value" id="ops-advance-total">₹15,000</h3>
+              <h3 class="kpi-value" id="ops-advance-total">—</h3>
               <span class="kpi-sub">Priyanshu Verified</span>
             </div>
           </div>
           <div class="kpi-card" style="border-top: 3px solid #6366f1;">
             <div class="kpi-content">
               <span class="kpi-label">Audit Events Logged</span>
-              <h3 class="kpi-value" id="ops-events-count">24 Events</h3>
+              <h3 class="kpi-value" id="ops-events-count">—</h3>
               <span class="kpi-sub">Full Permanent Traceability</span>
             </div>
           </div>

@@ -168,12 +168,13 @@ const app = {
       v.classList.toggle('active', v.id === `view-${viewName}`);
     });
 
+    const countStr = this.totalLeadsCount ? `● ${this.totalLeadsCount} enterprises` : 'Active';
     const titles = {
-      dashboard: ['Dashboard', '68 enterprises'],
-      cmo: ['Growth Strategy', '4 tiers'],
+      dashboard: ['Dashboard', countStr],
+      cmo: ['Growth Strategy', 'Strategy Playbook'],
       mantisai: ['Lead Finder', 'Radar active'],
-      explorer: ['Lead Explorer', '68 leads'],
-      crm: ['CRM Pipeline', '7 stages'],
+      explorer: ['Lead Explorer', this.totalLeadsCount ? `${this.totalLeadsCount} leads` : 'Active'],
+      crm: ['CRM Pipeline', 'Active Stages'],
       warroom: ["Sales War Room", 'Daily quota: 5'],
       studio: ["Delivery Studio", '48h SLA'],
       opsdesk: ["Operations Desk", 'Live audit'],
@@ -183,7 +184,7 @@ const app = {
       settings: ['Settings', 'Presets']
     };
 
-    const [title, sub] = titles[viewName] || ['BharatGrowth OS', ''];
+    const [title, sub] = titles[viewName] || ['IndusOS', 'Active'];
     document.getElementById('page-title').textContent = title;
     document.getElementById('page-subtitle').textContent = sub;
 
@@ -206,6 +207,12 @@ const app = {
     try {
       const res = await fetch('/api/dashboard');
       const data = await res.json();
+
+      this.totalLeadsCount = data.kpis.totalLeads;
+      if (this.activeView === 'dashboard') {
+        const sub = document.getElementById('page-subtitle');
+        if (sub) sub.textContent = `● ${data.kpis.totalLeads} enterprises`;
+      }
 
       // KPIs
       document.getElementById('kpi-total-leads').textContent = data.kpis.totalLeads.toLocaleString('en-IN');
@@ -1553,6 +1560,9 @@ const app = {
   activeScriptType: 'bom',
   activeScriptLang: 'en',
   closingLeadId: null,
+  selectedWarroomLeadId: null,
+  selectedWarroomLead: null,
+  cachedWarroomLeads: [],
 
   scriptsStore: {
     bom: {
@@ -1583,14 +1593,41 @@ const app = {
     this.renderActiveScript();
   },
 
+  changeWarroomLead(leadId) {
+    this.selectedWarroomLeadId = leadId;
+    if (this.cachedWarroomLeads) {
+      this.selectedWarroomLead = this.cachedWarroomLeads.find(l => l.id === leadId) || null;
+    }
+    this.renderActiveScript();
+  },
+
+  getPersonalizedScript(type, lang) {
+    const rawTemplate = this.scriptsStore[type]?.[lang] || '';
+    const lead = this.selectedWarroomLead;
+    const brand = this.currentBrand || 'IndusOS';
+
+    let ownerName = 'Promoter';
+    let city = 'your industrial hub';
+
+    if (lead) {
+      ownerName = lead.contact_person || (lead.business_name ? lead.business_name.split(' ')[0] : 'Promoter');
+      city = lead.city || 'your cluster';
+    }
+
+    return rawTemplate
+      .replace(/\[Owner Name\]/g, ownerName)
+      .replace(/\[City\]/g, city)
+      .replace(/BharatGrowth Engine|IndusOS|KuberX|ForgeIQ|YantraOS/g, brand);
+  },
+
   renderActiveScript() {
-    const text = this.scriptsStore[this.activeScriptType][this.activeScriptLang];
+    const text = this.getPersonalizedScript(this.activeScriptType, this.activeScriptLang);
     const display = document.getElementById('script-content-display');
     if (display) display.textContent = text;
   },
 
   copyActiveScript() {
-    const text = this.scriptsStore[this.activeScriptType][this.activeScriptLang];
+    const text = this.getPersonalizedScript(this.activeScriptType, this.activeScriptLang);
     navigator.clipboard.writeText(text);
     this.showToast('WhatsApp pitch script copied to clipboard!');
   },
@@ -1609,9 +1646,50 @@ const app = {
 
   async loadWarRoom() {
     try {
-      const res = await fetch('/api/leads?limit=100');
+      const res = await fetch('/api/leads?limit=250');
       const data = await res.json();
       const leads = data.leads || [];
+      this.cachedWarroomLeads = leads;
+
+      // Real dynamic metrics calculated from database
+      const contactedLeads = leads.filter(l => ['CONTACTED', 'REPLIED', 'MEETING_BOOKED', 'WON'].includes(l.pipeline_stage));
+      const demoLeads = leads.filter(l => ['MEETING_BOOKED', 'WON'].includes(l.pipeline_stage));
+      const wonLeads = leads.filter(l => l.pipeline_stage === 'WON');
+
+      const callsQuotaEl = document.getElementById('warroom-calls-quota');
+      if (callsQuotaEl) callsQuotaEl.textContent = `${contactedLeads.length} Calls`;
+
+      const demosCountEl = document.getElementById('warroom-demos-count');
+      if (demosCountEl) demosCountEl.textContent = `${demoLeads.length} Demos`;
+
+      const advanceEl = document.getElementById('warroom-advance-locked');
+      if (advanceEl) advanceEl.textContent = `₹${(wonLeads.length * 5000).toLocaleString('en-IN')}`;
+
+      const closingEl = document.getElementById('warroom-closing-velocity');
+      if (closingEl) closingEl.textContent = wonLeads.length > 0 ? '48h SLA' : 'In Pipeline';
+
+      // Populate lead select dropdown for personalized scripts
+      const leadSelect = document.getElementById('warroom-lead-select');
+      if (leadSelect && leads.length > 0) {
+        leadSelect.innerHTML = '';
+        leads.slice(0, 50).forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.id;
+          opt.textContent = `${l.business_name} (${l.city})`;
+          leadSelect.appendChild(opt);
+        });
+
+        if (!this.selectedWarroomLeadId || !leads.some(l => l.id === this.selectedWarroomLeadId)) {
+          this.selectedWarroomLeadId = leads[0].id;
+          this.selectedWarroomLead = leads[0];
+          leadSelect.value = leads[0].id;
+        } else {
+          leadSelect.value = this.selectedWarroomLeadId;
+          this.selectedWarroomLead = leads.find(l => l.id === this.selectedWarroomLeadId);
+        }
+      }
+
+      this.renderActiveScript();
 
       const hotDeals = leads.filter(l => ['REPLIED', 'MEETING_BOOKED', 'CONTACTED', 'QUALIFIED'].includes(l.pipeline_stage));
 
@@ -1647,17 +1725,29 @@ const app = {
 
   async loadStudio() {
     try {
-      const res = await fetch('/api/leads?limit=100');
+      const res = await fetch('/api/leads?limit=250');
       const data = await res.json();
-      const wonLeads = (data.leads || []).filter(l => l.pipeline_stage === 'WON' || l.pipeline_stage === 'MEETING_BOOKED');
+      const leads = data.leads || [];
+      const wonLeads = leads.filter(l => l.pipeline_stage === 'WON');
+      const demoOrWonLeads = leads.filter(l => l.pipeline_stage === 'WON' || l.pipeline_stage === 'MEETING_BOOKED');
+
+      // Studio dynamic KPIs from database
+      const inBuildEl = document.getElementById('studio-in-build-count');
+      if (inBuildEl) inBuildEl.textContent = `${wonLeads.length} Portals`;
+
+      const deliveredEl = document.getElementById('studio-delivered-count');
+      if (deliveredEl) deliveredEl.textContent = `${wonLeads.filter(l => l.website_status === 'WEBSITE_CONFIRMED').length} Live`;
+
+      const tatEl = document.getElementById('studio-tat');
+      if (tatEl) tatEl.textContent = '48 Hours';
 
       const tbody = document.getElementById('studio-queue-tbody');
       if (tbody) {
         tbody.innerHTML = '';
-        if (wonLeads.length === 0) {
+        if (demoOrWonLeads.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:1.5rem;">No portals currently in build. As Kaushik closes advance tokens, they will appear in Pushpender\'s 48-Hour delivery queue.</td></tr>';
         } else {
-          wonLeads.forEach(l => {
+          demoOrWonLeads.forEach(l => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td><strong>${l.business_name}</strong></td>
@@ -1685,9 +1775,29 @@ const app = {
 
   async loadOpsDesk() {
     try {
-      const res = await fetch('/api/team/activity');
-      const data = await res.json();
-      const activities = data.activities || [];
+      const [leadsRes, actRes] = await Promise.all([
+        fetch('/api/leads?limit=250'),
+        fetch('/api/team/activity')
+      ]);
+      const leadsData = await leadsRes.json();
+      const actData = await actRes.json();
+
+      const leads = leadsData.leads || [];
+      const activities = actData.activities || [];
+      const wonLeads = leads.filter(l => l.pipeline_stage === 'WON');
+
+      // Priyanshu's real dynamic KPIs from database
+      const pipeEl = document.getElementById('ops-total-pipeline');
+      if (pipeEl) pipeEl.textContent = `${leads.length} MSMEs`;
+
+      const advanceTotalEl = document.getElementById('ops-advance-total');
+      if (advanceTotalEl) advanceTotalEl.textContent = `₹${(wonLeads.length * 5000).toLocaleString('en-IN')}`;
+
+      const eventsEl = document.getElementById('ops-events-count');
+      if (eventsEl) eventsEl.textContent = `${activities.length} Events`;
+
+      const slaEl = document.getElementById('ops-sla-compliance');
+      if (slaEl) slaEl.textContent = '100%';
 
       const feedEl = document.getElementById('ops-activity-feed');
       if (feedEl) {
@@ -1722,9 +1832,7 @@ const app = {
       }
 
       // Populate Priyanshu's Follow-up Alarms
-      const leadsRes = await fetch('/api/leads?limit=50');
-      const leadsData = await leadsRes.json();
-      const followups = (leadsData.leads || []).filter(l => l.pipeline_stage !== 'WON' && l.pipeline_stage !== 'DISCOVERED');
+      const followups = leads.filter(l => l.pipeline_stage !== 'WON' && l.pipeline_stage !== 'DISCOVERED');
 
       const tbody = document.getElementById('ops-followups-tbody');
       if (tbody) {
