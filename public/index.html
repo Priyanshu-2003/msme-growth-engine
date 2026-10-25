@@ -840,8 +840,70 @@
         </div>
       </section>
 
-      <!-- VIEW 6: REPORTS & UNIT ECONOMICS -->
+      <!-- VIEW 6: REPORTS & FINANCIAL VELOCITY -->
       <section id="view-reports" class="content-view">
+        <!-- Financial Velocity KPI Grid -->
+        <div class="kpi-grid" style="margin-bottom: 1.25rem;">
+          <div class="kpi-card" style="border-top: 3px solid #059669;">
+            <div class="kpi-content">
+              <span class="kpi-label">Addressable Pipeline Value</span>
+              <h3 class="kpi-value" id="fin-total-pipeline">—</h3>
+              <span class="kpi-sub">139 Verified Enterprises @ ₹18k</span>
+            </div>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #059669;">
+            <div class="kpi-content">
+              <span class="kpi-label">Advance Cash Inflow</span>
+              <h3 class="kpi-value" id="fin-advance-cash" style="color:#059669;">—</h3>
+              <span class="kpi-sub">₹5,000 / Closed Client</span>
+            </div>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #d97706;">
+            <div class="kpi-content">
+              <span class="kpi-label">48h Delivery Receivables</span>
+              <h3 class="kpi-value" id="fin-receivables" style="color:#d97706;">—</h3>
+              <span class="kpi-sub">Due on Live Domain Go-Live</span>
+            </div>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #6366f1;">
+            <div class="kpi-content">
+              <span class="kpi-label">30-Day Weighted Cashflow</span>
+              <h3 class="kpi-value" id="fin-weighted-projection" style="color:#4f46e5;">—</h3>
+              <span class="kpi-sub">Probabilistic Stage Realization</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Cashflow & Active Deal Ledger -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <div>
+              <h3>💰 Live Cashflow & Active Deal Ledger</h3>
+              <p class="header-hint">Real-time revenue tracking across every contract in Kaushik's closing and Pushpender's build pipeline.</p>
+            </div>
+          </div>
+          <div class="card-body no-padding">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Client Enterprise</th>
+                    <th>Industrial Hub</th>
+                    <th>Package Value</th>
+                    <th>Token Advance</th>
+                    <th>48h Balance Due</th>
+                    <th>Payment Status</th>
+                    <th>Financial Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="financial-deal-ledger-tbody">
+                  <!-- Injected via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header">
             <h3>Digital Growth Service Revenue Model</h3>
@@ -1730,15 +1792,24 @@
       </div>
     </div>
 
-    <!-- SPEED DIALER MODAL (Kaushik's High-Velocity Calling Console) -->
+    <!-- SPEED DIALER MODAL (Kaushik's High-Velocity Calling Console & HUD) -->
     <div id="speed-dialer-modal" class="modal-overlay hidden">
-      <div class="modal-dialog" style="max-width: 640px;">
-        <div class="modal-header" style="border-bottom: 2px solid #059669;">
+      <div class="modal-dialog" style="max-width: 680px;">
+        <div class="modal-header" style="border-bottom: 2px solid #059669; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h3 style="color:#059669; margin:0;">⚡ Kaushik's Speed Calling Session</h3>
+            <h3 style="color:#059669; margin:0; display:flex; align-items:center; gap:0.5rem;">
+              <span>⚡ Kaushik's Outbound Calling HUD</span>
+              <span class="hud-live-tag">● LIVE CALL</span>
+            </h3>
             <p id="dialer-progress-tag" style="font-size:0.775rem; color:#64748b; margin-top:2px;">Lead 1 of 10 • Rapid Outreach & Qualification</p>
           </div>
-          <button class="modal-close" onclick="app.closeSpeedDialer()">&times;</button>
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div class="calling-timer-pill">
+              <span id="calling-timer-clock">⏱️ 00:00</span>
+              <button class="btn btn-xs btn-timer-action" id="btn-timer-toggle" onclick="app.toggleCallTimer()">Pause</button>
+            </div>
+            <button class="modal-close" onclick="app.closeSpeedDialer()">&times;</button>
+          </div>
         </div>
         <div class="modal-body" style="padding: 1.5rem;">
           <div class="dialer-lead-hero">
@@ -1751,49 +1822,96 @@
             </div>
 
             <div class="dialer-phone-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px; color:#15803d;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px; color:#15803d; flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               <span class="dialer-phone-number" id="dialer-phone-display">+91 00000 00000</span>
-              <a id="dialer-direct-call-btn" href="#" class="btn btn-sm btn-primary" style="background:#15803d; border-color:#15803d; text-decoration:none;">📞 Call Now</a>
-              <a id="dialer-direct-wa-btn" href="#" target="_blank" class="btn btn-sm btn-secondary" style="color:#059669; border-color:#a7f3d0; background:#f0fdf4; text-decoration:none;">💬 WhatsApp</a>
+              <a id="dialer-direct-call-btn" href="#" onclick="app.startCallTimer()" class="btn btn-sm btn-primary" style="background:#15803d; border-color:#15803d; text-decoration:none;">📞 Call Now</a>
+              <button onclick="app.launchWhatsAppWebDirect()" class="btn btn-sm btn-secondary" style="color:#059669; border-color:#a7f3d0; background:#f0fdf4; display:flex; align-items:center; gap:0.35rem;" title="1-Click Launch WhatsApp Web with personalized pitch preloaded">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>WhatsApp Web</span>
+              </button>
             </div>
+          </div>
+
+          <!-- Interactive Objection Battlecards Bar -->
+          <div class="hud-objection-bar" style="margin-bottom:0.75rem;">
+            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">⚡ Instant HUD Battlecards:</span>
+            <div style="display:flex; gap:0.4rem; margin-top:0.35rem; flex-wrap:wrap;">
+              <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(1)">🛡️ 1: "We use Tally"</button>
+              <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(2)">🛡️ 2: "WhatsApp Ordering"</button>
+              <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(3)">🛡️ 3: "Why ₹5k Advance?"</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Objection Response Box -->
+          <div id="dialer-objection-box" class="dialer-objection-box hidden" style="background:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:0.75rem; margin-bottom:1rem; font-size:0.825rem; color:#854d0e; line-height:1.45;">
+            <!-- Injected on button click -->
           </div>
 
           <!-- Quick Talk Track & Gap Hook -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.85rem 1rem; margin-bottom:1.25rem;">
-            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em; margin-bottom:0.25rem;">🎯 15-Second Opening Hook</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">🎯 15-Second Opening Hook</span>
+              <span style="font-size:0.725rem; color:#059669; font-weight:600;">Tailored to Factory Profile</span>
+            </div>
             <p id="dialer-talk-track" style="font-size:0.85rem; color:#1e293b; margin:0; line-height:1.45;">
               "Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility has active production but no direct WhatsApp catalog for your 12+ dealers to place repeat orders. We built a live mobile portal mockup to show you..."
             </p>
           </div>
 
-          <!-- Outcome Buttons -->
-          <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">Log Call Outcome & Advance</div>
+          <!-- Outcome Buttons with Key Legends -->
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">Log Call Outcome & Advance</span>
+            <span style="font-size:0.7rem; color:#94a3b8;">Hotkeys: [1] [2] [3] [4]</span>
+          </div>
           <div class="dialer-outcomes-grid">
             <button class="btn-outcome no-answer" onclick="app.recordDialerOutcome('no_answer')">
               <span style="font-size:1.1rem;">❌</span>
-              <span>No Answer / Busy</span>
+              <span>[1] No Answer / Busy</span>
               <small style="font-size:10px; opacity:0.8;">Schedule 2h retry</small>
             </button>
             <button class="btn-outcome whatsapp" onclick="app.recordDialerOutcome('whatsapp')">
               <span style="font-size:1.1rem;">💬</span>
-              <span>WhatsApp Pitch Sent</span>
+              <span>[2] WhatsApp Sent</span>
               <small style="font-size:10px; opacity:0.8;">Mark as Contacted</small>
             </button>
             <button class="btn-outcome demo" onclick="app.recordDialerOutcome('demo')">
               <span style="font-size:1.1rem;">🗓️</span>
-              <span>15-min Demo Booked</span>
+              <span>[3] Demo Booked</span>
               <small style="font-size:10px; opacity:0.8;">Stage: Meeting Booked</small>
             </button>
             <button class="btn-outcome won" onclick="app.recordDialerOutcome('won')">
               <span style="font-size:1.1rem;">💰</span>
-              <span>Lock ₹5,000 Token</span>
+              <span>[4] Lock ₹5k Advance</span>
               <small style="font-size:10px; opacity:0.9;">Handover to Pushpender</small>
             </button>
           </div>
         </div>
         <div class="modal-footer" style="display:flex; justify-content:space-between;">
-          <button class="btn btn-secondary" onclick="app.dialerPrev()">◀ Previous</button>
-          <button class="btn btn-secondary" onclick="app.dialerNext()">Skip / Next ▶</button>
+          <button class="btn btn-secondary" onclick="app.dialerPrev()">◀ [←] Previous</button>
+          <button class="btn btn-secondary" onclick="app.dialerNext()">Skip / Next [→] ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFORMA INVOICE & TOKEN RECEIPT MODAL -->
+    <div id="invoice-modal" class="modal-overlay hidden" onclick="if(event.target === this) app.closeInvoiceModal()">
+      <div class="modal-dialog" style="max-width: 660px;">
+        <div class="modal-header" style="border-bottom: 2px solid var(--primary); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0; color:#0f172a;">📄 Official GST Proforma Invoice & Token Receipt</h3>
+            <p id="invoice-num-tag" style="font-size:0.75rem; color:#64748b; margin-top:2px;">INDUS-INV • IndusOS B2B Manufacturing Engine</p>
+          </div>
+          <button class="modal-close" onclick="app.closeInvoiceModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:1.5rem;" id="invoice-printable-area">
+          <!-- Injected dynamically via app.js -->
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between;">
+          <button class="btn btn-secondary" onclick="app.closeInvoiceModal()">Close</button>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" onclick="app.copyInvoiceWhatsAppText()">📋 Copy for WhatsApp</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+          </div>
         </div>
       </div>
     </div>

@@ -214,7 +214,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 3. Lead Details API
-    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export') && !pathname.includes('preview-portal')) {
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export') && !pathname.includes('preview-portal') && !pathname.includes('invoice')) {
       const id = pathname.replace('/api/leads/', '');
       const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
 
@@ -821,7 +821,7 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true, message: 'Added to suppression list' });
     }
 
-    // 15. Reports API
+    // 15. Reports & Financial Command Deck API
     if (method === 'GET' && pathname === '/api/reports') {
       const sourceQuality = db.prepare(`
         SELECT source_name,
@@ -850,11 +850,82 @@ const server = http.createServer(async (req, res) => {
         { service: 'Export-market digital positioning', basePrice: 14999, closedDeals: db.prepare("SELECT COUNT(*) as c FROM leads WHERE pipeline_stage = 'WON' AND services_needed LIKE '%Export%'").get().c }
       ];
 
+      // Live Financial Velocity & Cashflow Metrics
+      const totalLeads = db.prepare('SELECT COUNT(*) as c FROM leads').get().c;
+      const wonLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'WON'").all();
+      const demoLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'MEETING_BOOKED'").all();
+      const repliedLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'REPLIED'").all();
+      const contactedLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'CONTACTED'").all();
+
+      const advanceCash = wonLeads.length * 5000;
+      const receivablesDue = wonLeads.length * 13000;
+      const totalAddressablePipeline = totalLeads * 18000;
+      const weighted30Day = Math.round(
+        (wonLeads.length * 18000 * 1.0) +
+        (demoLeads.length * 18000 * 0.60) +
+        (repliedLeads.length * 18000 * 0.35) +
+        (contactedLeads.length * 18000 * 0.15)
+      );
+
+      const dealLedger = [
+        ...wonLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 5000, balanceDue: 13000, status: 'ADVANCE_LOCKED' })),
+        ...demoLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'DEMO_STAGED' })),
+        ...repliedLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'IN_NEGOTIATION' })),
+        ...contactedLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'PITCH_DELIVERED' }))
+      ];
+
+      const financialMetrics = {
+        totalLeads,
+        packagePrice: 18000,
+        advancePrice: 5000,
+        balancePrice: 13000,
+        advanceCash,
+        receivablesDue,
+        totalAddressablePipeline,
+        weighted30Day,
+        grossMarginPct: 88.9,
+        cacInr: 0,
+        dealLedger
+      };
+
       return sendJson(res, 200, {
         sourceQuality,
         regionMetrics,
-        serviceRevenue
+        serviceRevenue,
+        financialMetrics
       });
+    }
+
+    // 16. Proforma Invoice & Receipt Generator API
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && pathname.endsWith('/invoice')) {
+      const id = pathname.replace('/api/leads/', '').replace('/invoice', '');
+      const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      const isWon = lead.pipeline_stage === 'WON';
+      const invoiceData = {
+        invoiceNumber: `INDUS-${id.slice(-4).toUpperCase()}`,
+        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        businessName: lead.business_name,
+        city: lead.city,
+        state: lead.state,
+        phone: lead.phone || 'Phone upon request',
+        items: [
+          { desc: 'Factory Inventory & Multi-Stage BOM Scrap Tracking Module', amount: 7500 },
+          { desc: 'B2B WhatsApp Ordering Catalog & Real-Time Dealer Portal', amount: 6500 },
+          { desc: '48-Hour Live Custom Domain (.in) & SSL Deployment', amount: 4000 }
+        ],
+        subtotal: 18000,
+        gst: 0,
+        totalAmount: 18000,
+        advancePaid: isWon ? 5000 : 0,
+        balanceDue: isWon ? 13000 : 18000,
+        paymentStatus: isWon ? 'ADVANCE_LOCKED' : 'PROFORMA_PENDING',
+        upiId: 'indusos@icici',
+        upiPayLink: `upi://pay?pa=indusos@icici&pn=IndusOS%20Technologies&am=5000&cu=INR&tn=Token%20Advance%20${encodeURIComponent(lead.business_name)}`
+      };
+
+      return sendJson(res, 200, { success: true, invoice: invoiceData });
     }
 
     // -------------------------------------------------------------

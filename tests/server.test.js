@@ -219,6 +219,28 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.strictEqual(res.json.newStage, 'WON');
   });
 
+  await t.test('GET /api/reports returns financialMetrics and live deal ledger', async () => {
+    const res = await dispatch('/api/reports');
+    assert.strictEqual(res.statusCode, 200);
+    assert.ok(res.json.financialMetrics);
+    const fm = res.json.financialMetrics;
+    assert.ok(fm.totalAddressablePipeline > 0);
+    assert.strictEqual(fm.packagePrice, 18000);
+    assert.ok(Array.isArray(fm.dealLedger));
+  });
+
+  await t.test('GET /api/leads/:id/invoice returns structured GST proforma invoice', async () => {
+    const listRes = await dispatch('/api/leads?limit=1');
+    const leadId = listRes.json.leads[0].id;
+    const res = await dispatch(`/api/leads/${leadId}/invoice`);
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.json.success, true);
+    assert.ok(res.json.invoice);
+    assert.ok(res.json.invoice.invoiceNumber.startsWith('INDUS-'));
+    assert.strictEqual(res.json.invoice.totalAmount, 18000);
+    assert.ok(res.json.invoice.upiPayLink.startsWith('upi://pay?'));
+  });
+
   await t.test('Static files: GET / returns HTML application', async () => {
     const res = await dispatch('/');
     assert.strictEqual(res.statusCode, 200);

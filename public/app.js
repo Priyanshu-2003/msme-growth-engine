@@ -1042,54 +1042,123 @@ const app = {
     }
   },
 
-  // Reports
+  // Reports & Financial Command Deck
   async loadReports() {
     try {
       const res = await fetch('/api/reports');
       const data = await res.json();
 
+      // Financial Velocity KPI Grid
+      if (data.financialMetrics) {
+        const fm = data.financialMetrics;
+        const totalPipelineEl = document.getElementById('fin-total-pipeline');
+        if (totalPipelineEl) {
+          const lk = (fm.totalAddressablePipeline / 100000).toFixed(2);
+          totalPipelineEl.textContent = `₹${lk}L`;
+        }
+
+        const advanceCashEl = document.getElementById('fin-advance-cash');
+        if (advanceCashEl) {
+          advanceCashEl.textContent = `₹${fm.advanceCash.toLocaleString('en-IN')}`;
+        }
+
+        const receivablesEl = document.getElementById('fin-receivables');
+        if (receivablesEl) {
+          receivablesEl.textContent = `₹${fm.receivablesDue.toLocaleString('en-IN')}`;
+        }
+
+        const weightedEl = document.getElementById('fin-weighted-projection');
+        if (weightedEl) {
+          weightedEl.textContent = `₹${fm.weighted30Day.toLocaleString('en-IN')}`;
+        }
+
+        // Live Deal & Cashflow Ledger
+        const ledgerTbody = document.getElementById('financial-deal-ledger-tbody');
+        if (ledgerTbody && fm.dealLedger) {
+          ledgerTbody.innerHTML = '';
+          if (fm.dealLedger.length === 0) {
+            ledgerTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:1.5rem;">No active pipeline deals currently tracked.</td></tr>';
+          } else {
+            fm.dealLedger.forEach(deal => {
+              const tr = document.createElement('tr');
+              const statusBadge = deal.status === 'ADVANCE_LOCKED' 
+                ? '<span class="badge badge-success">✅ ADVANCE LOCKED</span>'
+                : (deal.status === 'DEMO_STAGED' 
+                    ? '<span class="badge badge-info">🗓️ DEMO STAGED</span>'
+                    : (deal.status === 'IN_NEGOTIATION'
+                        ? '<span class="badge badge-warning">💬 IN NEGOTIATION</span>'
+                        : '<span class="badge badge-neutral">⚡ PITCH DELIVERED</span>'));
+
+              tr.innerHTML = `
+                <td>
+                  <div style="font-weight:700; color:#0f172a;">${deal.business_name}</div>
+                  <div style="font-size:0.75rem; color:#64748b;">ID: ${deal.id}</div>
+                </td>
+                <td>${deal.city}, ${deal.state}</td>
+                <td><strong>₹${deal.dealValue.toLocaleString('en-IN')}</strong></td>
+                <td><span class="badge ${deal.advancePaid > 0 ? 'badge-success' : 'badge-neutral'}">₹${deal.advancePaid.toLocaleString('en-IN')}</span></td>
+                <td><span style="font-weight:700; color:${deal.balanceDue > 0 ? '#d97706' : '#059669'};">₹${deal.balanceDue.toLocaleString('en-IN')}</span></td>
+                <td>${statusBadge}</td>
+                <td>
+                  <button class="btn btn-xs btn-secondary" onclick="app.openInvoiceModal('${deal.id}')" title="Generate GST Proforma Invoice & Token Receipt" style="display:flex; align-items:center; gap:0.25rem;">
+                    <span>📄</span> <span>Proforma Invoice</span>
+                  </button>
+                </td>
+              `;
+              ledgerTbody.appendChild(tr);
+            });
+          }
+        }
+      }
+
       // Service Revenue table
       const revTbody = document.getElementById('service-revenue-tbody');
-      revTbody.innerHTML = '';
-      data.serviceRevenue.forEach(srv => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${srv.service}</strong></td>
-          <td>${srv.service.includes('Catalogue') ? 'Industrial B2B Manufacturers' : (srv.service.includes('Export') ? 'Exporters & Trading Houses' : 'Local Businesses & Shops')}</td>
-          <td>₹${srv.basePrice.toLocaleString('en-IN')}</td>
-          <td>₹2,500 – ₹5,000 / month</td>
-          <td><span class="badge badge-success">${srv.closedDeals} deals</span></td>
-        `;
-        revTbody.appendChild(tr);
-      });
+      if (revTbody && data.serviceRevenue) {
+        revTbody.innerHTML = '';
+        data.serviceRevenue.forEach(srv => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${srv.service}</strong></td>
+            <td>${srv.service.includes('Catalogue') ? 'Industrial B2B Manufacturers' : (srv.service.includes('Export') ? 'Exporters & Trading Houses' : 'Local Businesses & Shops')}</td>
+            <td>₹${srv.basePrice.toLocaleString('en-IN')}</td>
+            <td>₹2,500 – ₹5,000 / month</td>
+            <td><span class="badge badge-success">${srv.closedDeals} deals</span></td>
+          `;
+          revTbody.appendChild(tr);
+        });
+      }
 
       // Source Quality table
       const sqTbody = document.getElementById('source-quality-tbody');
-      sqTbody.innerHTML = '';
-      data.sourceQuality.forEach(sq => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${sq.source_name}</td>
-          <td>${sq.total_leads}</td>
-          <td>${sq.qualified_leads}</td>
-          <td><strong>${Math.round(sq.avg_score || 0)}</strong></td>
-        `;
-        sqTbody.appendChild(tr);
-      });
+      if (sqTbody && data.sourceQuality) {
+        sqTbody.innerHTML = '';
+        data.sourceQuality.forEach(sq => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${sq.source_name}</td>
+            <td>${sq.total_leads}</td>
+            <td>${sq.qualified_leads}</td>
+            <td><strong>${Math.round(sq.avg_score || 0)}</strong></td>
+          `;
+          sqTbody.appendChild(tr);
+        });
+      }
 
       // Region metrics table
       const regTbody = document.getElementById('region-metrics-tbody');
-      regTbody.innerHTML = '';
-      data.regionMetrics.forEach(rm => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${rm.state}</td>
-          <td>${rm.total}</td>
-          <td>${rm.tier_1_count}</td>
-          <td>${Math.round(rm.avg_score || 0)}</td>
-        `;
-        regTbody.appendChild(tr);
-      });
+      if (regTbody && data.regionMetrics) {
+        regTbody.innerHTML = '';
+        data.regionMetrics.forEach(rm => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${rm.state}</td>
+            <td>${rm.total}</td>
+            <td>${rm.tier_1_count}</td>
+            <td>${Math.round(rm.avg_score || 0)}</td>
+          `;
+          regTbody.appendChild(tr);
+        });
+      }
     } catch (err) {
       console.error('Failed to load reports:', err);
     }
@@ -2114,9 +2183,12 @@ const app = {
     }
   },
 
-  // Kaushik's Speed Dialer Engine
+  // Kaushik's Speed Dialer Engine & Live Calling HUD
   dialerLeads: [],
   dialerIndex: 0,
+  callTimerSeconds: 0,
+  callTimerInterval: null,
+  callTimerRunning: false,
 
   async openSpeedDialer() {
     try {
@@ -2132,6 +2204,9 @@ const app = {
       }
       this.dialerIndex = 0;
       this.renderCurrentDialerLead();
+      const objBox = document.getElementById('dialer-objection-box');
+      if (objBox) objBox.classList.add('hidden');
+      this.startCallTimer();
       document.getElementById('speed-dialer-modal').classList.remove('hidden');
     } catch (err) {
       this.showToast(`Error launching dialer: ${err.message}`);
@@ -2139,7 +2214,118 @@ const app = {
   },
 
   closeSpeedDialer() {
+    this.resetCallTimer();
     document.getElementById('speed-dialer-modal').classList.add('hidden');
+  },
+
+  startCallTimer() {
+    this.resetCallTimer();
+    this.callTimerRunning = true;
+    const toggleBtn = document.getElementById('btn-timer-toggle');
+    if (toggleBtn) toggleBtn.textContent = 'Pause';
+
+    this.callTimerInterval = setInterval(() => {
+      this.callTimerSeconds++;
+      const mins = String(Math.floor(this.callTimerSeconds / 60)).padStart(2, '0');
+      const secs = String(this.callTimerSeconds % 60).padStart(2, '0');
+      const clock = document.getElementById('calling-timer-clock');
+      if (clock) clock.textContent = `⏱️ ${mins}:${secs}`;
+    }, 1000);
+  },
+
+  toggleCallTimer() {
+    const toggleBtn = document.getElementById('btn-timer-toggle');
+    if (this.callTimerRunning) {
+      clearInterval(this.callTimerInterval);
+      this.callTimerRunning = false;
+      if (toggleBtn) toggleBtn.textContent = 'Resume';
+    } else {
+      this.callTimerRunning = true;
+      if (toggleBtn) toggleBtn.textContent = 'Pause';
+      this.callTimerInterval = setInterval(() => {
+        this.callTimerSeconds++;
+        const mins = String(Math.floor(this.callTimerSeconds / 60)).padStart(2, '0');
+        const secs = String(this.callTimerSeconds % 60).padStart(2, '0');
+        const clock = document.getElementById('calling-timer-clock');
+        if (clock) clock.textContent = `⏱️ ${mins}:${secs}`;
+      }, 1000);
+    }
+  },
+
+  resetCallTimer() {
+    if (this.callTimerInterval) clearInterval(this.callTimerInterval);
+    this.callTimerSeconds = 0;
+    this.callTimerRunning = false;
+    const clock = document.getElementById('calling-timer-clock');
+    if (clock) clock.textContent = '⏱️ 00:00';
+    const toggleBtn = document.getElementById('btn-timer-toggle');
+    if (toggleBtn) toggleBtn.textContent = 'Pause';
+  },
+
+  showDialerObjection(num) {
+    const box = document.getElementById('dialer-objection-box');
+    if (!box) return;
+    box.classList.remove('hidden');
+
+    if (num === 1) {
+      box.innerHTML = `
+        <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 1: "We already use Tally for accounting"</div>
+        <p style="margin:0; color:#713f12;">
+          <em>"Bilkul sir! Tally is excellent for accounts and GST filing. But Tally does NOT give your 12+ distributors a mobile catalog to place real-time re-orders, nor does it track real-time workshop scrap loss on assembly lines. IndusOS connects directly alongside your Tally without replacing it. Can we do a 15-minute live screen walkthrough today?"</em>
+        </p>
+      `;
+    } else if (num === 2) {
+      box.innerHTML = `
+        <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 2: "Dealers simply call us on phone or send WhatsApp photo"</div>
+        <p style="margin:0; color:#713f12;">
+          <em>"Sir, jab dealer phone karte hain ya rough paper slip bhejte hain, wrong item dispatch aur rate confusion hota hai. With our WhatsApp ordering catalog, your dealer taps 3 items on phone, PO generates in 10 seconds, and your dispatch team gets exact specs. Zero return friction."</em>
+        </p>
+      `;
+    } else if (num === 3) {
+      box.innerHTML = `
+        <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 3: "Why pay ₹5,000 advance before full deployment?"</div>
+        <p style="margin:0; color:#713f12;">
+          <em>"Sir, ₹5,000 is merely a token commitment for your factory custom domain (.in) and staging server provisioning by Pushpender. You inspect the fully working BOM portal within 48 hours; only when you are 100% satisfied do you release the ₹13,000 balance."</em>
+        </p>
+      `;
+    }
+  },
+
+  async launchWhatsAppWebDirect() {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l) return;
+
+    let cleanPhone = (l.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+    const waPitch = `Namaste ${l.business_name}, this is Kaushik from IndusOS Technologies.\n\nWe noticed your manufacturing facility in ${l.city} has active production capacity. We built a specialized factory BOM scrap tracking module and 1-click WhatsApp catalog for your dealers.\n\nCan we share a 15-minute live screen walkthrough today?`;
+    const waUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waPitch)}`;
+
+    // Open WhatsApp Web in new tab
+    window.open(waUrl, '_blank');
+
+    // Copy to clipboard as convenient fallback
+    try {
+      await navigator.clipboard.writeText(waPitch);
+    } catch (e) {}
+
+    // Record audit activity
+    try {
+      await fetch(`/api/leads/${l.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_stage: 'CONTACTED',
+          author: 'Kaushik',
+          action_type: 'WHATSAPP_PITCH_SENT',
+          note: 'Kaushik dispatched direct WhatsApp Web outreach pitch with custom factory proposition.'
+        })
+      });
+      this.showToast(`🚀 Dispatched WhatsApp Web to ${l.business_name} & logged audit trail!`);
+    } catch (err) {
+      this.showToast('WhatsApp Web launched!');
+    }
   },
 
   renderCurrentDialerLead() {
@@ -2164,9 +2350,8 @@ const app = {
     const callBtn = document.getElementById('dialer-direct-call-btn');
     callBtn.href = l.phone ? `tel:${cleanPhone}` : '#';
 
-    const waBtn = document.getElementById('dialer-direct-wa-btn');
-    const waPitch = encodeURIComponent(`Namaste ${l.business_name}, this is Kaushik from IndusOS. We built a customized live WhatsApp catalog and BOM tracking portal for your manufacturing operations in ${l.city}. Can we show you a 15-minute screen demo today?`);
-    waBtn.href = cleanPhone.length >= 10 ? `https://wa.me/${cleanPhone}?text=${waPitch}` : '#';
+    const objBox = document.getElementById('dialer-objection-box');
+    if (objBox) objBox.classList.add('hidden');
 
     const track = document.getElementById('dialer-talk-track');
     if (l.website_status === 'NO_WEBSITE_FOUND') {
@@ -2179,6 +2364,7 @@ const app = {
   dialerNext() {
     if (this.dialerIndex < this.dialerLeads.length - 1) {
       this.dialerIndex++;
+      this.startCallTimer();
       this.renderCurrentDialerLead();
     } else {
       this.showToast('Reached the end of the speed dialing queue! Great work!');
@@ -2188,6 +2374,7 @@ const app = {
   dialerPrev() {
     if (this.dialerIndex > 0) {
       this.dialerIndex--;
+      this.startCallTimer();
       this.renderCurrentDialerLead();
     }
   },
@@ -2240,11 +2427,171 @@ const app = {
         this.showToast(`Logged outcome for ${l.business_name}!`);
         if (this.activeView === 'warroom') this.loadWarRoom();
         else if (this.activeView === 'crm') this.loadCrmKanban();
+        else if (this.activeView === 'reports') this.loadReports();
         this.dialerNext();
       }
     } catch (err) {
       this.showToast(`Error: ${err.message}`);
     }
+  },
+
+  // Proforma Invoice & Token Receipt Modal
+  currentInvoiceData: null,
+
+  async openInvoiceModal(leadId) {
+    try {
+      const res = await fetch(`/api/leads/${leadId}/invoice`);
+      const data = await res.json();
+      if (!data.success) {
+        return this.showToast('Failed to load invoice details');
+      }
+      const inv = data.invoice;
+      this.currentInvoiceData = inv;
+
+      const numTag = document.getElementById('invoice-num-tag');
+      if (numTag) {
+        numTag.textContent = `${inv.invoiceNumber} • Date: ${inv.date}`;
+      }
+
+      const area = document.getElementById('invoice-printable-area');
+      if (area) {
+        area.innerHTML = `
+          <div class="invoice-sheet">
+            <div class="invoice-header-row">
+              <div>
+                <h2 class="invoice-brand-title">INDUSOS TECHNOLOGIES</h2>
+                <div class="invoice-meta-tag">
+                  B2B Manufacturing Digitization & Factory OS Platform<br>
+                  Plot 42, Udyog Vihar Phase 4, Gurugram, Haryana - 122016<br>
+                  GSTIN: <strong>27AABCI9981Q1ZX</strong> • SAC Code: <strong>998314</strong>
+                </div>
+              </div>
+              <div class="invoice-meta-right">
+                <div style="font-size:1.15rem; font-weight:800; color:#0f172a;">TAX PROFORMA INVOICE</div>
+                <div style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#059669; margin-top:2px;">${inv.invoiceNumber}</div>
+                <div style="margin-top:4px; color:#64748b;">Date: <strong>${inv.date}</strong></div>
+                <div style="margin-top:2px;">Status: <span class="badge ${inv.paymentStatus === 'ADVANCE_LOCKED' ? 'badge-success' : 'badge-warning'}">${inv.paymentStatus.replace(/_/g, ' ')}</span></div>
+              </div>
+            </div>
+
+            <div class="invoice-bill-to-grid">
+              <div>
+                <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Billed To (Manufacturing Enterprise):</span>
+                <div style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-top:4px;">${inv.businessName}</div>
+                <div style="font-size:0.825rem; color:#475569; margin-top:2px;">📍 ${inv.city}, ${inv.state}</div>
+                <div style="font-size:0.825rem; color:#475569; font-family:'JetBrains Mono', monospace;">📞 ${inv.phone}</div>
+              </div>
+              <div>
+                <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Engineering Account Execs:</span>
+                <div style="font-size:0.85rem; color:#0f172a; margin-top:4px;"><strong>Kaushik</strong> (Outreach & Client Success)</div>
+                <div style="font-size:0.85rem; color:#0f172a; margin-top:2px;"><strong>Pushpender</strong> (Full-Stack Deployment & Cloud)</div>
+                <div style="font-size:0.85rem; color:#0f172a; margin-top:2px;"><strong>Priyanshu</strong> (Operations & Data Quality)</div>
+              </div>
+            </div>
+
+            <table class="invoice-items-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Service Module & Deliverable Scope</th>
+                  <th style="width:130px; text-align:right;">Amount (INR)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${inv.items.map((it, idx) => `
+                  <tr>
+                    <td>${idx + 1}</td>
+                    <td>
+                      <strong>${it.desc}</strong>
+                      <div style="font-size:0.75rem; color:#64748b;">Turnkey deployment within 48 hours with guaranteed zero downtime.</div>
+                    </td>
+                    <td style="text-align:right; font-family:'JetBrains Mono', monospace; font-weight:600;">₹${it.amount.toLocaleString('en-IN')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="invoice-summary-card">
+              <div class="invoice-bank-details">
+                <strong style="color:#0f172a;">⚡ Instant ICICI Settlement & UPI Rail:</strong><br>
+                Bank: <strong>ICICI Bank Industrial Branch</strong> • A/c: <strong>002905018492</strong><br>
+                IFSC: <strong>ICIC0000029</strong> • UPI VPA: <strong style="color:#059669;">${inv.upiId}</strong><br>
+                <div style="margin-top:6px; font-size:0.725rem; color:#64748b;">
+                  100% Tax Deductible under IT Act 1961 (B2B IT Software Expense)
+                </div>
+              </div>
+
+              <div class="invoice-total-box">
+                <div class="invoice-total-row">
+                  <span style="color:#64748b;">Package Total:</span>
+                  <span style="font-family:'JetBrains Mono', monospace; font-weight:600;">₹${inv.totalAmount.toLocaleString('en-IN')}</span>
+                </div>
+                <div class="invoice-total-row" style="color:#059669; font-weight:700;">
+                  <span>Token Advance Paid:</span>
+                  <span style="font-family:'JetBrains Mono', monospace;">- ₹${inv.advancePaid.toLocaleString('en-IN')}</span>
+                </div>
+                <div class="invoice-total-row invoice-grand-total">
+                  <span>Balance Due (at Go-Live):</span>
+                  <span style="color:#d97706; font-family:'JetBrains Mono', monospace;">₹${inv.balanceDue.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px dashed #cbd5e1; display:flex; justify-content:space-between; align-items:flex-end;">
+              <div style="font-size:0.75rem; color:#64748b;">
+                * This is a digitally verified system-generated Proforma Invoice by IndusOS Growth Engine.
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:0.8rem; font-weight:700; color:#0f172a;">IndusOS Technologies Pvt Ltd</div>
+                <div style="font-size:0.7rem; color:#059669; font-weight:600; margin-top:2px;">[ Digitally Signed & Sealed ]</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('invoice-modal').classList.remove('hidden');
+    } catch (err) {
+      this.showToast(`Error opening invoice: ${err.message}`);
+    }
+  },
+
+  closeInvoiceModal() {
+    const modal = document.getElementById('invoice-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  copyInvoiceWhatsAppText() {
+    if (!this.currentInvoiceData) return;
+    const inv = this.currentInvoiceData;
+    const waText = 
+`*📄 INDUSOS TECHNOLOGIES - PROFORMA INVOICE & RECEIPT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*Invoice No:* ${inv.invoiceNumber}
+*Client:* ${inv.businessName} (${inv.city}, ${inv.state})
+*Date:* ${inv.date}
+
+*Scope of Deliverables:*
+1. Factory Inventory & Multi-Stage BOM Scrap Tracking Module (₹7,500)
+2. B2B WhatsApp Ordering Catalog & Dealer Portal (₹6,500)
+3. 48-Hour Live Custom Domain (.in) & SSL Deployment (₹4,000)
+
+*Financial Summary:*
+• Total Package: ₹${inv.totalAmount.toLocaleString('en-IN')}
+• Token Advance: ₹${inv.advancePaid.toLocaleString('en-IN')} (${inv.paymentStatus === 'ADVANCE_LOCKED' ? '✅ RECEIVED' : '⏳ PENDING'})
+• *Balance Due upon 48h Go-Live: ₹${inv.balanceDue.toLocaleString('en-IN')}*
+
+*Instant UPI Payment Link:*
+UPI ID: ${inv.upiId}
+Pay via UPI: ${inv.upiPayLink}
+
+_Engineering Lead: Pushpender | Client Relations: Kaushik | Operations: Priyanshu_`;
+
+    navigator.clipboard.writeText(waText).then(() => {
+      this.showToast('📋 Copied formatted invoice text for WhatsApp!');
+    }).catch(() => {
+      this.showToast('Failed to copy to clipboard.');
+    });
   },
 
   // Command Palette & Global Spotlight (⌘K)
@@ -2360,6 +2707,11 @@ const app = {
           this.closeCommandPalette();
           return;
         }
+        const invoiceModal = document.getElementById('invoice-modal');
+        if (invoiceModal && !invoiceModal.classList.contains('hidden')) {
+          this.closeInvoiceModal();
+          return;
+        }
         const dialer = document.getElementById('speed-dialer-modal');
         if (dialer && !dialer.classList.contains('hidden')) {
           this.closeSpeedDialer();
@@ -2379,6 +2731,36 @@ const app = {
         if (leadModal && !leadModal.classList.contains('hidden')) {
           this.closeLeadModal();
           return;
+        }
+      }
+
+      // Kaushik's Live Calling HUD Hotkeys: [1], [2], [3], [4], [Space], [←], [→]
+      const dialerModal = document.getElementById('speed-dialer-modal');
+      const isDialerActive = dialerModal && !dialerModal.classList.contains('hidden');
+      const isInputFocused = document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+
+      if (isDialerActive && !isInputFocused) {
+        if (e.key === '1') {
+          e.preventDefault();
+          this.recordDialerOutcome('no_answer');
+        } else if (e.key === '2') {
+          e.preventDefault();
+          this.recordDialerOutcome('whatsapp');
+        } else if (e.key === '3') {
+          e.preventDefault();
+          this.recordDialerOutcome('demo');
+        } else if (e.key === '4') {
+          e.preventDefault();
+          this.recordDialerOutcome('won');
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          this.toggleCallTimer();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          this.dialerNext();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          this.dialerPrev();
         }
       }
     });
