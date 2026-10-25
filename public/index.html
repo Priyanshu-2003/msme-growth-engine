@@ -125,6 +125,13 @@
           <p id="page-subtitle">Real-time MSME discovery, digital deficiency analysis, and pipeline performance</p>
         </div>
 
+        <!-- Global Spotlight Search Palette Trigger -->
+        <div class="top-bar-search-trigger" onclick="app.openCommandPalette()" title="Press Cmd+K or Ctrl+K">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="search-placeholder">Search leads, actions...</span>
+          <kbd class="kbd-shortcut">⌘K</kbd>
+        </div>
+
         <!-- Active Team Banner -->
         <div class="team-header-banner">
           <span class="team-banner-label">Team:</span>
@@ -487,6 +494,18 @@
       <section id="view-explorer" class="content-view">
         <!-- Filter Toolbar -->
         <div class="card filter-card">
+          <!-- 1-Click Quick Filter Chips -->
+          <div class="quick-filter-chips-bar" style="padding: 0.85rem 1rem 0.25rem 1rem;">
+            <button class="filter-chip active" data-chip="ALL" onclick="app.applyQuickChip('ALL')">All Leads</button>
+            <button class="filter-chip" data-chip="HIGH_SCORE" onclick="app.applyQuickChip('HIGH_SCORE')">🔥 High Priority (70+)</button>
+            <button class="filter-chip" data-chip="NO_WEBSITE" onclick="app.applyQuickChip('NO_WEBSITE')">⚡ No Website Found</button>
+            <button class="filter-chip" data-chip="HAS_PHONE" onclick="app.applyQuickChip('HAS_PHONE')">📞 Phone & WhatsApp Ready</button>
+            <button class="filter-chip" data-chip="CAT_A" onclick="app.applyQuickChip('CAT_A')">⚙️ CNC & Industrial</button>
+            <button class="filter-chip" data-chip="CAT_D" onclick="app.applyQuickChip('CAT_D')">🧵 Textile & Garments</button>
+            <button class="filter-chip" data-chip="STATE_GUJ" onclick="app.applyQuickChip('STATE_GUJ')">📍 Gujarat Hubs</button>
+            <button class="filter-chip" data-chip="STATE_MAH" onclick="app.applyQuickChip('STATE_MAH')">📍 Maharashtra Hubs</button>
+          </div>
+
           <div class="filter-row">
             <div class="search-box">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1161,6 +1180,10 @@ Can we show you a 15-minute live screen walkthrough today at 4:30 PM?
               <h3>🔥 High-Intent Deals Ready for Closing (Advance Token)</h3>
               <p class="header-hint">Promoters who have attended a demo or responded on WhatsApp. Lock the ₹5,000 advance to trigger Pushpender's tech build.</p>
             </div>
+            <button class="btn btn-primary" onclick="app.openSpeedDialer()" style="background:#059669; border-color:#059669; display:flex; align-items:center; gap:0.4rem;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>⚡ Launch Speed Calling Session</span>
+            </button>
           </div>
           <div class="card-body no-padding">
             <div class="table-responsive">
@@ -1723,6 +1746,93 @@ Can we show you a 15-minute live screen walkthrough today at 4:30 PM?
           <button class="btn btn-primary" id="btn-confirm-lock-deal" onclick="app.executeLockDeal()" style="background:#059669; border-color:#059669;">
             🚀 Lock Deal & Handover to Pushpender
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPEED DIALER MODAL (Kaushik's High-Velocity Calling Console) -->
+    <div id="speed-dialer-modal" class="modal-overlay hidden">
+      <div class="modal-dialog" style="max-width: 640px;">
+        <div class="modal-header" style="border-bottom: 2px solid #059669;">
+          <div>
+            <h3 style="color:#059669; margin:0;">⚡ Kaushik's Speed Calling Session</h3>
+            <p id="dialer-progress-tag" style="font-size:0.775rem; color:#64748b; margin-top:2px;">Lead 1 of 10 • Rapid Outreach & Qualification</p>
+          </div>
+          <button class="modal-close" onclick="app.closeSpeedDialer()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 1.5rem;">
+          <div class="dialer-lead-hero">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div class="dialer-company-name" id="dialer-business-name">Loading enterprise...</div>
+                <div style="font-size:0.85rem; color:#64748b;" id="dialer-lead-loc">📍 Location • Category</div>
+              </div>
+              <span id="dialer-lead-score-badge" class="score-badge high">85 pts</span>
+            </div>
+
+            <div class="dialer-phone-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px; color:#15803d;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span class="dialer-phone-number" id="dialer-phone-display">+91 00000 00000</span>
+              <a id="dialer-direct-call-btn" href="#" class="btn btn-sm btn-primary" style="background:#15803d; border-color:#15803d; text-decoration:none;">📞 Call Now</a>
+              <a id="dialer-direct-wa-btn" href="#" target="_blank" class="btn btn-sm btn-secondary" style="color:#059669; border-color:#a7f3d0; background:#f0fdf4; text-decoration:none;">💬 WhatsApp</a>
+            </div>
+          </div>
+
+          <!-- Quick Talk Track & Gap Hook -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.85rem 1rem; margin-bottom:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em; margin-bottom:0.25rem;">🎯 15-Second Opening Hook</div>
+            <p id="dialer-talk-track" style="font-size:0.85rem; color:#1e293b; margin:0; line-height:1.45;">
+              "Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility has active production but no direct WhatsApp catalog for your 12+ dealers to place repeat orders. We built a live mobile portal mockup to show you..."
+            </p>
+          </div>
+
+          <!-- Outcome Buttons -->
+          <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">Log Call Outcome & Advance</div>
+          <div class="dialer-outcomes-grid">
+            <button class="btn-outcome no-answer" onclick="app.recordDialerOutcome('no_answer')">
+              <span style="font-size:1.1rem;">❌</span>
+              <span>No Answer / Busy</span>
+              <small style="font-size:10px; opacity:0.8;">Schedule 2h retry</small>
+            </button>
+            <button class="btn-outcome whatsapp" onclick="app.recordDialerOutcome('whatsapp')">
+              <span style="font-size:1.1rem;">💬</span>
+              <span>WhatsApp Pitch Sent</span>
+              <small style="font-size:10px; opacity:0.8;">Mark as Contacted</small>
+            </button>
+            <button class="btn-outcome demo" onclick="app.recordDialerOutcome('demo')">
+              <span style="font-size:1.1rem;">🗓️</span>
+              <span>15-min Demo Booked</span>
+              <small style="font-size:10px; opacity:0.8;">Stage: Meeting Booked</small>
+            </button>
+            <button class="btn-outcome won" onclick="app.recordDialerOutcome('won')">
+              <span style="font-size:1.1rem;">💰</span>
+              <span>Lock ₹5,000 Token</span>
+              <small style="font-size:10px; opacity:0.9;">Handover to Pushpender</small>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between;">
+          <button class="btn btn-secondary" onclick="app.dialerPrev()">◀ Previous</button>
+          <button class="btn btn-secondary" onclick="app.dialerNext()">Skip / Next ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMAND PALETTE MODAL (⌘K / Ctrl+K) -->
+    <div id="cmd-k-palette" class="modal-overlay hidden" onclick="if(event.target === this) app.closeCommandPalette()">
+      <div class="cmd-k-dialog">
+        <div class="cmd-k-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:#64748b;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="cmd-k-search" placeholder="Type a command, lead name, cluster or team desk..." autocomplete="off">
+          <span class="cmd-k-shortcut-hint">ESC to close</span>
+        </div>
+        <div class="cmd-k-results" id="cmd-k-results-container">
+          <!-- Injected via app.js -->
+        </div>
+        <div class="cmd-k-footer">
+          <span><kbd style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">↑↓</kbd> to navigate</span>
+          <span><kbd style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">↵</kbd> to select</span>
+          <span><kbd style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">esc</kbd> to dismiss</span>
         </div>
       </div>
     </div>

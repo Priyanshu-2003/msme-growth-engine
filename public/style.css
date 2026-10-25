@@ -1405,3 +1405,260 @@ body {
   gap: 0.75rem;
 }
 
+/* Spotlight Topbar Search Trigger */
+.top-bar-search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 220px;
+}
+
+.top-bar-search-trigger:hover {
+  background: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.search-placeholder {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  flex: 1;
+}
+
+.kbd-shortcut {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-family: inherit;
+  font-weight: 600;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Command Palette (Spotlight Modal) */
+.cmd-k-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+  border: 1px solid #cbd5e1;
+  overflow: hidden;
+  animation: cmdKPop 0.15s ease-out;
+}
+
+@keyframes cmdKPop {
+  from { opacity: 0; transform: scale(0.97) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.cmd-k-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cmd-k-input-wrap input {
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  width: 100%;
+  color: #0f172a;
+  background: transparent;
+}
+
+.cmd-k-shortcut-hint {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.cmd-k-results {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.cmd-k-group-title {
+  padding: 0.4rem 1.25rem 0.2rem 1.25rem;
+  font-size: 0.675rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.cmd-k-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.cmd-k-item:hover, .cmd-k-item.selected {
+  background: #f1f5f9;
+}
+
+.cmd-k-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cmd-k-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.cmd-k-item-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.cmd-k-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.725rem;
+  color: #64748b;
+}
+
+/* Quick Filter Chips */
+.quick-filter-chips-bar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.filter-chip.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* Drag & Drop Visuals */
+.kanban-card[draggable="true"] {
+  cursor: grab;
+}
+.kanban-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+.kanban-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+.kanban-column.drag-over {
+  background: #e2e8f0;
+  border: 2px dashed #3b82f6;
+}
+
+/* Kaushik Speed Dialer Modal */
+.speed-dialer-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.dialer-lead-hero {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dialer-company-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.dialer-phone-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+}
+
+.dialer-phone-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #15803d;
+  flex: 1;
+}
+
+.dialer-outcomes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.btn-outcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 600;
+  font-size: 0.8rem;
+  gap: 0.25rem;
+}
+
+.btn-outcome:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outcome.no-answer { color: #dc2626; border-color: #fecdd3; background: #fff1f2; }
+.btn-outcome.whatsapp { color: #059669; border-color: #a7f3d0; background: #f0fdf4; }
+.btn-outcome.demo { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+.btn-outcome.won { color: #ffffff; border-color: #059669; background: #059669; }
+
+

@@ -154,6 +154,8 @@ const app = {
     if (btnMantisImport) {
       btnMantisImport.addEventListener('click', () => this.importAllMantisLeads());
     }
+
+    this.setupGlobalKeybindings();
   },
 
   switchView(viewName) {
@@ -790,6 +792,11 @@ const app = {
         const colLeads = filteredLeads.filter(l => l.pipeline_stage === col.key);
         const colEl = document.createElement('div');
         colEl.className = 'kanban-column';
+        colEl.dataset.stageKey = col.key;
+        colEl.addEventListener('dragover', (e) => app.handleDragOver(e, colEl));
+        colEl.addEventListener('dragleave', (e) => app.handleDragLeave(e, colEl));
+        colEl.addEventListener('drop', (e) => app.handleDrop(e, col.key, colEl));
+
         colEl.innerHTML = `
           <div class="kanban-col-header">
             <span>${col.title}</span>
@@ -829,6 +836,11 @@ const app = {
 
           const card = document.createElement('div');
           card.className = 'kanban-card';
+          card.draggable = true;
+          card.dataset.leadId = lead.id;
+          card.dataset.stageKey = col.key;
+          card.addEventListener('dragstart', (e) => app.handleDragStart(e, lead.id, col.key, card));
+          card.addEventListener('dragend', (e) => app.handleDragEnd(e, card));
           card.onclick = () => app.openLeadModal(lead.id);
 
           card.innerHTML = `
@@ -1853,6 +1865,431 @@ const app = {
       }
     } catch (err) {
       this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  // 1-Click Quick Filter Chips for Explorer
+  applyQuickChip(chipKey) {
+    const chips = document.querySelectorAll('.filter-chip');
+    const clickedChip = Array.from(chips).find(c => c.getAttribute('data-chip') === chipKey);
+    const wasActive = clickedChip?.classList.contains('active');
+
+    chips.forEach(c => c.classList.remove('active'));
+
+    // Reset current filters base
+    this.currentFilters = { search: '', state: '', industry: '', website_status: '', opportunity_tier: '', pipeline_stage: '' };
+    const elSearch = document.getElementById('explorer-search');
+    const elState = document.getElementById('filter-state');
+    const elInd = document.getElementById('filter-industry');
+    const elWeb = document.getElementById('filter-website-status');
+    const elPrio = document.getElementById('filter-priority');
+    const elStage = document.getElementById('filter-stage');
+
+    if (elSearch) elSearch.value = '';
+    if (elState) elState.value = '';
+    if (elInd) elInd.value = '';
+    if (elWeb) elWeb.value = '';
+    if (elPrio) elPrio.value = '';
+    if (elStage) elStage.value = '';
+
+    if (!wasActive && clickedChip) {
+      clickedChip.classList.add('active');
+      if (chipKey === 'HIGH_SCORE') {
+        this.currentFilters.opportunity_tier = 'TIER_1_HIGH';
+        if (elPrio) elPrio.value = 'TIER_1_HIGH';
+      } else if (chipKey === 'NO_WEBSITE') {
+        this.currentFilters.website_status = 'NO_WEBSITE_FOUND';
+        if (elWeb) elWeb.value = 'NO_WEBSITE_FOUND';
+      } else if (chipKey === 'HAS_PHONE') {
+        this.currentFilters.search = '9';
+        if (elSearch) elSearch.value = '9';
+      } else if (chipKey === 'CAT_A') {
+        this.currentFilters.industry = 'A';
+        if (elInd) elInd.value = 'A';
+      } else if (chipKey === 'CAT_D') {
+        this.currentFilters.industry = 'D';
+        if (elInd) elInd.value = 'D';
+      } else if (chipKey === 'STATE_GUJ') {
+        this.currentFilters.state = 'Gujarat';
+        if (elState) elState.value = 'Gujarat';
+      } else if (chipKey === 'STATE_MAH') {
+        this.currentFilters.state = 'Maharashtra';
+        if (elState) elState.value = 'Maharashtra';
+      }
+    }
+
+    this.currentPage = 1;
+    this.loadExplorerLeads();
+  },
+
+  // HTML5 Drag and Drop for Kanban Columns & Cards
+  handleDragStart(e, leadId, stage, card) {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ leadId, stage }));
+    e.dataTransfer.effectAllowed = 'move';
+    card.classList.add('dragging');
+  },
+
+  handleDragEnd(e, card) {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('drag-over'));
+  },
+
+  handleDragOver(e, colEl) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    colEl.classList.add('drag-over');
+  },
+
+  handleDragLeave(e, colEl) {
+    colEl.classList.remove('drag-over');
+  },
+
+  async handleDrop(e, newStage, colEl) {
+    e.preventDefault();
+    colEl.classList.remove('drag-over');
+
+    try {
+      const dataStr = e.dataTransfer.getData('text/plain');
+      if (!dataStr) return;
+      const { leadId, stage } = JSON.parse(dataStr);
+      if (stage === newStage) return;
+
+      if (newStage === 'WON') {
+        const card = document.querySelector(`.kanban-card[data-lead-id="${leadId}"]`);
+        const leadName = card?.querySelector('.kanban-card-title')?.textContent || 'Factory';
+        this.openDealCloserModal(leadId, leadName);
+        return;
+      }
+
+      const stageAuthors = {
+        'DISCOVERED': { author: 'Priyanshu', action: 'DISCOVERY_RESET', note: 'Moved back to Discovered queue.' },
+        'QUALIFIED': { author: 'Kaushik', action: 'DISCOVERY_CALL_SCHEDULED', note: 'Lead qualified by Kaushik via rapid assessment.' },
+        'APPROVED_FOR_CONTACT': { author: 'Priyanshu', action: 'OFFER_APPROVED', note: 'Approved for outreach transmission by Priyanshu.' },
+        'CONTACTED': { author: 'Kaushik', action: 'WHATSAPP_PITCH_SENT', note: 'Consultative WhatsApp pitch & brochure sent by Kaushik.' },
+        'REPLIED': { author: 'Kaushik', action: 'PROMOTER_ENGAGED', note: 'Promoter actively in dialogue on WhatsApp.' },
+        'MEETING_BOOKED': { author: 'Kaushik', action: 'DEMO_COMPLETED', note: '15-minute live screen demo booked with factory promoter.' }
+      };
+
+      const meta = stageAuthors[newStage] || { author: 'Team', action: 'STAGE_UPDATED', note: `Stage changed to ${newStage}` };
+
+      const res = await fetch(`/api/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_stage: newStage,
+          author: meta.author,
+          action_type: meta.action,
+          note: meta.note
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`Lead moved to ${newStage.replace(/_/g, ' ')} by ${meta.author}!`);
+        await this.loadCrmKanban();
+      }
+    } catch (err) {
+      console.error('Drag and drop error:', err);
+    }
+  },
+
+  // Kaushik's Speed Dialer Engine
+  dialerLeads: [],
+  dialerIndex: 0,
+
+  async openSpeedDialer() {
+    try {
+      const res = await fetch('/api/leads?limit=60');
+      const data = await res.json();
+      const all = data.leads || [];
+      this.dialerLeads = all.filter(l => l.pipeline_stage !== 'WON' && l.phone && l.phone.trim().length >= 8);
+      if (this.dialerLeads.length === 0) {
+        this.dialerLeads = all.filter(l => l.pipeline_stage !== 'WON');
+      }
+      if (this.dialerLeads.length === 0) {
+        return this.showToast('No active leads available for speed dialing.');
+      }
+      this.dialerIndex = 0;
+      this.renderCurrentDialerLead();
+      document.getElementById('speed-dialer-modal').classList.remove('hidden');
+    } catch (err) {
+      this.showToast(`Error launching dialer: ${err.message}`);
+    }
+  },
+
+  closeSpeedDialer() {
+    document.getElementById('speed-dialer-modal').classList.add('hidden');
+  },
+
+  renderCurrentDialerLead() {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l) return;
+
+    document.getElementById('dialer-progress-tag').textContent = `Lead ${this.dialerIndex + 1} of ${this.dialerLeads.length} • Rapid Outreach & Qualification`;
+    document.getElementById('dialer-business-name').textContent = l.business_name;
+    document.getElementById('dialer-lead-loc').textContent = `📍 ${l.city}, ${l.state} • ${l.subcategory || 'Manufacturing'}`;
+    
+    const badge = document.getElementById('dialer-lead-score-badge');
+    badge.textContent = `${l.lead_score} pts`;
+    badge.className = `score-badge ${l.lead_score >= 70 ? 'high' : 'medium'}`;
+
+    let cleanPhone = (l.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+    const displayPhone = l.phone || 'No Phone Recorded';
+    document.getElementById('dialer-phone-display').textContent = displayPhone;
+
+    const callBtn = document.getElementById('dialer-direct-call-btn');
+    callBtn.href = l.phone ? `tel:${cleanPhone}` : '#';
+
+    const waBtn = document.getElementById('dialer-direct-wa-btn');
+    const waPitch = encodeURIComponent(`Namaste ${l.business_name}, this is Kaushik from IndusOS. We built a customized live WhatsApp catalog and BOM tracking portal for your manufacturing operations in ${l.city}. Can we show you a 15-minute screen demo today?`);
+    waBtn.href = cleanPhone.length >= 10 ? `https://wa.me/${cleanPhone}?text=${waPitch}` : '#';
+
+    const track = document.getElementById('dialer-talk-track');
+    if (l.website_status === 'NO_WEBSITE_FOUND') {
+      track.textContent = `"Namaste ji, Kaushik here from IndusOS. We noticed ${l.business_name} has strong factory capacity in ${l.city} but zero live digital presence on Google Maps for bulk B2B buyers. We generated a live 48-Hour factory portal mockup with your catalog and WhatsApp ordering to show you..."`;
+    } else {
+      track.textContent = `"Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility in ${l.city} handles multi-stage assembly. Most units in your cluster face raw material scrap loss and dealer ordering friction. We built a 1-click mobile portal for your factory..."`;
+    }
+  },
+
+  dialerNext() {
+    if (this.dialerIndex < this.dialerLeads.length - 1) {
+      this.dialerIndex++;
+      this.renderCurrentDialerLead();
+    } else {
+      this.showToast('Reached the end of the speed dialing queue! Great work!');
+    }
+  },
+
+  dialerPrev() {
+    if (this.dialerIndex > 0) {
+      this.dialerIndex--;
+      this.renderCurrentDialerLead();
+    }
+  },
+
+  async recordDialerOutcome(outcome) {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l) return;
+
+    if (outcome === 'won') {
+      this.closeSpeedDialer();
+      this.openDealCloserModal(l.id, l.business_name);
+      return;
+    }
+
+    const outcomeMap = {
+      no_answer: {
+        stage: 'CONTACTED',
+        action: 'FOLLOW_UP_SCHEDULED',
+        note: 'Kaushik called promoter: Phone busy / no answer. Follow-up automatically scheduled in 2 hours.'
+      },
+      whatsapp: {
+        stage: 'CONTACTED',
+        action: 'WHATSAPP_PITCH_SENT',
+        note: 'Kaushik sent consultative WhatsApp pitch with BOM and scrap loss brief.'
+      },
+      demo: {
+        stage: 'MEETING_BOOKED',
+        action: 'DEMO_COMPLETED',
+        note: '15-minute live screen demo booked with factory owner!'
+      }
+    };
+
+    const sel = outcomeMap[outcome];
+    if (!sel) return;
+
+    try {
+      const res = await fetch(`/api/leads/${l.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_stage: sel.stage,
+          author: 'Kaushik',
+          action_type: sel.action,
+          note: sel.note
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`Logged outcome for ${l.business_name}!`);
+        if (this.activeView === 'warroom') this.loadWarRoom();
+        else if (this.activeView === 'crm') this.loadCrmKanban();
+        this.dialerNext();
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  // Command Palette & Global Spotlight (⌘K)
+  openCommandPalette() {
+    document.getElementById('cmd-k-palette').classList.remove('hidden');
+    const input = document.getElementById('cmd-k-search');
+    input.value = '';
+    input.focus();
+    this.renderCommandPaletteResults('');
+  },
+
+  closeCommandPalette() {
+    document.getElementById('cmd-k-palette').classList.add('hidden');
+  },
+
+  async renderCommandPaletteResults(query) {
+    const container = document.getElementById('cmd-k-results-container');
+    if (!container) return;
+
+    const q = (query || '').toLowerCase().trim();
+
+    const standardActions = [
+      { id: 'act-dialer', icon: '⚡', title: 'Launch Rapid Calling Session', sub: "Kaushik's speed outreach console", action: () => { app.closeCommandPalette(); app.openSpeedDialer(); } },
+      { id: 'act-warroom', icon: '⚔️', title: "Open Kaushik's Sales War Room", sub: 'Outreach Quotas, WhatsApp Scripts & Battlecards', action: () => { app.closeCommandPalette(); app.switchView('warroom'); } },
+      { id: 'act-studio', icon: '🛠️', title: "Open Pushpender's Delivery Studio", sub: '48h SLA Build Queue & Live Portal Deployments', action: () => { app.closeCommandPalette(); app.switchView('studio'); } },
+      { id: 'act-opsdesk', icon: '🚨', title: "Open Priyanshu's Operations Desk", sub: 'Live Team Activity Audit Stream & Alarms', action: () => { app.closeCommandPalette(); app.switchView('opsdesk'); } },
+      { id: 'act-crm', icon: '📋', title: 'Open Sales CRM Kanban Board', sub: 'Interactive drag-and-drop pipeline across 7 stages', action: () => { app.closeCommandPalette(); app.switchView('crm'); } },
+      { id: 'act-explorer', icon: '🔍', title: 'Open Lead Explorer', sub: 'Search, filter, and review verified MSME enterprises', action: () => { app.closeCommandPalette(); app.switchView('explorer'); } },
+      { id: 'act-dashboard', icon: '📊', title: 'Open Executive Dashboard', sub: 'Real-time KPIs, Funnel and State Distribution', action: () => { app.closeCommandPalette(); app.switchView('dashboard'); } },
+      { id: 'act-cmo', icon: '📦', title: 'View CMO Packages & Pricing Playbook', sub: '₹18,000 Standard Factory Suite & Cluster Matrix', action: () => { app.closeCommandPalette(); app.switchView('cmo'); } },
+      { id: 'act-export', icon: '📁', title: 'Export Leads as CSV', sub: 'Download filtered call list for field use', action: () => { app.closeCommandPalette(); app.exportCsv(); } },
+      { id: 'act-import', icon: '📥', title: 'Import Leads CSV', sub: 'Upload new enterprise batch into pipeline', action: () => { app.closeCommandPalette(); app.openImportModal(); } }
+    ];
+
+    const filteredActions = standardActions.filter(a => !q || a.title.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q));
+
+    let html = '';
+
+    if (filteredActions.length > 0) {
+      html += '<div class="cmd-k-group-title">Navigation & Quick Actions</div>';
+      filteredActions.forEach((act, idx) => {
+        html += `
+          <div class="cmd-k-item ${idx === 0 ? 'selected' : ''}" data-cmd-id="${act.id}" onclick="app.executeCommandAction('${act.id}')">
+            <div class="cmd-k-item-main">
+              <span style="font-size:1.1rem;">${act.icon}</span>
+              <div>
+                <div class="cmd-k-item-title">${act.title}</div>
+                <div class="cmd-k-item-sub">${act.sub}</div>
+              </div>
+            </div>
+            <span class="cmd-k-shortcut-hint">Jump</span>
+          </div>
+        `;
+      });
+    }
+
+    if (q.length >= 2) {
+      try {
+        const res = await fetch(`/api/leads?search=${encodeURIComponent(q)}&limit=5`);
+        const data = await res.json();
+        const matchingLeads = data.leads || [];
+        if (matchingLeads.length > 0) {
+          html += '<div class="cmd-k-group-title">Matching Enterprises</div>';
+          matchingLeads.forEach(lead => {
+            html += `
+              <div class="cmd-k-item" onclick="app.closeCommandPalette(); app.openLeadModal('${lead.id}')">
+                <div class="cmd-k-item-main">
+                  <span style="font-size:1.1rem;">🏭</span>
+                  <div>
+                    <div class="cmd-k-item-title">${lead.business_name}</div>
+                    <div class="cmd-k-item-sub">📍 ${lead.city}, ${lead.state} • Score: ${lead.lead_score} pts</div>
+                  </div>
+                </div>
+                <span class="badge ${lead.lead_score >= 70 ? 'badge-success' : 'badge-neutral'}">${lead.pipeline_stage}</span>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error('Palette lead search error:', err);
+      }
+    }
+
+    if (!html) {
+      html = '<div style="padding:1.5rem; text-align:center; color:#94a3b8; font-size:0.85rem;">No matching commands or enterprises found.</div>';
+    }
+
+    container.innerHTML = html;
+    this.cmdActions = standardActions;
+  },
+
+  executeCommandAction(id) {
+    const act = (this.cmdActions || []).find(a => a.id === id);
+    if (act && act.action) act.action();
+  },
+
+  setupGlobalKeybindings() {
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const palette = document.getElementById('cmd-k-palette');
+        if (palette && palette.classList.contains('hidden')) {
+          this.openCommandPalette();
+        } else {
+          this.closeCommandPalette();
+        }
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        const cmdPalette = document.getElementById('cmd-k-palette');
+        if (cmdPalette && !cmdPalette.classList.contains('hidden')) {
+          this.closeCommandPalette();
+          return;
+        }
+        const dialer = document.getElementById('speed-dialer-modal');
+        if (dialer && !dialer.classList.contains('hidden')) {
+          this.closeSpeedDialer();
+          return;
+        }
+        const closer = document.getElementById('deal-closer-modal');
+        if (closer && !closer.classList.contains('hidden')) {
+          this.closeDealCloserModal();
+          return;
+        }
+        const portal = document.getElementById('portal-preview-modal');
+        if (portal && !portal.classList.contains('hidden')) {
+          this.closePortalPreview();
+          return;
+        }
+        const leadModal = document.getElementById('lead-modal');
+        if (leadModal && !leadModal.classList.contains('hidden')) {
+          this.closeLeadModal();
+          return;
+        }
+      }
+    });
+
+    const searchInput = document.getElementById('cmd-k-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.renderCommandPaletteResults(e.target.value);
+      });
+      searchInput.addEventListener('keydown', (e) => {
+        const items = document.querySelectorAll('.cmd-k-item');
+        if (items.length === 0) return;
+        let selectedIdx = Array.from(items).findIndex(el => el.classList.contains('selected'));
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items.forEach(el => el.classList.remove('selected'));
+          selectedIdx = (selectedIdx + 1) % items.length;
+          items[selectedIdx].classList.add('selected');
+          items[selectedIdx].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items.forEach(el => el.classList.remove('selected'));
+          selectedIdx = (selectedIdx - 1 + items.length) % items.length;
+          items[selectedIdx].classList.add('selected');
+          items[selectedIdx].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (selectedIdx >= 0 && items[selectedIdx]) {
+            items[selectedIdx].click();
+          }
+        }
+      });
     }
   }
 };
