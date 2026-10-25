@@ -1,0 +1,92 @@
+================================================================================
+INDIA MSME SOFTWARE LEAD GENERATION — 24-HOUR SPRINT RESEARCH SUMMARY
+================================================================================
+Generated: 2026-10-24 13:30:45
+Scope: India-Wide Industrial Clusters & MSME Software Fit
+Objective: High-Quality Prospect Database for Business Software & Inventory Systems
+
+1. FUNNEL & PIPELINE QUANTITATIVE METRICS
+--------------------------------------------------------------------------------
+- Raw Records Researched:                48
+- Duplicates Identified & Filtered:     0
+- Unique Verified Businesses Ingested:  48
+- Businesses with Usable Public Phone:  48 (100.0%)
+- Businesses with Public Email:         48 (100.0%)
+- Businesses with Both Phone & Email:   48 (100.0%)
+- Businesses with Official Website:     38 (79.2%)
+- Businesses with No Website (Direct):  10 (20.8%)
+- High-Priority Prospects (Score >= 85): 48 (100.0%)
+- Medium-Priority Prospects (70-84):     0 (0.0%)
+- Low-Priority Prospects (< 70):         0 (0.0%)
+
+2. GEOGRAPHIC DISTRIBUTION (STATES & HUBS)
+--------------------------------------------------------------------------------
+- Gujarat                  : 10 businesses (20.8%)
+- Maharashtra              : 7 businesses (14.6%)
+- Tamil Nadu               : 6 businesses (12.5%)
+- Karnataka                : 4 businesses (8.3%)
+- Punjab                   : 4 businesses (8.3%)
+- Rajasthan                : 3 businesses (6.2%)
+- Uttar Pradesh            : 3 businesses (6.2%)
+- Haryana                  : 3 businesses (6.2%)
+- Telangana                : 2 businesses (4.2%)
+- West Bengal              : 2 businesses (4.2%)
+- Madhya Pradesh           : 1 businesses (2.1%)
+- Andhra Pradesh           : 1 businesses (2.1%)
+- Delhi                    : 1 businesses (2.1%)
+- Kerala                   : 1 businesses (2.1%)
+
+3. TOP 5 MOST PROMISING INDUSTRY SEGMENTS FOR SOFTWARE SALES
+--------------------------------------------------------------------------------
+1. Machine Tools & CNC Component Manufacturing (Rajkot, Pune, Bengaluru)
+   - Core Software Pain: Multi-axis sub-assembly BOMs, high-precision tooling inventories,
+     and warranty dispatch management.
+   - Recommended Offer: Custom BOM Production & Machine Serial Number Tracking.
+
+2. Heavy Engineering, Forgings & Industrial Castings (Rajkot, Howrah, Belagavi)
+   - Core Software Pain: Heat-batch traceability, raw steel/iron scrap melting yield
+     reconciliation, and testing certificate automation.
+   - Recommended Offer: Heat-Run Metallurgy Traceability & Raw Material Ingot Inventory.
+
+3. Textile Weaving, Knitting & Garment Processing (Surat, Tiruppur, Panipat, Bhilwara)
+   - Core Software Pain: Yarn lot weight shrinkage, greige roll barcoding, dye-house job-work
+     tracking, and broker commission orders.
+   - Recommended Offer: Fabric Roll Inventory, External Dye-House WIP & Broker Order Portal.
+
+4. Pumps, Agricultural Motors & Heavy Hydraulics (Coimbatore, Pune, Jamnagar)
+   - Core Software Pain: Pump body and copper winding wire inventory, pressure testing
+     certificates, and wholesale distributor ordering.
+   - Recommended Offer: Assembly BOM Tracking, Pressure Test Certification & Dealer Portal.
+
+5. Sheet Metal Fabrication & Laser Cutting Job-Shops (Faridabad, Pune, Chennai)
+   - Core Software Pain: High sheet nesting scrap, manual paper work-orders, and OEM
+     daily delivery schedule reconciliations.
+   - Recommended Offer: Sheet Metal Job-Card Scheduling & Raw Coil Scrap Tracking.
+
+4. 100-POINT HEURISTIC SCORING METHODOLOGY
+--------------------------------------------------------------------------------
+Scores represent transparent operational evidence heuristics (0 to 100):
+- Dimension 1 (0–25 pts): Inventory & BOM Complexity
+  Awarded for multi-stage bill of materials, raw material scrap variance, multi-SKU parts.
+- Dimension 2 (0–25 pts): Branch, Dealer & Customer Networks
+  Awarded for multi-tier dealer networks, national distributors, OEM supply chains.
+- Dimension 3 (0–25 pts): Observable Workflow Friction
+  Awarded for manual registers, absence of websites/ERP, high scrap risk, WhatsApp orders.
+- Dimension 4 (0–25 pts): Source Reliability & Contact Usability
+  Awarded for verified 10-digit Indian phones, corporate emails, and active physical plant listings.
+
+5. KNOWN LIMITATIONS & UNVERIFIED FIELDS
+--------------------------------------------------------------------------------
+- Private Financials: No assumptions made regarding turnover, net profit, or IT budgets.
+- Decision-Maker Direct Lines: Only public business telephone numbers and official emails
+  recorded; owner personal mobile numbers are not inferred, per DPDP Act 2023.
+- In-person Shopfloor Audits: Workflow friction derived from observable manufacturing
+  process characteristics (e.g. foundries, textile mills, press shops) rather than internal system access.
+
+6. NEXT OPERATIONAL STEPS FOR FOUNDER & OUTREACH TEAM
+--------------------------------------------------------------------------------
+1. Review the Top 20 Prospects list in `top_20_prospects.txt`.
+2. Initiate consultative outreach using the tailored software offers prepared for each lead.
+3. Conduct brief 5-minute discovery calls to confirm whether inventory is currently maintained
+   on Excel, Tally, or paper registers before sending software proposals.
+================================================================================

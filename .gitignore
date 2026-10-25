@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Logs & Environment
+*.log
+npm-debug.log*
+.env
+.env.local
+
+# SQLite Temporary Files (preserve seed database if needed)
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
