@@ -3,25 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BharatGrowth AI — India-Wide MSME Growth & Lead Engine</title>
+  <title>IndusOS — B2B Lead Intelligence & Factory Sales OS</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="app" class="app-layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-logo">
-          <span class="flag-stripe saffron"></span>
-          <span class="flag-stripe white"></span>
-          <span class="flag-stripe green"></span>
+        <div class="brand-logo-cyber">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="9" fill="url(#brand-grad)"/>
+            <path d="M8 16L13.5 10.5L19 16L24.5 10.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 21.5L13.5 16L19 21.5L24.5 16" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.6"/>
+            <circle cx="24.5" cy="10.5" r="2" fill="#38bdf8"/>
+            <defs>
+              <linearGradient id="brand-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#4f46e5"/>
+                <stop offset="0.5" stop-color="#2563eb"/>
+                <stop offset="1" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
         <div class="brand-text">
-          <h2>BharatGrowth<span>OS</span></h2>
-          <p>B2B MSME Growth Engine</p>
+          <h2 id="brand-heading">Indus<span>OS</span></h2>
+          <p id="brand-tagline">B2B Lead & Factory Sales OS</p>
         </div>
       </div>
 
@@ -102,7 +112,7 @@
           <span class="badge-dot"></span>
           <span>DPDP Act & TRAI Compliant</span>
         </div>
-        <p class="version-tag">BharatGrowth OS v2.0 Enterprise</p>
+        <p class="version-tag">IndusOS Enterprise v2.4 • Pan-India</p>
       </div>
     </aside>
 
@@ -904,6 +914,36 @@
       <!-- VIEW 7: SETTINGS & SCORING CONFIGURATION -->
       <section id="view-settings" class="content-view">
         <div class="dashboard-grid">
+          <!-- Startup Brand Identity Preset Selector -->
+          <div class="card" style="grid-column: 1 / -1; margin-bottom: 0.5rem; border-left: 4px solid var(--primary);">
+            <div class="card-header">
+              <div>
+                <h3>⚡ Startup Brand Identity Preset</h3>
+                <p class="header-hint">Choose your startup's brand identity. Updates the sidebar logo, pitch scripts, and portal deployment signatures instantly.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem;">
+                <div class="brand-preset-card active" onclick="app.setBrandIdentity('IndusOS')" id="preset-IndusOS" style="border:2px solid var(--primary); background:#eff6ff; border-radius:8px; padding:0.85rem; cursor:pointer;">
+                  <strong style="font-size:0.95rem; color:#1e40af;">IndusOS ✦ (Active)</strong>
+                  <p style="font-size:0.775rem; color:#475569; margin:0.35rem 0 0 0;">Industrial B2B Lead Intelligence & Factory Sales OS. Deep-tech and enterprise manufacturing authority.</p>
+                </div>
+                <div class="brand-preset-card" onclick="app.setBrandIdentity('KuberX')" id="preset-KuberX" style="border:1px solid #cbd5e1; background:#ffffff; border-radius:8px; padding:0.85rem; cursor:pointer;">
+                  <strong style="font-size:0.95rem; color:#0f172a;">KuberX ⚡</strong>
+                  <p style="font-size:0.775rem; color:#475569; margin:0.35rem 0 0 0;">High-Velocity B2B Pipeline & Deal Closing Machine. Focused on rapid revenue and advance token collection.</p>
+                </div>
+                <div class="brand-preset-card" onclick="app.setBrandIdentity('ForgeIQ')" id="preset-ForgeIQ" style="border:1px solid #cbd5e1; background:#ffffff; border-radius:8px; padding:0.85rem; cursor:pointer;">
+                  <strong style="font-size:0.95rem; color:#0f172a;">ForgeIQ 🛡️</strong>
+                  <p style="font-size:0.775rem; color:#475569; margin:0.35rem 0 0 0;">Silicon Valley-tier Autonomous Factory Intelligence & ERP Pipeline. Sleek, Linear-style branding.</p>
+                </div>
+                <div class="brand-preset-card" onclick="app.setBrandIdentity('YantraOS')" id="preset-YantraOS" style="border:1px solid #cbd5e1; background:#ffffff; border-radius:8px; padding:0.85rem; cursor:pointer;">
+                  <strong style="font-size:0.95rem; color:#0f172a;">YantraOS ⚙️</strong>
+                  <p style="font-size:0.775rem; color:#475569; margin:0.35rem 0 0 0;">Precision Manufacturing & Engineering Sales Engine. Resonates deeply with CNC, Tooling, and Foundry owners.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Dynamic Scoring Weights Form -->
           <div class="card">
             <div class="card-header">

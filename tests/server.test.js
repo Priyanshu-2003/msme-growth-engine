@@ -222,7 +222,7 @@ test('API In-Memory Integration Tests', async (t) => {
   await t.test('Static files: GET / returns HTML application', async () => {
     const res = await dispatch('/');
     assert.strictEqual(res.statusCode, 200);
-    assert.ok(res.body.includes('BharatGrowth'));
+    assert.ok(res.body.includes('IndusOS'));
     assert.ok(res.body.includes('Executive Dashboard'));
   });
 });

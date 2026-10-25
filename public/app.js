@@ -13,10 +13,12 @@ const app = {
   },
   kanbanFilter: 'ALL',
   kanbanSearchQuery: '',
+  currentBrand: 'IndusOS',
   currentLeadDetail: null,
 
   init() {
     this.bindEvents();
+    this.loadSavedBrand();
     this.loadDashboard();
     this.populateStaticFilters();
   },
@@ -1488,6 +1490,52 @@ const app = {
   },
 
   // -------------------------------------------------------------
+  // STARTUP BRAND IDENTITY: IndusOS (Default), KuberX, ForgeIQ, YantraOS
+  // -------------------------------------------------------------
+  loadSavedBrand() {
+    const saved = localStorage.getItem('startup_brand') || 'IndusOS';
+    this.setBrandIdentity(saved, false);
+  },
+
+  setBrandIdentity(name, showToast = true) {
+    this.currentBrand = name;
+    const presets = {
+      IndusOS: { heading: 'Indus<span>OS</span>', tagline: 'B2B Lead & Factory Sales OS', title: 'IndusOS — B2B Lead Intelligence & Factory Sales Engine' },
+      KuberX: { heading: 'Kuber<span>X</span>', tagline: 'High-Velocity B2B Pipeline & Closing OS', title: 'KuberX — Autonomous MSME Growth & Revenue Engine' },
+      ForgeIQ: { heading: 'Forge<span>IQ</span>', tagline: 'Factory Intelligence & Deal Pipeline', title: 'ForgeIQ — Silicon Valley Factory Intelligence OS' },
+      YantraOS: { heading: 'Yantra<span>OS</span>', tagline: 'Precision MSME Sales & Delivery Engine', title: 'YantraOS — Precision Manufacturing Growth OS' }
+    };
+
+    const p = presets[name] || presets['IndusOS'];
+    const headingEl = document.getElementById('brand-heading');
+    if (headingEl) headingEl.innerHTML = p.heading;
+    const tagEl = document.getElementById('brand-tagline');
+    if (tagEl) tagEl.textContent = p.tagline;
+    document.title = p.title;
+
+    // Update preset cards in Settings
+    document.querySelectorAll('.brand-preset-card').forEach(card => {
+      card.style.border = '1px solid #cbd5e1';
+      card.style.background = '#ffffff';
+    });
+    const activeCard = document.getElementById(`preset-${name}`);
+    if (activeCard) {
+      activeCard.style.border = '2px solid var(--primary)';
+      activeCard.style.background = '#eff6ff';
+    }
+
+    if (this.scriptsStore) {
+      this.scriptsStore.bom.en = this.scriptsStore.bom.en.replace(/BharatGrowth Engine|IndusOS|KuberX|ForgeIQ|YantraOS/g, name);
+      this.scriptsStore.dealer.en = this.scriptsStore.dealer.en.replace(/BharatGrowth Engine|IndusOS|KuberX|ForgeIQ|YantraOS/g, name);
+      this.scriptsStore.export.en = this.scriptsStore.export.en.replace(/BharatGrowth Engine|IndusOS|KuberX|ForgeIQ|YantraOS/g, name);
+      this.renderActiveScript();
+    }
+
+    localStorage.setItem('startup_brand', name);
+    if (showToast) this.showToast(`Brand identity updated to ${name}!`);
+  },
+
+  // -------------------------------------------------------------
   // STARTUP DESKS: KAUSHIK (SALES), PUSHPENDER (TECH), PRIYANSHU (OPS)
   // -------------------------------------------------------------
   activeScriptType: 'bom',
@@ -1496,16 +1544,16 @@ const app = {
 
   scriptsStore: {
     bom: {
-      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nWe reviewed your manufacturing operations in [City]. Most units in your cluster face two daily headaches:\n1. Sub-assembly raw material scrap weight loss variance on the shopfloor.\n2. Dealers repeatedly calling on phone/WhatsApp for stock availability and dispatch updates.\n\nWe have built a customized 1-click mobile portal for your factory that works right inside WhatsApp.\nCan we show you a 15-minute live screen walkthrough today at 4:30 PM?`,
-      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nहमने [City] में आपकी फैक्ट्री यूनिट का विश्लेषण किया। आपके इंडस्ट्रियल क्लस्टर में आमतौर पर दो बड़ी समस्याएं होती हैं:\n1. वर्कशॉप में रॉ मटीरियल स्क्रैप व वजन का नुकसान होना।\n2. डीलर्स का दिनभर व्हाट्सएप और फोन पर स्टॉक व डिस्पैच पूछना।\n\nहमने आपकी फैक्ट्री के लिए एक बेहद आसान व्हाट्सएप-इंटीग्रेटेड पोर्टल बनाया है।\nक्या आज शाम 4:30 बजे 15 मिनट के स्क्रीन डेमो में हम आपको यह लाइव दिखा सकते हैं?`
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from IndusOS.\n\nWe reviewed your manufacturing operations in [City]. Most units in your cluster face two daily headaches:\n1. Sub-assembly raw material scrap weight loss variance on the shopfloor.\n2. Dealers repeatedly calling on phone/WhatsApp for stock availability and dispatch updates.\n\nWe have built a customized 1-click mobile portal for your factory that works right inside WhatsApp.\nCan we show you a 15-minute live screen walkthrough today at 4:30 PM?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं IndusOS से कौशिक बात कर रहा हूँ।\n\nहमने [City] में आपकी फैक्ट्री यूनिट का विश्लेषण किया। आपके इंडस्ट्रियल क्लस्टर में आमतौर पर दो बड़ी समस्याएं होती हैं:\n1. वर्कशॉप में रॉ मटीरियल स्क्रैप व वजन का नुकसान होना।\n2. डीलर्स का दिनभर व्हाट्सएप और फोन पर स्टॉक व डिस्पैच पूछना।\n\nहमने आपकी फैक्ट्री के लिए एक बेहद आसान व्हाट्सएप-इंटीग्रेटेड पोर्टल बनाया है।\nक्या आज शाम 4:30 बजे 15 मिनट के स्क्रीन डेमो में हम आपको यह लाइव दिखा सकते हैं?`
     },
     dealer: {
-      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nAre your sales reps still typing PDF quotations manually and writing dealer orders on paper slips?\n\nOur B2B WhatsApp Ordering Catalog allows your 20+ registered dealers to view real-time product specs, place purchase orders with 1 tap, and get instant GST-compliant dispatch alerts.\n\nWe have a ready-to-test prototype configured for your business. Can we do a 15-minute quick walkthrough?`,
-      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nक्या आपके डीलर्स अभी भी फोन या पर्ची पर ऑर्डर लिखवाते हैं?\n\nहमारा डिजिटल B2B कैटलॉग आपके सभी डीलर्स को सीधे व्हाट्सएप पर 1 क्लिक में ऑर्डर बुक करने और ऑटोमैटिक डिस्पैच स्टेटस देखने की सुविधा देता है।\n\nआपकी कंपनी के लिए हमने एक लाइव प्रोटोटाइप तैयार किया है। क्या हम 15 मिनट में इसे दिखा सकते हैं?`
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from IndusOS.\n\nAre your sales reps still typing PDF quotations manually and writing dealer orders on paper slips?\n\nOur B2B WhatsApp Ordering Catalog allows your 20+ registered dealers to view real-time product specs, place purchase orders with 1 tap, and get instant GST-compliant dispatch alerts.\n\nWe have a ready-to-test prototype configured for your business. Can we do a 15-minute quick walkthrough?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं IndusOS से कौशिक बात कर रहा हूँ।\n\nक्या आपके डीलर्स अभी भी फोन या पर्ची पर ऑर्डर लिखवाते हैं?\n\nहमारा डिजिटल B2B कैटलॉग आपके सभी डीलर्स को सीधे व्हाट्सएप पर 1 क्लिक में ऑर्डर बुक करने और ऑटोमैटिक डिस्पैच स्टेटस देखने की सुविधा देता है।\n\nआपकी कंपनी के लिए हमने एक लाइव प्रोटोटाइप तैयार किया है। क्या हम 15 मिनट में इसे दिखा सकते हैं?`
     },
     export: {
-      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nForeign buyers in UAE, US, and Europe require verified digital factory credentials, machinery capacity sheets, and multi-currency RFQ forms before placing bulk orders.\n\nWe build and deploy international-standard digital showcases complete with ISO certifications and live WhatsApp quotation desks within 48 hours.\nCan we connect for a brief 15-minute video call?`,
-      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nगल्फ और इंटरनेशनल बायर्स बल्क आर्डर देने से पहले फैक्ट्री की मशीनरी कैपेसिटी और सर्टिफिकेशन्स ऑनलाइन देखना चाहते हैं।\n\nहम 48 घंटे के भीतर आपकी फैक्ट्री का इंटरनेशनल क्वालिटी शोकेस और लाइव आरएफक्यू डेस्क तैनात करते हैं।\nक्या आज 15 मिनट के लिए इस पर बात कर सकते हैं?`
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from IndusOS.\n\nForeign buyers in UAE, US, and Europe require verified digital factory credentials, machinery capacity sheets, and multi-currency RFQ forms before placing bulk orders.\n\nWe build and deploy international-standard digital showcases complete with ISO certifications and live WhatsApp quotation desks within 48 hours.\nCan we connect for a brief 15-minute video call?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं IndusOS से कौशिक बात कर रहा हूँ।\n\nगल्फ और इंटरनेशनल बायर्स बल्क आर्डर देने से पहले फैक्ट्री की मशीनरी कैपेसिटी और सर्टिफिकेशन्स ऑनलाइन देखना चाहते हैं।\n\nहम 48 घंटे के भीतर आपकी फैक्ट्री का इंटरनेशनल क्वालिटी शोकेस और लाइव आरएफक्यू डेस्क तैनात करते हैं।\nक्या आज 15 मिनट के लिए इस पर बात कर सकते हैं?`
     }
   },
 
