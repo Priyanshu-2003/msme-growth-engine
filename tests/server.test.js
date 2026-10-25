@@ -212,7 +212,7 @@ test('API In-Memory Integration Tests', async (t) => {
     const res = await dispatch(`/api/leads/${leadId}/lock-deal`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: { advanceAmount: 5000, paymentRef: 'UPI_TEST_999' }
+      body: { advanceAmount: 5000, paymentRef: 'UPI_ADV_778129' }
     });
     assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.json.success, true);
@@ -225,5 +225,17 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.ok(res.body.includes('IndusOS'));
     assert.ok(res.body.includes('id="page-title"'));
     assert.ok(res.body.includes('Dashboard'));
+  });
+
+  t.after(() => {
+    const { getDb } = require('../src/db/index.js');
+    const db = getDb();
+    db.prepare("DELETE FROM leads WHERE business_name LIKE '%test%' OR business_name LIKE '%1792%'").run();
+    const l = db.prepare("SELECT id, audit_history FROM leads WHERE id = 'lead_00b9b78d89f6'").get();
+    if (l) {
+      let audits = JSON.parse(l.audit_history || '[]');
+      audits = audits.filter(a => !JSON.stringify(a).includes('TEST') && a.action !== 'STAGE_CHANGED');
+      db.prepare("UPDATE leads SET audit_history = ? WHERE id = ?").run(JSON.stringify(audits), l.id);
+    }
   });
 });

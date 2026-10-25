@@ -1233,6 +1233,31 @@ body {
 .chip-kaushik .chip-avatar { background: #059669; }
 .chip-pushpender .chip-avatar { background: #d97706; }
 
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 0.725rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.team-chip.chip-kaushik {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+}
+.team-chip.chip-pushpender {
+  background: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+.team-chip.chip-priyanshu {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
 .chip-info {
   display: flex;
   flex-direction: column;

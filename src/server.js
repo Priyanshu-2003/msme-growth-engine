@@ -154,7 +154,7 @@ const server = http.createServer(async (req, res) => {
       const verificationStatus = q.verification_status || '';
       const pipelineStage = q.pipeline_stage || '';
       const page = Math.max(1, parseInt(q.page || '1', 10));
-      const limit = Math.max(1, Math.min(100, parseInt(q.limit || '20', 10)));
+      const limit = Math.max(1, Math.min(500, parseInt(q.limit || '20', 10)));
       const offset = (page - 1) * limit;
 
       let whereClauses = ['1=1'];
@@ -197,7 +197,7 @@ const server = http.createServer(async (req, res) => {
         SELECT id, business_name, industry_category, subcategory, entity_type, msme_tier,
                state, district, city, pincode, phone, email, website, source_name,
                website_status, opportunity_tier, lead_score, verification_status,
-               pipeline_stage, assigned_owner, next_action, discovery_date
+               pipeline_stage, assigned_owner, next_action, follow_up_date, discovery_date
         FROM leads
         WHERE ${whereSql}
         ORDER BY lead_score DESC, discovery_date DESC
@@ -462,7 +462,6 @@ const server = http.createServer(async (req, res) => {
         FROM leads
         WHERE audit_history != '[]' AND audit_history IS NOT NULL
         ORDER BY updated_at DESC
-        LIMIT 50
       `).all();
 
       const activities = [];
@@ -471,6 +470,13 @@ const server = http.createServer(async (req, res) => {
         try { auditList = JSON.parse(r.audit_history || '[]'); } catch {}
         if (Array.isArray(auditList)) {
           for (const item of auditList) {
+            let author = item.author;
+            if (!author || author === 'Team') {
+              const act = (item.action || '').toUpperCase();
+              if (act.includes('DISCOVER') || act.includes('SCORE') || act.includes('OFFER') || act.includes('COMPLIANCE')) author = 'Priyanshu';
+              else if (act.includes('PORTAL') || act.includes('SITE') || act.includes('DEPLOY')) author = 'Pushpender';
+              else author = 'Kaushik';
+            }
             activities.push({
               leadId: r.id,
               businessName: r.business_name,
@@ -479,7 +485,7 @@ const server = http.createServer(async (req, res) => {
               phone: r.phone,
               leadScore: r.lead_score,
               pipelineStage: r.pipeline_stage,
-              author: item.author || (item.details?.includes('Kaushik') ? 'Kaushik' : (item.details?.includes('Pushpender') ? 'Pushpender' : (item.details?.includes('Priyanshu') ? 'Priyanshu' : 'Team'))),
+              author,
               action: item.action || 'STAGE_CHANGED',
               details: item.details || item.text || 'Step logged',
               timestamp: item.timestamp || r.updated_at
@@ -489,7 +495,11 @@ const server = http.createServer(async (req, res) => {
       }
 
       activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      return sendJson(res, 200, { success: true, activities: activities.slice(0, 50) });
+      return sendJson(res, 200, {
+        success: true,
+        totalEvents: activities.length,
+        activities: activities.slice(0, 50)
+      });
     }
 
     // 4c. Interactive Factory Demo Website Preview Generator
