@@ -188,6 +188,37 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.strictEqual(res.json.importedCount, 1);
   });
 
+  await t.test('GET /api/team/activity returns team activity stream', async () => {
+    const res = await dispatch('/api/team/activity');
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.json.success, true);
+    assert.ok(Array.isArray(res.json.activities));
+  });
+
+  await t.test('GET /api/leads/:id/preview-portal returns factory portal mockup', async () => {
+    const listRes = await dispatch('/api/leads?limit=1');
+    const leadId = listRes.json.leads[0].id;
+    const res = await dispatch(`/api/leads/${leadId}/preview-portal`);
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.json.success, true);
+    assert.ok(res.json.preview.businessName);
+    assert.ok(res.json.preview.bomFlow);
+    assert.ok(res.json.preview.products);
+  });
+
+  await t.test('POST /api/leads/:id/lock-deal updates stage to WON and records advance', async () => {
+    const listRes = await dispatch('/api/leads?limit=1');
+    const leadId = listRes.json.leads[0].id;
+    const res = await dispatch(`/api/leads/${leadId}/lock-deal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { advanceAmount: 5000, paymentRef: 'UPI_TEST_999' }
+    });
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.json.success, true);
+    assert.strictEqual(res.json.newStage, 'WON');
+  });
+
   await t.test('Static files: GET / returns HTML application', async () => {
     const res = await dispatch('/');
     assert.strictEqual(res.statusCode, 200);

@@ -214,7 +214,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 3. Lead Details API
-    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export')) {
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export') && !pathname.includes('preview-portal')) {
       const id = pathname.replace('/api/leads/', '');
       const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
 
@@ -453,6 +453,121 @@ const server = http.createServer(async (req, res) => {
       );
 
       return sendJson(res, 200, { success: true, message: 'Lead updated successfully' });
+    }
+
+    // 4b. Team Unified Activity Feed API
+    if (method === 'GET' && pathname === '/api/team/activity') {
+      const rows = db.prepare(`
+        SELECT id, business_name, city, state, phone, pipeline_stage, lead_score, audit_history, updated_at
+        FROM leads
+        WHERE audit_history != '[]' AND audit_history IS NOT NULL
+        ORDER BY updated_at DESC
+        LIMIT 50
+      `).all();
+
+      const activities = [];
+      for (const r of rows) {
+        let auditList = [];
+        try { auditList = JSON.parse(r.audit_history || '[]'); } catch {}
+        if (Array.isArray(auditList)) {
+          for (const item of auditList) {
+            activities.push({
+              leadId: r.id,
+              businessName: r.business_name,
+              city: r.city,
+              state: r.state,
+              phone: r.phone,
+              leadScore: r.lead_score,
+              pipelineStage: r.pipeline_stage,
+              author: item.author || (item.details?.includes('Kaushik') ? 'Kaushik' : (item.details?.includes('Pushpender') ? 'Pushpender' : (item.details?.includes('Priyanshu') ? 'Priyanshu' : 'Team'))),
+              action: item.action || 'STAGE_CHANGED',
+              details: item.details || item.text || 'Step logged',
+              timestamp: item.timestamp || r.updated_at
+            });
+          }
+        }
+      }
+
+      activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      return sendJson(res, 200, { success: true, activities: activities.slice(0, 50) });
+    }
+
+    // 4c. Interactive Factory Demo Website Preview Generator
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && pathname.endsWith('/preview-portal')) {
+      const id = pathname.replace('/api/leads/', '').replace('/preview-portal', '');
+      const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      let inv = {};
+      try { inv = JSON.parse(lead.inventory_profile || '{}'); } catch {}
+
+      const cleanPhone = (lead.phone || '').replace(/\D/g, '');
+      const previewData = {
+        leadId: lead.id,
+        businessName: lead.business_name,
+        tagline: `${lead.subcategory || 'Precision Manufacturing & Engineering'} • ${lead.city}, ${lead.state}`,
+        city: lead.city,
+        state: lead.state,
+        phone: lead.phone,
+        waPhone: cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone,
+        certifications: ['ISO 9001:2015 Certified', 'MSME Udyam Verified', 'ZED Bronze Quality Benchmarked'],
+        heroMessage: `Direct-From-Factory Supply: High precision industrial components engineered to exact tolerances with verifiable batch inspection.`,
+        bomFlow: inv.bom_stages || ['Stage 1: Raw Material Inward & Ultrasonic Test', 'Stage 2: CNC Machining & Heat Treatment', 'Stage 3: Coordinate Measuring QC & WhatsApp Dispatch Notice'],
+        products: [
+          { name: `${lead.subcategory || 'Industrial'} Component Spec A-1`, desc: "High tensile hardened alloy, tolerance ±0.02mm, batch tested", moq: "500 Units" },
+          { name: `${lead.subcategory || 'Industrial'} Assembly Part B-2`, desc: "Corrosion resistant surface finish, ISO compliant QC sheet attached", moq: "250 Units" },
+          { name: `${lead.subcategory || 'Industrial'} Custom Batch C-3`, desc: "Tailored to buyer technical drawing (AutoCAD/SolidWorks)", moq: "100 Units" }
+        ],
+        dealerBenefits: [
+          "Instant B2B Quotations on WhatsApp in 60 seconds",
+          "Real-time Batch Scrap & Weight Loss QC Transparency",
+          "Direct dispatch tracking with GST e-Way Bill integration"
+        ],
+        deployedBy: "Pushpender (Tech & Delivery)",
+        slaTimeframe: "Ready for live custom domain deployment within 48 Hours"
+      };
+
+      return sendJson(res, 200, { success: true, preview: previewData });
+    }
+
+    // 4d. Instant Deal Closing & Pushpender Handover API
+    if (method === 'POST' && pathname.startsWith('/api/leads/') && pathname.endsWith('/lock-deal')) {
+      const id = pathname.replace('/api/leads/', '').replace('/lock-deal', '');
+      const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      const body = await parseJsonBody(req);
+      const advanceAmount = body.advanceAmount || 5000;
+      const paymentRef = body.paymentRef || `UPI_ADV_${Date.now().toString().slice(-6)}`;
+      const note = body.note || `Deal closed by Kaushik. Advance token ₹${advanceAmount} received via ${paymentRef}. Handed over to Pushpender for 48h factory portal deployment.`;
+
+      const now = new Date().toISOString();
+      const audit = JSON.parse(lead.audit_history || '[]');
+      audit.push({
+        timestamp: now,
+        author: 'Kaushik',
+        action: 'ADVANCE_TOKEN_RECEIVED',
+        details: note,
+        advanceAmount,
+        paymentRef
+      });
+
+      db.prepare(`
+        UPDATE leads
+        SET pipeline_stage = 'WON',
+            assigned_owner = 'Pushpender',
+            next_action = 'Deploy Live Factory Portal (Pushpender)',
+            audit_history = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).run(JSON.stringify(audit), now, id);
+
+      return sendJson(res, 200, {
+        success: true,
+        message: `Deal locked! Advance ₹${advanceAmount} recorded. Handed over to Pushpender.`,
+        leadId: id,
+        newStage: 'WON'
+      });
     }
 
     // 5. Bulk CSV Import API

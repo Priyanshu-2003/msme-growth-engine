@@ -112,11 +112,13 @@ body {
 }
 
 /* Nav Menu */
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1;
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  padding: 0.85rem 0.85rem 0.25rem 0.85rem;
 }
 
 .nav-item {
@@ -1299,5 +1301,101 @@ body {
   background: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
+}
+
+.btn-xs {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.725rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.battlecard-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  transition: border-color 0.15s ease;
+}
+
+.battlecard-item:hover {
+  border-color: #cbd5e1;
+}
+
+.battlecard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.825rem;
+  color: #0f172a;
+  margin-bottom: 0.4rem;
+}
+
+.battlecard-text {
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-item {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: flex-start;
+  transition: background 0.1s ease;
+}
+
+.activity-item:hover {
+  background: #f8fafc;
+}
+
+.activity-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.activity-avatar.priyanshu { background: #6366f1; }
+.activity-avatar.kaushik { background: #059669; }
+.activity-avatar.pushpender { background: #d97706; }
+.activity-avatar.team { background: #64748b; }
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.2rem;
+}
+
+.activity-note {
+  font-size: 0.775rem;
+  color: #475569;
+  margin-bottom: 0.3rem;
+  line-height: 1.35;
+}
+
+.activity-meta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  display: flex;
+  gap: 0.75rem;
 }
 

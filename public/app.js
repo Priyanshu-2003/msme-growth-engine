@@ -168,15 +168,18 @@ const app = {
       dashboard: ['Executive Dashboard', 'Real-time MSME discovery, digital deficiency analysis, and pipeline performance'],
       cmo: ['AI CMO Command Center', 'Strategic revenue targets, factory software clusters, and conversion velocity playbook'],
       mantisai: ['Mantis AI Lead Finder', 'Map-first live discovery, local listing audits, and buying signals for Indian factories'],
-      explorer: ['Lead Explorer', 'Filter and prioritize verified Indian enterprises by need, score, and commercial fit'],
-      crm: ['Sales CRM & Pipeline', 'Consultative B2B stages from qualification to closed digital growth packages'],
+      explorer: ['Lead Database & Explorer', 'Filter and prioritize verified Indian enterprises by need, score, and commercial fit'],
+      crm: ['Sales CRM Kanban Pipeline', 'Consultative B2B stages from qualification to closed digital growth packages'],
+      warroom: ["Kaushik's Sales War Room", 'Daily outreach quota, multilingual WhatsApp pitch generator, and objection battlecards'],
+      studio: ["Pushpender's Delivery Studio", '48-Hour deployment SLA queue, factory portal mockup preview, and live domain linkage'],
+      opsdesk: ["Priyanshu's Operations & Audit Console", 'Real-time team execution stream, follow-up SLA alarms, and pipeline quality control'],
       campaigns: ['Campaign Manager & Queue', 'Personalized English and Hindi outreach approval pipeline'],
-      operations: ['Research Operations', 'Manage legal discovery connectors, batch ingestions, and background jobs'],
-      reports: ['Reports & Unit Economics', 'Lead quality by source, conversion rates, and revenue models'],
+      operations: ['Cluster Jobs & Radar', 'Manage legal discovery connectors, batch ingestions, and background jobs'],
+      reports: ['Revenue & ROI Reports', 'Lead quality by source, conversion rates, and revenue models'],
       settings: ['Settings & Governance', 'Dynamic 100-point scoring weights and suppression registry']
     };
 
-    const [title, sub] = titles[viewName] || ['BharatGrowth AI', ''];
+    const [title, sub] = titles[viewName] || ['BharatGrowth OS', ''];
     document.getElementById('page-title').textContent = title;
     document.getElementById('page-subtitle').textContent = sub;
 
@@ -186,6 +189,9 @@ const app = {
     else if (viewName === 'mantisai') this.loadMantisAiFinder();
     else if (viewName === 'explorer') this.loadExplorerLeads();
     else if (viewName === 'crm') this.loadCrmKanban();
+    else if (viewName === 'warroom') this.loadWarRoom();
+    else if (viewName === 'studio') this.loadStudio();
+    else if (viewName === 'opsdesk') this.loadOpsDesk();
     else if (viewName === 'campaigns') this.loadCampaigns();
     else if (viewName === 'operations') this.loadOperations();
     else if (viewName === 'reports') this.loadReports();
@@ -1479,6 +1485,327 @@ const app = {
         });
       }
     });
+  },
+
+  // -------------------------------------------------------------
+  // STARTUP DESKS: KAUSHIK (SALES), PUSHPENDER (TECH), PRIYANSHU (OPS)
+  // -------------------------------------------------------------
+  activeScriptType: 'bom',
+  activeScriptLang: 'en',
+  closingLeadId: null,
+
+  scriptsStore: {
+    bom: {
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nWe reviewed your manufacturing operations in [City]. Most units in your cluster face two daily headaches:\n1. Sub-assembly raw material scrap weight loss variance on the shopfloor.\n2. Dealers repeatedly calling on phone/WhatsApp for stock availability and dispatch updates.\n\nWe have built a customized 1-click mobile portal for your factory that works right inside WhatsApp.\nCan we show you a 15-minute live screen walkthrough today at 4:30 PM?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nहमने [City] में आपकी फैक्ट्री यूनिट का विश्लेषण किया। आपके इंडस्ट्रियल क्लस्टर में आमतौर पर दो बड़ी समस्याएं होती हैं:\n1. वर्कशॉप में रॉ मटीरियल स्क्रैप व वजन का नुकसान होना।\n2. डीलर्स का दिनभर व्हाट्सएप और फोन पर स्टॉक व डिस्पैच पूछना।\n\nहमने आपकी फैक्ट्री के लिए एक बेहद आसान व्हाट्सएप-इंटीग्रेटेड पोर्टल बनाया है।\nक्या आज शाम 4:30 बजे 15 मिनट के स्क्रीन डेमो में हम आपको यह लाइव दिखा सकते हैं?`
+    },
+    dealer: {
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nAre your sales reps still typing PDF quotations manually and writing dealer orders on paper slips?\n\nOur B2B WhatsApp Ordering Catalog allows your 20+ registered dealers to view real-time product specs, place purchase orders with 1 tap, and get instant GST-compliant dispatch alerts.\n\nWe have a ready-to-test prototype configured for your business. Can we do a 15-minute quick walkthrough?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nक्या आपके डीलर्स अभी भी फोन या पर्ची पर ऑर्डर लिखवाते हैं?\n\nहमारा डिजिटल B2B कैटलॉग आपके सभी डीलर्स को सीधे व्हाट्सएप पर 1 क्लिक में ऑर्डर बुक करने और ऑटोमैटिक डिस्पैच स्टेटस देखने की सुविधा देता है।\n\nआपकी कंपनी के लिए हमने एक लाइव प्रोटोटाइप तैयार किया है। क्या हम 15 मिनट में इसे दिखा सकते हैं?`
+    },
+    export: {
+      en: `Namaste [Owner Name] ji,\nThis is Kaushik from BharatGrowth Engine.\n\nForeign buyers in UAE, US, and Europe require verified digital factory credentials, machinery capacity sheets, and multi-currency RFQ forms before placing bulk orders.\n\nWe build and deploy international-standard digital showcases complete with ISO certifications and live WhatsApp quotation desks within 48 hours.\nCan we connect for a brief 15-minute video call?`,
+      hi: `नमस्ते [Owner Name] जी,\nमैं भारतग्रोथ इंजन से कौशिक बात कर रहा हूँ।\n\nगल्फ और इंटरनेशनल बायर्स बल्क आर्डर देने से पहले फैक्ट्री की मशीनरी कैपेसिटी और सर्टिफिकेशन्स ऑनलाइन देखना चाहते हैं।\n\nहम 48 घंटे के भीतर आपकी फैक्ट्री का इंटरनेशनल क्वालिटी शोकेस और लाइव आरएफक्यू डेस्क तैनात करते हैं।\nक्या आज 15 मिनट के लिए इस पर बात कर सकते हैं?`
+    }
+  },
+
+  switchScript(type) {
+    this.activeScriptType = type;
+    ['bom', 'dealer', 'export'].forEach(t => {
+      const btn = document.getElementById(`btn-script-${t}`);
+      if (btn) btn.classList.toggle('active', t === type);
+    });
+    this.renderActiveScript();
+  },
+
+  switchScriptLanguage() {
+    this.activeScriptLang = this.activeScriptLang === 'en' ? 'hi' : 'en';
+    this.renderActiveScript();
+  },
+
+  renderActiveScript() {
+    const text = this.scriptsStore[this.activeScriptType][this.activeScriptLang];
+    const display = document.getElementById('script-content-display');
+    if (display) display.textContent = text;
+  },
+
+  copyActiveScript() {
+    const text = this.scriptsStore[this.activeScriptType][this.activeScriptLang];
+    navigator.clipboard.writeText(text);
+    this.showToast('WhatsApp pitch script copied to clipboard!');
+  },
+
+  copyBattlecard(id) {
+    const cards = {
+      1: "Tally handles GST ledgers. But can your factory floor track multi-stage machine shop WIP, raw material scrap weight loss, or send automatic WhatsApp dispatch notifications to dealers? Our solution integrates right alongside Tally.",
+      2: "That's exactly why our software connects directly to your WhatsApp! Instead of manually typing quotations or searching paper slips, your buyers tap 1 button to see real-time product specs and submit purchase orders straight to your inventory.",
+      3: "Our total package is ₹18,000. Pushpender on our tech team will dedicate 48 engineering hours to deploy your live portal with your actual machinery specs. The ₹5,000 token advance locks your deployment slot. You test it live on your phone before paying the remaining ₹13,000."
+    };
+    if (cards[id]) {
+      navigator.clipboard.writeText(cards[id]);
+      this.showToast(`Objection #${id} response copied!`);
+    }
+  },
+
+  async loadWarRoom() {
+    try {
+      const res = await fetch('/api/leads?limit=100');
+      const data = await res.json();
+      const leads = data.leads || [];
+
+      const hotDeals = leads.filter(l => ['REPLIED', 'MEETING_BOOKED', 'CONTACTED', 'QUALIFIED'].includes(l.pipeline_stage));
+
+      const tbody = document.getElementById('warroom-deals-tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        if (hotDeals.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:1.5rem;">No active hot deals. Contact leads from CRM Kanban to populate Kaushik\'s closing pipeline.</td></tr>';
+        } else {
+          hotDeals.slice(0, 15).forEach(l => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${l.business_name}</strong></td>
+              <td>📍 ${l.city}, ${l.state}</td>
+              <td><span class="score-badge ${l.lead_score >= 70 ? 'high' : 'medium'}">${l.lead_score} pts</span></td>
+              <td>${l.phone || 'No phone'}</td>
+              <td><span class="badge ${l.pipeline_stage === 'MEETING_BOOKED' ? 'badge-success' : 'badge-warning'}">${l.pipeline_stage.replace(/_/g, ' ')}</span></td>
+              <td>
+                <button class="btn btn-xs btn-primary" onclick="app.openDealCloserModal('${l.id}', '${l.business_name.replace(/'/g, "\\'")}')" style="background:#059669; border-color:#059669;">
+                  💰 Lock ₹5,000 Advance
+                </button>
+                <button class="btn btn-xs btn-secondary" onclick="app.openLeadModal('${l.id}')">Brief</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load War Room:', err);
+    }
+  },
+
+  async loadStudio() {
+    try {
+      const res = await fetch('/api/leads?limit=100');
+      const data = await res.json();
+      const wonLeads = (data.leads || []).filter(l => l.pipeline_stage === 'WON' || l.pipeline_stage === 'MEETING_BOOKED');
+
+      const tbody = document.getElementById('studio-queue-tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        if (wonLeads.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:1.5rem;">No portals currently in build. As Kaushik closes advance tokens, they will appear in Pushpender\'s 48-Hour delivery queue.</td></tr>';
+        } else {
+          wonLeads.forEach(l => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${l.business_name}</strong></td>
+              <td>${l.city}, ${l.state}</td>
+              <td><span class="badge badge-info">${l.subcategory || 'BOM & WhatsApp Catalog'}</span></td>
+              <td><strong style="color:#d97706;">⏱️ 36h 45m left</strong></td>
+              <td><span class="badge ${l.pipeline_stage === 'WON' ? 'badge-success' : 'badge-warning'}">${l.pipeline_stage === 'WON' ? 'Ready for Deployment' : 'Demo Staged'}</span></td>
+              <td>
+                <button class="btn btn-xs btn-secondary" onclick="app.openPortalPreview('${l.id}')">
+                  🌐 Preview Mockup
+                </button>
+                <button class="btn btn-xs btn-success" onclick="app.markDeployedLive('${l.id}')">
+                  🚀 Mark Live
+                </button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load Studio queue:', err);
+    }
+  },
+
+  async loadOpsDesk() {
+    try {
+      const res = await fetch('/api/team/activity');
+      const data = await res.json();
+      const activities = data.activities || [];
+
+      const feedEl = document.getElementById('ops-activity-feed');
+      if (feedEl) {
+        feedEl.innerHTML = '';
+        if (activities.length === 0) {
+          feedEl.innerHTML = '<div style="padding:1.5rem; text-align:center; color:#64748b;">No recent events recorded. Record actions on any lead to see the team feed live.</div>';
+        } else {
+          activities.forEach(act => {
+            const authorClass = (act.author || '').toLowerCase();
+            const initial = (act.author || 'T')[0].toUpperCase();
+            const timeAgo = new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+              <div class="activity-avatar ${authorClass}">${initial}</div>
+              <div class="activity-content">
+                <div class="activity-title">
+                  <strong>${act.author}</strong> performed <strong>${act.action?.replace(/_/g, ' ')}</strong> on <em>${act.businessName}</em>
+                </div>
+                <div class="activity-note">${act.details || 'Step recorded'}</div>
+                <div class="activity-meta">
+                  <span>📍 ${act.city}, ${act.state}</span>
+                  <span>⏰ ${timeAgo}</span>
+                  <span class="badge badge-neutral" style="font-size:10px;">${act.pipelineStage}</span>
+                </div>
+              </div>
+            `;
+            feedEl.appendChild(item);
+          });
+        }
+      }
+
+      // Populate Priyanshu's Follow-up Alarms
+      const leadsRes = await fetch('/api/leads?limit=50');
+      const leadsData = await leadsRes.json();
+      const followups = (leadsData.leads || []).filter(l => l.pipeline_stage !== 'WON' && l.pipeline_stage !== 'DISCOVERED');
+
+      const tbody = document.getElementById('ops-followups-tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        followups.slice(0, 8).forEach(l => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${l.business_name}</strong></td>
+            <td><span class="team-chip chip-kaushik" style="padding:1px 6px; font-size:11px;">Kaushik</span></td>
+            <td><span class="badge badge-warning">Today (4:00 PM)</span></td>
+            <td>${l.pipeline_stage === 'CONTACTED' ? 'Follow up on WhatsApp pitch' : 'Conduct 15-min screen demo'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load Ops Desk:', err);
+    }
+  },
+
+  // Deal Closer Modal Logic
+  openDealCloserModal(leadId, leadName) {
+    this.closingLeadId = leadId;
+    document.getElementById('closer-lead-name').value = leadName || 'Selected Factory';
+    document.getElementById('closer-payment-ref').value = `UPI_${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    document.getElementById('deal-closer-modal').classList.remove('hidden');
+  },
+
+  closeDealCloserModal() {
+    document.getElementById('deal-closer-modal').classList.add('hidden');
+    this.closingLeadId = null;
+  },
+
+  async executeLockDeal() {
+    if (!this.closingLeadId) return;
+    const leadId = this.closingLeadId;
+    const advanceAmount = 5000;
+    const paymentRef = document.getElementById('closer-payment-ref').value;
+    const notes = document.getElementById('closer-handover-notes').value;
+
+    try {
+      const res = await fetch(`/api/leads/${leadId}/lock-deal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ advanceAmount, paymentRef, note: notes })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast('Deal Locked! ₹5,000 Advance recorded & Pushpender alerted!');
+        this.closeDealCloserModal();
+        if (this.activeView === 'warroom') this.loadWarRoom();
+        else if (this.activeView === 'studio') this.loadStudio();
+        else if (this.activeView === 'crm') this.loadCrmKanban();
+      }
+    } catch (err) {
+      this.showToast(`Error locking deal: ${err.message}`);
+    }
+  },
+
+  // Portal Preview Modal Logic
+  async openPortalPreview(leadId) {
+    try {
+      const res = await fetch(`/api/leads/${leadId}/preview-portal`);
+      const data = await res.json();
+      if (!data.success) return this.showToast('Failed to load portal preview');
+
+      const p = data.preview;
+      document.getElementById('preview-factory-title').textContent = p.businessName;
+      document.getElementById('preview-hero-name').textContent = p.businessName;
+      document.getElementById('preview-hero-tagline').textContent = p.tagline;
+      document.getElementById('preview-domain-name').textContent = (p.businessName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.in');
+
+      // WhatsApp Button
+      const waBtn = document.getElementById('preview-wa-btn');
+      waBtn.href = `https://wa.me/${p.waPhone}?text=${encodeURIComponent(`Hello, I am interested in placing a bulk B2B inquiry with ${p.businessName}.`)}`;
+
+      // BOM Container
+      const bomContainer = document.getElementById('preview-bom-container');
+      bomContainer.innerHTML = p.bomFlow.map((step, idx) => `
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:0.4rem 0.75rem; border-radius:4px; font-size:0.8rem; display:flex; align-items:center; gap:0.5rem;">
+          <span style="background:#2563eb; color:white; border-radius:50%; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">${idx + 1}</span>
+          <span>${step}</span>
+        </div>
+      `).join('');
+
+      // Products Grid
+      const prodGrid = document.getElementById('preview-products-grid');
+      prodGrid.innerHTML = p.products.map(prod => `
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:0.75rem;">
+          <h5 style="margin:0 0 0.25rem 0; font-size:0.825rem; color:#0f172a;">${prod.name}</h5>
+          <p style="font-size:0.75rem; color:#64748b; margin:0 0 0.5rem 0;">${prod.desc}</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.725rem;">
+            <span class="badge badge-neutral">MOQ: ${prod.moq}</span>
+            <span style="color:#059669; font-weight:700;">In Stock</span>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('portal-preview-modal').classList.remove('hidden');
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  async previewSamplePortal() {
+    const res = await fetch('/api/leads?limit=1');
+    const data = await res.json();
+    if (data.leads && data.leads.length > 0) {
+      this.openPortalPreview(data.leads[0].id);
+    } else {
+      this.showToast('No leads available to preview');
+    }
+  },
+
+  closePortalPreview() {
+    document.getElementById('portal-preview-modal').classList.add('hidden');
+  },
+
+  async markDeployedLive(leadId) {
+    const liveUrl = prompt('Enter the live deployed domain URL:', `https://clientportal-${leadId.slice(0, 6)}.in`);
+    if (!liveUrl) return;
+
+    try {
+      const res = await fetch(`/api/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_stage: 'WON',
+          author: 'Pushpender',
+          action_type: 'SITE_DEPLOYED_LIVE',
+          note: `Portal built and deployed live on domain ${liveUrl} by Pushpender within SLA.`
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`Portal marked LIVE at ${liveUrl}! Ready for final handover.`);
+        if (this.activeView === 'studio') this.loadStudio();
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
   }
 };
 
