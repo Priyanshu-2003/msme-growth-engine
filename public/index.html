@@ -36,74 +36,85 @@
       </div>
 
       <nav class="nav-menu">
-        <div class="nav-section-label">RADAR & PIPELINE</div>
-
+        <!-- COCKPIT OVERVIEW -->
         <button class="nav-item active" data-view="dashboard">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
-          <span>Executive Cockpit</span>
+          <span>Executive Dashboard</span>
+          <span class="badge badge-neutral" style="font-size:10px; margin-left:auto; padding:2px 6px;">Overview</span>
         </button>
 
-        <button class="nav-item" data-view="crm" id="nav-btn-crm">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-          <span>Sales CRM Kanban</span>
-          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">Pipeline</span>
-        </button>
+        <!-- PILLAR 1: SOURCING & DATABASE -->
+        <div class="nav-section-label">1. SOURCING & DATABASE</div>
 
         <button class="nav-item" data-view="explorer">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <span>Lead Database & Explorer</span>
+          <span>Verified MSME Database</span>
+          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">139 Leads</span>
         </button>
 
         <button class="nav-item" data-view="mantisai">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          <span>Mantis AI Maps Radar</span>
-        </button>
-
-        <div class="nav-section-label">TEAM EXECUTION DESKS</div>
-
-        <button class="nav-item" data-view="warroom">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          <span>Kaushik's Sales War Room</span>
-          <span class="badge badge-success" style="font-size:10px; margin-left:auto; padding:2px 6px;">Closing</span>
-        </button>
-
-        <button class="nav-item" data-view="studio">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-          <span>Pushpender's Delivery Studio</span>
-          <span class="badge badge-warning" style="font-size:10px; margin-left:auto; padding:2px 6px;">48h SLA</span>
-        </button>
-
-        <button class="nav-item" data-view="opsdesk">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          <span>Priyanshu's Ops & Audit</span>
-          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">Live Feed</span>
-        </button>
-
-        <div class="nav-section-label">STRATEGY & OPERATIONS</div>
-
-        <button class="nav-item" data-view="cmo">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span>CMO Packages & Pricing</span>
-        </button>
-
-        <button class="nav-item" data-view="campaigns">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>Campaign Approval Queue</span>
+          <span>Maps Cluster Scanner</span>
+          <span class="badge badge-success" style="font-size:10px; margin-left:auto; padding:2px 6px;">Live Radar</span>
         </button>
 
         <button class="nav-item" data-view="operations">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-          <span>Cluster Jobs & Radar</span>
+          <span>CSV Data Ingestion</span>
         </button>
+
+        <!-- PILLAR 2: SALES & OUTREACH (KAUSHIK) -->
+        <div class="nav-section-label">2. SALES OUTREACH • KAUSHIK</div>
+
+        <button class="nav-item" data-view="warroom">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>Outbound Calling & HUD</span>
+          <span class="badge badge-success" style="font-size:10px; margin-left:auto; padding:2px 6px;">Dialer HUD</span>
+        </button>
+
+        <button class="nav-item" data-view="crm" id="nav-btn-crm">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <span>Sales Pipeline Kanban</span>
+          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">7 Stages</span>
+        </button>
+
+        <button class="nav-item" data-view="campaigns">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>WhatsApp Draft Approvals</span>
+        </button>
+
+        <!-- PILLAR 3: TECH DELIVERY (PUSHPENDER) -->
+        <div class="nav-section-label">3. TECH DELIVERY • PUSHPENDER</div>
+
+        <button class="nav-item" data-view="studio">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          <span>48h SLA Delivery Studio</span>
+          <span class="badge badge-warning" style="font-size:10px; margin-left:auto; padding:2px 6px;">Portals</span>
+        </button>
+
+        <!-- PILLAR 4: CASHFLOW & OPS (PRIYANSHU) -->
+        <div class="nav-section-label">4. CASHFLOW & OPS • PRIYANSHU</div>
 
         <button class="nav-item" data-view="reports">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-          <span>Revenue & ROI Reports</span>
+          <span>Cashflow & Proforma Invoices</span>
+          <span class="badge badge-success" style="font-size:10px; margin-left:auto; padding:2px 6px;">₹25L Pipe</span>
+        </button>
+
+        <button class="nav-item" data-view="opsdesk">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Operations & Team Audit</span>
+          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">Audit Log</span>
+        </button>
+
+        <button class="nav-item" data-view="cmo">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Service Packages & Pricing</span>
         </button>
 
         <button class="nav-item" data-view="settings">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          <span>Settings & Governance</span>
+          <span>Scoring Weights & Rules</span>
         </button>
       </nav>
 

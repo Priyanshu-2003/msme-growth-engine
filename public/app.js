@@ -168,20 +168,20 @@ const app = {
       v.classList.toggle('active', v.id === `view-${viewName}`);
     });
 
-    const countStr = this.totalLeadsCount ? `● ${this.totalLeadsCount} enterprises` : 'Active';
+    const countStr = this.totalLeadsCount ? `● ${this.totalLeadsCount} Verified Enterprises` : '● 139 Verified Enterprises';
     const titles = {
-      dashboard: ['Dashboard', countStr],
-      cmo: ['Growth Strategy', 'Strategy Playbook'],
-      mantisai: ['Lead Finder', 'Radar active'],
-      explorer: ['Lead Explorer', this.totalLeadsCount ? `${this.totalLeadsCount} leads` : 'Active'],
-      crm: ['CRM Pipeline', 'Active Stages'],
-      warroom: ["Sales War Room", 'Daily quota: 5'],
-      studio: ["Delivery Studio", '48h SLA'],
-      opsdesk: ["Operations Desk", 'Live audit'],
-      campaigns: ['Campaigns', 'Review queue'],
-      operations: ['Discovery Radar', 'Jobs active'],
-      reports: ['Analytics', 'Revenue stats'],
-      settings: ['Settings', 'Presets']
+      dashboard: ['Executive Dashboard', 'Macro Overview & State KPIs'],
+      explorer: ['Verified MSME Database', countStr],
+      mantisai: ['Maps Cluster Scanner', 'Live Discovery Radar Across 6 States'],
+      operations: ['CSV Data Ingestion', 'Batch Ingestion & Deduplication'],
+      warroom: ["Outbound Calling & HUD", 'Kaushik • Speed Dialer & Objection Battlecards'],
+      crm: ['Sales Pipeline Kanban', '7-Stage Deal Flow & Revenue Velocity'],
+      campaigns: ['WhatsApp Draft Approvals', 'Multi-Lingual Template Review Queue'],
+      studio: ["48h SLA Delivery Studio", 'Pushpender • Custom Portal Builds & Deployments'],
+      reports: ['Cashflow & Proforma Invoices', 'Priyanshu • ₹25L Pipeline & GST Receipts'],
+      opsdesk: ["Operations & Team Audit", 'Priyanshu • Real-Time Action Log & Compliance'],
+      cmo: ['Service Packages & Pricing', '₹18,000 Standard Tier & Retainers'],
+      settings: ['Scoring Weights & Rules', '100-Point Algorithm Calibration']
     };
 
     const [title, sub] = titles[viewName] || ['IndusOS', 'Active'];
@@ -2635,16 +2635,18 @@ _Engineering Lead: Pushpender | Client Relations: Kaushik | Operations: Priyansh
     const q = (query || '').toLowerCase().trim();
 
     const standardActions = [
-      { id: 'act-dialer', icon: '⚡', title: 'Launch Rapid Calling Session', sub: "Kaushik's speed outreach console", action: () => { app.closeCommandPalette(); app.openSpeedDialer(); } },
-      { id: 'act-warroom', icon: '⚔️', title: "Open Kaushik's Sales War Room", sub: 'Outreach Quotas, WhatsApp Scripts & Battlecards', action: () => { app.closeCommandPalette(); app.switchView('warroom'); } },
-      { id: 'act-studio', icon: '🛠️', title: "Open Pushpender's Delivery Studio", sub: '48h SLA Build Queue & Live Portal Deployments', action: () => { app.closeCommandPalette(); app.switchView('studio'); } },
-      { id: 'act-opsdesk', icon: '🚨', title: "Open Priyanshu's Operations Desk", sub: 'Live Team Activity Audit Stream & Alarms', action: () => { app.closeCommandPalette(); app.switchView('opsdesk'); } },
-      { id: 'act-crm', icon: '📋', title: 'Open Sales CRM Kanban Board', sub: 'Interactive drag-and-drop pipeline across 7 stages', action: () => { app.closeCommandPalette(); app.switchView('crm'); } },
-      { id: 'act-explorer', icon: '🔍', title: 'Open Lead Explorer', sub: 'Search, filter, and review verified MSME enterprises', action: () => { app.closeCommandPalette(); app.switchView('explorer'); } },
-      { id: 'act-dashboard', icon: '📊', title: 'Open Executive Dashboard', sub: 'Real-time KPIs, Funnel and State Distribution', action: () => { app.closeCommandPalette(); app.switchView('dashboard'); } },
-      { id: 'act-cmo', icon: '📦', title: 'View CMO Packages & Pricing Playbook', sub: '₹18,000 Standard Factory Suite & Cluster Matrix', action: () => { app.closeCommandPalette(); app.switchView('cmo'); } },
-      { id: 'act-export', icon: '📁', title: 'Export Leads as CSV', sub: 'Download filtered call list for field use', action: () => { app.closeCommandPalette(); app.exportCsv(); } },
-      { id: 'act-import', icon: '📥', title: 'Import Leads CSV', sub: 'Upload new enterprise batch into pipeline', action: () => { app.closeCommandPalette(); app.openImportModal(); } }
+      { id: 'act-dialer', icon: '⚡', title: "Outbound Calling HUD", sub: "Kaushik • Speed Dialer, Call Timer & WhatsApp Web", action: () => { app.closeCommandPalette(); app.openSpeedDialer(); } },
+      { id: 'act-explorer', icon: '🏭', title: 'Verified MSME Database', sub: 'Sourcing • Search & filter 139 manufacturing enterprises', action: () => { app.closeCommandPalette(); app.switchView('explorer'); } },
+      { id: 'act-crm', icon: '📋', title: 'Sales Pipeline Kanban', sub: 'Sales • 7-stage visual deal flow & revenue velocity', action: () => { app.closeCommandPalette(); app.switchView('crm'); } },
+      { id: 'act-studio', icon: '🛠️', title: "48h SLA Delivery Studio", sub: 'Pushpender • Custom client portal builds & SLA clock', action: () => { app.closeCommandPalette(); app.switchView('studio'); } },
+      { id: 'act-reports', icon: '💰', title: 'Cashflow & Proforma Invoices', sub: 'Priyanshu • ₹25L pipeline, advances & GST receipts', action: () => { app.closeCommandPalette(); app.switchView('reports'); } },
+      { id: 'act-opsdesk', icon: '🚨', title: "Operations & Team Audit", sub: 'Priyanshu • Live activity stream & compliance log', action: () => { app.closeCommandPalette(); app.switchView('opsdesk'); } },
+      { id: 'act-mantis', icon: '🗺️', title: 'Maps Cluster Scanner', sub: 'Sourcing • Live discovery radar across industrial hubs', action: () => { app.closeCommandPalette(); app.switchView('mantisai'); } },
+      { id: 'act-dashboard', icon: '📊', title: 'Executive Dashboard', sub: 'Overview • Macro revenue & regional state KPIs', action: () => { app.closeCommandPalette(); app.switchView('dashboard'); } },
+      { id: 'act-cmo', icon: '📦', title: 'Service Packages & Pricing', sub: 'Strategy • ₹18,000 standard factory package & retainers', action: () => { app.closeCommandPalette(); app.switchView('cmo'); } },
+      { id: 'act-campaigns', icon: '💬', title: 'WhatsApp Draft Approvals', sub: 'Sales • Review multi-lingual templates queue', action: () => { app.closeCommandPalette(); app.switchView('campaigns'); } },
+      { id: 'act-operations', icon: '📥', title: 'CSV Data Ingestion', sub: 'Sourcing • Batch CSV import & deduplication', action: () => { app.closeCommandPalette(); app.switchView('operations'); } },
+      { id: 'act-settings', icon: '⚙️', title: 'Scoring Weights & Rules', sub: 'Governance • 100-point algorithm calibration', action: () => { app.closeCommandPalette(); app.switchView('settings'); } }
     ];
 
     const filteredActions = standardActions.filter(a => !q || a.title.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q));
