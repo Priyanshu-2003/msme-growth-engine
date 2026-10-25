@@ -214,7 +214,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 3. Lead Details API
-    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export') && !pathname.includes('preview-portal') && !pathname.includes('invoice')) {
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && !pathname.includes('export') && !pathname.includes('preview-portal') && !pathname.includes('invoice') && !pathname.includes('audit-report')) {
       const id = pathname.replace('/api/leads/', '');
       const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
 
@@ -928,6 +928,65 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true, invoice: invoiceData });
     }
 
+    // 17. Lead Digital Audit Report API
+    if (method === 'GET' && pathname.startsWith('/api/leads/') && pathname.endsWith('/audit-report')) {
+      const id = pathname.replace('/api/leads/', '').replace('/audit-report', '');
+      const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      const hasWeb = lead.website_status !== 'NO_WEBSITE_FOUND' && lead.website_url;
+      const isSecured = hasWeb && lead.website_url.startsWith('https://');
+
+      const auditData = {
+        leadId: lead.id,
+        businessName: lead.business_name,
+        city: lead.city,
+        state: lead.state,
+        subcategory: lead.subcategory || 'Textile & Manufacturing',
+        phone: lead.phone || 'Upon Request',
+        digitalScore: lead.lead_score,
+        auditDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        findings: [
+          {
+            parameter: 'Online Website & B2B Catalogue',
+            status: hasWeb ? 'ACTIVE_UNOPTIMIZED' : 'CRITICAL_MISSING',
+            passed: Boolean(hasWeb),
+            impact: hasWeb ? 'Outdated presentation lacks instant wholesale catalogue' : 'Wholesale buyers in Delhi/Mumbai cannot view current designs or place inquiries'
+          },
+          {
+            parameter: 'SSL Data Security & Encryption',
+            status: isSecured ? 'SECURED' : 'SECURITY_RISK',
+            passed: Boolean(isSecured),
+            impact: isSecured ? 'Standard SSL active' : 'Browsers flag site as "Not Secure", causing dealers to abandon orders'
+          },
+          {
+            parameter: 'Mobile & Smartphone Viewport',
+            status: hasWeb ? 'PARTIAL' : 'NON_COMPLIANT',
+            passed: false,
+            impact: '92% of outstation textile dealers order exclusively from mobile phones; desktop-only pages lose orders'
+          },
+          {
+            parameter: 'Instant WhatsApp Commerce Ordering',
+            status: 'MISSING',
+            passed: false,
+            impact: 'Dealers forced to phone or send unorganized WhatsApp photos; high error rate during peak billing hours'
+          }
+        ],
+        businessLossEstimate: {
+          monthlyInquiriesLost: '15 to 25 Outstation Wholesale Inquiries',
+          weeklyWastedStaffHours: '10–14 Hours spent manual photo sharing',
+          estimatedRevenueLeakage: '₹1,50,000 – ₹3,50,000 / Month'
+        },
+        recommendedSolution: 'Turnkey 48-Hour B2B Digital Catalogue & Mobile Dealer Portal',
+        packageCost: 18000,
+        tokenAdvance: 5000,
+        portalUrl: `/portal/${lead.id}`,
+        shareableText: `*DIGITAL MATURITY & DEALER CONVERSION AUDIT*\nEnterprise: *${lead.business_name}* (${lead.city})\nScore: *${lead.lead_score}/100*\n\nCritical Gaps Identified:\n• Online Catalogue: ${hasWeb ? 'Outdated' : 'Missing (Zero presence for outstation buyers)'}\n• WhatsApp Direct PO: Missing (Manual photo sharing friction)\n• Estimated Revenue Leakage: ₹1.5L–₹3.5L/Month\n\nSolution: Live 48h Custom Digital Twin with 1-click WhatsApp ordering. Inspect your demo here: http://localhost:3000/portal/${lead.id}`
+      };
+
+      return sendJson(res, 200, { success: true, audit: auditData });
+    }
+
     // -------------------------------------------------------------
     // STATIC FILE & PORTAL ROUTING
     // -------------------------------------------------------------
@@ -937,6 +996,18 @@ const server = http.createServer(async (req, res) => {
         if (err) {
           res.writeHead(404);
           return res.end('Portal template not found');
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(content);
+      });
+    }
+
+    if (pathname.startsWith('/audit/')) {
+      const auditHtmlPath = path.join(PUBLIC_DIR, 'audit.html');
+      return fs.readFile(auditHtmlPath, (err, content) => {
+        if (err) {
+          res.writeHead(404);
+          return res.end('Audit template not found');
         }
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(content);

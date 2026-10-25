@@ -257,6 +257,23 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.ok(res.body.includes('slider-inward'));
   });
 
+  await t.test('Lead Audit Report API: GET /api/leads/:id/audit-report returns structured diagnostic findings', async () => {
+    const res = await dispatch('/api/leads/lead_00b9b78d89f6/audit-report');
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.json.success, true);
+    assert.ok(res.json.audit);
+    assert.ok(Array.isArray(res.json.audit.findings));
+    assert.ok(res.json.audit.findings.length >= 4);
+    assert.ok(res.json.audit.businessLossEstimate.estimatedRevenueLeakage);
+  });
+
+  await t.test('Lead Audit Report View: GET /audit/:id returns 1-page report HTML', async () => {
+    const res = await dispatch('/audit/lead_00b9b78d89f6');
+    assert.strictEqual(res.statusCode, 200);
+    assert.ok(res.body.includes('Enterprise Digital & Dealer Ordering Audit Report'));
+    assert.ok(res.body.includes('loss-callout'));
+  });
+
   t.after(() => {
     const { getDb } = require('../src/db/index.js');
     const db = getDb();
