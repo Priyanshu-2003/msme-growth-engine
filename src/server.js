@@ -929,8 +929,20 @@ const server = http.createServer(async (req, res) => {
     }
 
     // -------------------------------------------------------------
-    // STATIC FILE SERVING
+    // STATIC FILE & PORTAL ROUTING
     // -------------------------------------------------------------
+    if (pathname.startsWith('/portal/')) {
+      const portalPath = path.join(PUBLIC_DIR, 'portal.html');
+      return fs.readFile(portalPath, (err, content) => {
+        if (err) {
+          res.writeHead(404);
+          return res.end('Portal template not found');
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(content);
+      });
+    }
+
     let filePath = path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname);
 
     // Prevent directory traversal

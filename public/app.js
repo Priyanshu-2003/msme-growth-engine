@@ -1826,8 +1826,11 @@ const app = {
               <td><strong style="color:#d97706;">⏱️ 36h 45m left</strong></td>
               <td><span class="badge ${l.pipeline_stage === 'WON' ? 'badge-success' : 'badge-warning'}">${l.pipeline_stage === 'WON' ? 'Ready for Deployment' : 'Demo Staged'}</span></td>
               <td>
+                <a href="/portal/${l.id}" target="_blank" class="btn btn-xs btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                  <span>🌐</span> <span>Live Portal</span>
+                </a>
                 <button class="btn btn-xs btn-secondary" onclick="app.openPortalPreview('${l.id}')">
-                  🌐 Preview Mockup
+                  🔍 Preview
                 </button>
                 <button class="btn btn-xs btn-success" onclick="app.markDeployedLive('${l.id}')">
                   🚀 Mark Live
@@ -2350,6 +2353,11 @@ const app = {
     const callBtn = document.getElementById('dialer-direct-call-btn');
     callBtn.href = l.phone ? `tel:${cleanPhone}` : '#';
 
+    const portalBtn = document.getElementById('dialer-live-portal-btn');
+    if (portalBtn) {
+      portalBtn.href = `/portal/${l.id}`;
+    }
+
     const objBox = document.getElementById('dialer-objection-box');
     if (objBox) objBox.classList.add('hidden');
 
@@ -2359,6 +2367,19 @@ const app = {
     } else {
       track.textContent = `"Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility in ${l.city} handles multi-stage assembly. Most units in your cluster face raw material scrap loss and dealer ordering friction. We built a 1-click mobile portal for your factory..."`;
     }
+  },
+
+  copyClientPortalLink() {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l) return;
+    const portalUrl = `${window.location.origin}/portal/${l.id}`;
+    const text = `Namaste ${l.business_name}, we generated a 100% live mobile digital twin of your factory with an interactive WhatsApp ordering catalog and scrap leakage calculator. Test your live portal here: ${portalUrl}`;
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast('🔗 Copied 1-Click Prospect Portal WhatsApp invite link!');
+    }).catch(() => {
+      this.showToast(`Portal URL: ${portalUrl}`);
+    });
   },
 
   dialerNext() {

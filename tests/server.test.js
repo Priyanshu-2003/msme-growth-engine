@@ -249,6 +249,14 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.ok(res.body.includes('Dashboard'));
   });
 
+  await t.test('Public Prospect Portal: GET /portal/:id returns standalone portal.html', async () => {
+    const res = await dispatch('/portal/lead_00b9b78d89f6');
+    assert.strictEqual(res.statusCode, 200);
+    assert.ok(res.body.includes('Factory B2B Portal & Live Digital Twin'));
+    assert.ok(res.body.includes('tab-rfq-calc'));
+    assert.ok(res.body.includes('slider-inward'));
+  });
+
   t.after(() => {
     const { getDb } = require('../src/db/index.js');
     const db = getDb();

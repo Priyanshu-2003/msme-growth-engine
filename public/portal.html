@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factory B2B Portal & Live Digital Twin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --primary: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 5rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Hero Section */
+    .factory-hero {
+      background: linear-gradient(180deg, #131d31 0%, #0d1322 100%);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .factory-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+    }
+
+    .factory-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .cert-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .cert-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #1f2937;
+      color: #d1d5db;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #374151;
+    }
+
+    /* Tabs & Section Nav */
+    .portal-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1.75rem 0 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .portal-nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .portal-nav-btn.active {
+      color: #ffffff;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Cards */
+    .portal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Products Grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .product-box {
+      background: #162032;
+      border: 1px solid #243046;
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .product-box:hover {
+      transform: translateY(-2px);
+      border-color: #3b82f6;
+    }
+
+    .product-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f3f4f6;
+      margin-bottom: 0.35rem;
+    }
+
+    .product-spec {
+      font-size: 0.775rem;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .product-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.775rem;
+    }
+
+    .price-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
+    .qty-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 0.2rem 0.4rem;
+    }
+
+    .qty-btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qty-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    /* Live Cart Drawer */
+    .cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid #374151;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .cart-total-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-label {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cart-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .btn-wa-order {
+      background: #15803d;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.4);
+      transition: all 0.15s ease;
+    }
+
+    .btn-wa-order:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    /* Simulator Sliders */
+    .slider-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .slider-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      background: #374151;
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+    }
+
+    .sim-result-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .sim-savings-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0.25rem 0;
+    }
+
+    /* RFQ Costing Grid */
+    .rfq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .rfq-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-label {
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .form-input, .form-select {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Promoters Token Advance Box */
+    .advance-lock-card {
+      background: linear-gradient(180deg, #1e1b4b 0%, #171727 100%);
+      border: 1px solid #6366f1;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .advance-info h3 {
+      color: #ffffff;
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .advance-info p {
+      font-size: 0.825rem;
+      color: #cbd5e1;
+      max-width: 500px;
+    }
+
+    .btn-lock-advance {
+      background: #4f46e5;
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-lock-advance:hover {
+      background: #6366f1;
+      transform: translateY(-2px);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="top-bar">
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <span class="brand-pill">
+        <span class="live-dot"></span>
+        <span id="portal-brand-tag">IndusOS Manufacturing Cloud</span>
+      </span>
+      <span style="font-size:0.75rem; color:#64748b;">• Live Digital Twin Preview</span>
+    </div>
+    <div style="font-size:0.75rem; color:#94a3b8;">
+      Deploying SLA: <strong style="color:var(--accent);">48 Hours</strong>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Enterprise Hero Header -->
+    <section class="factory-hero">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h1 class="factory-title" id="hero-business-name">Loading Enterprise...</h1>
+          <div class="factory-subtitle">
+            <span id="hero-location">📍 Industrial Cluster</span>
+            <span>•</span>
+            <span id="hero-tagline">Precision Manufacturing & Assembly</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem; color:#64748b; text-transform:uppercase; font-weight:700;">Factory Hotline</div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:1.05rem; font-weight:700; color:var(--accent);" id="hero-phone">+91 00000 00000</div>
+        </div>
+      </div>
+
+      <div class="cert-tags" id="hero-certs">
+        <span class="cert-badge">ISO 9001:2015</span>
+        <span class="cert-badge">MSME Udyam Verified</span>
+        <span class="cert-badge">48h Custom Domain (.in) Ready</span>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="portal-nav">
+      <button class="portal-nav-btn active" onclick="switchPortalTab('catalog', this)">📦 B2B Dealer Catalog</button>
+      <button class="portal-nav-btn" onclick="switchPortalTab('scrap-sim', this)">⚡ Scrap & Profit Simulator</button>
+      <button class="portal-nav-btn" onclick="switchPortalTab('rfq-calc', this)">🎯 10-Second Smart RFQ Estimator</button>
+      <button class="portal-nav-btn" onclick="switchPortalTab('bom-flow', this)">🔄 Multi-Stage BOM Verification</button>
+    </nav>
+
+    <!-- TAB 1: B2B DEALER CATALOG -->
+    <section id="tab-catalog" class="portal-tab-content">
+      <div class="portal-card">
+        <div class="card-title">
+          <span>📦 Direct-From-Factory Wholesale Catalog</span>
+          <span style="font-size:0.75rem; background:#065f46; color:#a7f3d0; padding:2px 8px; border-radius:9999px;">Dealer Net Rates</span>
+        </div>
+        <p class="card-subtitle">Select quantities below. Orders generate an official Purchase Order dispatched directly to the factory promoter via WhatsApp.</p>
+
+        <div class="products-grid" id="products-container">
+          <!-- Dynamically injected -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SCRAP & LEAKAGE SIMULATOR -->
+    <section id="tab-scrap-sim" class="portal-tab-content hidden">
+      <div class="portal-card">
+        <div class="card-title">
+          <span>⚡ Shopfloor Scrap Leakage & Profit Recovery Calculator</span>
+        </div>
+        <p class="card-subtitle">Adjust factory production parameters to calculate how much liquid cash IndusOS scrap & batch tracking saves your unit annually.</p>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Monthly Raw Material Consumption:</span>
+            <span class="slider-val" id="val-inward">6,000 kg / month</span>
+          </div>
+          <input type="range" id="slider-inward" min="1000" max="30000" step="500" value="6000" oninput="runScrapSimulation()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Average Raw Material Price (per kg):</span>
+            <span class="slider-val" id="val-price">₹180 / kg</span>
+          </div>
+          <input type="range" id="slider-price" min="50" max="650" step="10" value="180" oninput="runScrapSimulation()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Current Untracked Scrap Loss:</span>
+            <span class="slider-val" id="val-scrap-cur" style="color:var(--danger);">11.5%</span>
+          </div>
+          <input type="range" id="slider-scrap-cur" min="5" max="25" step="0.5" value="11.5" oninput="runScrapSimulation()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Target Scrap with IndusOS BOM Tracking:</span>
+            <span class="slider-val" id="val-scrap-tgt" style="color:var(--accent);">4.5%</span>
+          </div>
+          <input type="range" id="slider-scrap-tgt" min="2" max="10" step="0.5" value="4.5" oninput="runScrapSimulation()">
+        </div>
+
+        <div class="sim-result-card">
+          <div style="font-size:0.8rem; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em;">Estimated Annual Recovered Cash Flow</div>
+          <div class="sim-savings-num" id="sim-annual-savings">₹9,07,200 / Year</div>
+          <p style="font-size:0.8rem; color:#cbd5e1; max-width:550px; margin:0 auto;">
+            By tracking turning weights & scrap loss per batch on shopfloor tablets, pilferage drops from 11.5% to 4.5%, directly flowing into operating profit.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 10-SECOND SMART RFQ ESTIMATOR -->
+    <section id="tab-rfq-calc" class="portal-tab-content hidden">
+      <div class="portal-card">
+        <div class="card-title">
+          <span>🎯 10-Second Precision Component RFQ & Costing Engine</span>
+        </div>
+        <p class="card-subtitle">Generate instant, profitable B2B quotations for dealers with automatic scrap recovery offsets.</p>
+
+        <div class="rfq-grid">
+          <div class="form-group">
+            <label class="form-label">Raw Material Alloy Grade</label>
+            <select id="rfq-material" class="form-select" onchange="calcRfqCost()">
+              <option value="68|45">Forged Carbon Steel EN8 (₹68/kg | Scrap ₹45/kg)</option>
+              <option value="480|320" selected>Free-Cutting Brass CW614N (₹480/kg | Scrap ₹320/kg)</option>
+              <option value="240|140">Aircraft Aluminum 6061-T6 (₹240/kg | Scrap ₹140/kg)</option>
+              <option value="220|110">Stainless Steel SS304 (₹220/kg | Scrap ₹110/kg)</option>
+              <option value="52|30">Ductile Cast Iron FG260 (₹52/kg | Scrap ₹30/kg)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Order Batch Quantity (Nos)</label>
+            <input type="number" id="rfq-batch-qty" class="form-input" value="1000" min="50" step="50" oninput="calcRfqCost()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Raw Ingot / Billet Cut Weight (Grams)</label>
+            <input type="number" id="rfq-cut-weight" class="form-input" value="280" min="10" step="5" oninput="calcRfqCost()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Final Finished Part Weight (Grams)</label>
+            <input type="number" id="rfq-finish-weight" class="form-input" value="190" min="5" step="5" oninput="calcRfqCost()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CNC/VMC Machining Cycle (Minutes)</label>
+            <input type="number" id="rfq-cycle-time" class="form-input" value="3.5" min="0.5" step="0.5" oninput="calcRfqCost()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Target Profit Margin (%)</label>
+            <input type="number" id="rfq-margin-pct" class="form-input" value="22" min="5" max="50" step="1" oninput="calcRfqCost()">
+          </div>
+        </div>
+
+        <div style="background:#0f172a; border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-top:1rem;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
+            <div>
+              <span style="font-size:0.75rem; color:#94a3b8;">Raw Metal Cost:</span>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:700;" id="rfq-out-raw">₹134.40</div>
+            </div>
+            <div>
+              <span style="font-size:0.75rem; color:var(--accent);">Scrap Recovery Credit:</span>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:700; color:var(--accent);" id="rfq-out-scrap">- ₹28.80</div>
+            </div>
+            <div>
+              <span style="font-size:0.75rem; color:#94a3b8;">Machining & Electricity:</span>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:700;" id="rfq-out-machining">₹24.50</div>
+            </div>
+            <div>
+              <span style="font-size:0.75rem; color:#60a5fa;">Unit Production Cost:</span>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:700; color:#60a5fa;" id="rfq-out-net-cost">₹130.10</div>
+            </div>
+          </div>
+
+          <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px dashed #334155; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">Recommended Dealer Wholesale Price</div>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:1.6rem; font-weight:800; color:#fbbf24;" id="rfq-out-quoted-price">₹158.70 / Unit</div>
+            </div>
+            <button class="btn-wa-order" onclick="copyRfqBreakdown()" style="background:#2563eb;">
+              <span>📋</span> <span>Copy Quotation for WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BOM VERIFICATION FLOW -->
+    <section id="tab-bom-flow" class="portal-tab-content hidden">
+      <div class="portal-card">
+        <div class="card-title">
+          <span>🔄 Verifiable Multi-Stage BOM Flow</span>
+        </div>
+        <p class="card-subtitle">Every production batch undergoes strict staged inspection before dispatch authorization.</p>
+
+        <div id="bom-stages-container" style="display:flex; flex-direction:column; gap:0.75rem;">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Promoters Token Advance Box -->
+    <section class="advance-lock-card">
+      <div class="advance-info">
+        <h3>🚀 Turnkey Factory Go-Live & Custom Domain (.in)</h3>
+        <p>
+          Pushpender (Engineering Lead) is ready to deploy this portal live with your official custom domain, dealer logins, and automated WhatsApp order routing within 48 hours for a ₹5,000 token advance.
+        </p>
+      </div>
+      <div>
+        <button class="btn-lock-advance" onclick="lockTokenAdvance()">
+          <span>🔒</span> <span>Lock ₹5,000 Advance via UPI</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Mobile Live Cart Drawer -->
+  <div class="cart-bar" id="cart-drawer">
+    <div class="cart-total-box">
+      <span class="cart-label">Estimated Order Value (<span id="cart-items-count">0</span> Items)</span>
+      <span class="cart-price" id="cart-total-price">₹0</span>
+    </div>
+    <button class="btn-wa-order" onclick="dispatchOrderViaWhatsApp()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Dispatch PO via WhatsApp</span>
+    </button>
+  </div>
+
+  <script>
+    // Extract lead ID from URL path: /portal/:id
+    const leadId = window.location.pathname.replace('/portal/', '').trim();
+    let portalLead = null;
+    let cart = {};
+
+    async function initPortal() {
+      if (!leadId) {
+        document.body.innerHTML = '<div style="padding:3rem; text-align:center; color:#94a3b8;">Missing Lead ID in URL. Example: /portal/lead_00b9b78d89f6</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/leads/${leadId}/preview-portal`);
+        const data = await res.json();
+        if (!data.success) {
+          document.body.innerHTML = '<div style="padding:3rem; text-align:center; color:#ef4444;">Enterprise Portal Not Found.</div>';
+          return;
+        }
+
+        portalLead = data.preview;
+        renderPortalData();
+        runScrapSimulation();
+        calcRfqCost();
+      } catch (err) {
+        console.error('Error loading portal:', err);
+      }
+    }
+
+    function renderPortalData() {
+      const p = portalLead;
+      document.title = `${p.businessName} • B2B Factory Portal`;
+      document.getElementById('hero-business-name').textContent = p.businessName;
+      document.getElementById('hero-location').textContent = `📍 ${p.city}, ${p.state}`;
+      document.getElementById('hero-tagline').textContent = p.tagline;
+      document.getElementById('hero-phone').textContent = p.phone || '+91 Upon Request';
+
+      // Products
+      const container = document.getElementById('products-container');
+      container.innerHTML = '';
+      (p.products || []).forEach((prod, idx) => {
+        const defaultRate = (idx + 1) * 85 + 40;
+        cart[idx] = { name: prod.name, rate: defaultRate, qty: 0 };
+
+        const box = document.createElement('div');
+        box.className = 'product-box';
+        box.innerHTML = `
+          <div>
+            <div class="product-name">${prod.name}</div>
+            <div class="product-spec">${prod.desc}</div>
+          </div>
+          <div>
+            <div class="product-meta-row">
+              <span class="price-tag">₹${defaultRate.toLocaleString('en-IN')} / Unit</span>
+              <span style="color:#64748b; font-size:0.75rem;">MOQ: ${prod.moq}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.75rem; color:#94a3b8;">Select Qty:</span>
+              <div class="qty-counter">
+                <button class="qty-btn" onclick="adjustQty(${idx}, -50)">-</button>
+                <span class="qty-val" id="qty-val-${idx}">0</span>
+                <button class="qty-btn" onclick="adjustQty(${idx}, 50)">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(box);
+      });
+
+      // BOM Stages
+      const bomCont = document.getElementById('bom-stages-container');
+      bomCont.innerHTML = '';
+      (p.bomFlow || []).forEach((st, i) => {
+        const step = document.createElement('div');
+        step.style.cssText = 'background:#162032; border:1px solid #243046; border-radius:8px; padding:0.85rem 1rem; display:flex; align-items:center; gap:0.75rem;';
+        step.innerHTML = `
+          <div style="background:#3b82f6; color:#ffffff; font-weight:800; font-size:0.8rem; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${i+1}</div>
+          <div style="font-size:0.85rem; font-weight:600; color:#e2e8f0;">${st}</div>
+        `;
+        bomCont.appendChild(step);
+      });
+    }
+
+    function switchPortalTab(tabId, btn) {
+      document.querySelectorAll('.portal-nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.portal-tab-content').forEach(c => c.classList.add('hidden'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+    }
+
+    function adjustQty(idx, delta) {
+      if (!cart[idx]) return;
+      cart[idx].qty = Math.max(0, cart[idx].qty + delta);
+      document.getElementById(`qty-val-${idx}`).textContent = cart[idx].qty;
+      updateCartDrawer();
+    }
+
+    function updateCartDrawer() {
+      let totalItems = 0;
+      let totalVal = 0;
+
+      Object.values(cart).forEach(item => {
+        totalItems += item.qty;
+        totalVal += (item.qty * item.rate);
+      });
+
+      document.getElementById('cart-items-count').textContent = totalItems;
+      document.getElementById('cart-total-price').textContent = `₹${totalVal.toLocaleString('en-IN')}`;
+    }
+
+    function dispatchOrderViaWhatsApp() {
+      const activeItems = Object.values(cart).filter(i => i.qty > 0);
+      if (activeItems.length === 0) {
+        alert('Please add at least 1 component quantity to generate a Purchase Order.');
+        return;
+      }
+
+      let totalVal = activeItems.reduce((acc, i) => acc + (i.qty * i.rate), 0);
+      let text = `*OFFICIAL B2B PURCHASE ORDER (PO)*\n`;
+      text += `Factory: *${portalLead.businessName}*\n`;
+      text += `Date: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+      text += `*Ordered Items:*\n`;
+      activeItems.forEach((it, idx) => {
+        text += `${idx + 1}. ${it.name} - ${it.qty} Units @ ₹${it.rate}/unit = ₹${(it.qty * it.rate).toLocaleString('en-IN')}\n`;
+      });
+      text += `\n*Total PO Value:* ₹${totalVal.toLocaleString('en-IN')}\n`;
+      text += `_Dispatched via IndusOS Live Dealer Engine_`;
+
+      const targetPhone = portalLead.waPhone || '919876543210';
+      const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    // Scrap Simulation
+    function runScrapSimulation() {
+      const inwardKg = parseFloat(document.getElementById('slider-inward').value);
+      const pricePerKg = parseFloat(document.getElementById('slider-price').value);
+      const curScrap = parseFloat(document.getElementById('slider-scrap-cur').value);
+      const tgtScrap = parseFloat(document.getElementById('slider-scrap-tgt').value);
+
+      document.getElementById('val-inward').textContent = `${inwardKg.toLocaleString('en-IN')} kg / month`;
+      document.getElementById('val-price').textContent = `₹${pricePerKg} / kg`;
+      document.getElementById('val-scrap-cur').textContent = `${curScrap}%`;
+      document.getElementById('val-scrap-tgt').textContent = `${tgtScrap}%`;
+
+      const diffPct = Math.max(0, curScrap - tgtScrap) / 100;
+      const monthlySavedKg = inwardKg * diffPct;
+      const annualSavingsInr = Math.round(monthlySavedKg * pricePerKg * 12 * 0.7); // 70% net recovery value
+
+      document.getElementById('sim-annual-savings').textContent = `₹${annualSavingsInr.toLocaleString('en-IN')} / Year`;
+    }
+
+    // Smart RFQ Costing
+    function calcRfqCost() {
+      const [rawRate, scrapRate] = document.getElementById('rfq-material').value.split('|').map(parseFloat);
+      const batchQty = parseFloat(document.getElementById('rfq-batch-qty').value) || 1000;
+      const cutWeightGrams = parseFloat(document.getElementById('rfq-cut-weight').value) || 280;
+      const finishWeightGrams = parseFloat(document.getElementById('rfq-finish-weight').value) || 190;
+      const cycleTimeMins = parseFloat(document.getElementById('rfq-cycle-time').value) || 3.5;
+      const targetMarginPct = parseFloat(document.getElementById('rfq-margin-pct').value) || 22;
+
+      const rawCostPerUnit = (cutWeightGrams / 1000) * rawRate;
+      const scrapWeightGrams = Math.max(0, cutWeightGrams - finishWeightGrams);
+      const scrapCreditPerUnit = (scrapWeightGrams / 1000) * scrapRate;
+      const machineHourlyRate = 420; // ₹420 / machine hour typical in Indian CNC clusters
+      const machiningCostPerUnit = (cycleTimeMins / 60) * machineHourlyRate;
+
+      const netCostPerUnit = rawCostPerUnit - scrapCreditPerUnit + machiningCostPerUnit;
+      const quotedPrice = netCostPerUnit * (1 + (targetMarginPct / 100));
+
+      document.getElementById('rfq-out-raw').textContent = `₹${rawCostPerUnit.toFixed(2)}`;
+      document.getElementById('rfq-out-scrap').textContent = `- ₹${scrapCreditPerUnit.toFixed(2)}`;
+      document.getElementById('rfq-out-machining').textContent = `₹${machiningCostPerUnit.toFixed(2)}`;
+      document.getElementById('rfq-out-net-cost').textContent = `₹${netCostPerUnit.toFixed(2)}`;
+      document.getElementById('rfq-out-quoted-price').textContent = `₹${quotedPrice.toFixed(2)} / Unit`;
+    }
+
+    function copyRfqBreakdown() {
+      const quoted = document.getElementById('rfq-out-quoted-price').textContent;
+      const net = document.getElementById('rfq-out-net-cost').textContent;
+      const raw = document.getElementById('rfq-out-raw').textContent;
+      const scrap = document.getElementById('rfq-out-scrap').textContent;
+
+      const text = 
+`*ENGINEERING QUOTATION & BOM BREAKDOWN*
+Enterprise: ${portalLead ? portalLead.businessName : 'IndusOS Partner Factory'}
+Component: Custom Engineered Machine Component
+
+• Inward Raw Metal Cost: ${raw}
+• Scrap Recovery Offset: ${scrap}
+• Net Production Cost: ${net}
+• *Target Wholesale Dealer Rate: ${quoted}*
+
+_Calculated in 10s via IndusOS Smart Manufacturing Estimator_`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('📋 Copied Official Quotation breakdown to clipboard for WhatsApp!');
+      });
+    }
+
+    function lockTokenAdvance() {
+      const upiUrl = `upi://pay?pa=indusos@icici&pn=IndusOS%20Technologies&am=5000&cu=INR&tn=Token%20Advance%20${encodeURIComponent(portalLead ? portalLead.businessName : 'Enterprise')}`;
+      const msg = `Namaste Kaushik ji, we inspected our live IndusOS Factory Portal for ${portalLead ? portalLead.businessName : 'our enterprise'}. We are ready to lock the ₹5,000 token advance for 48h live custom domain go-live.`;
+      const waUrl = `https://wa.me/919876543210?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    window.addEventListener('DOMContentLoaded', initPortal);
+  </script>
+</body>
+</html>
