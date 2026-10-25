@@ -46,9 +46,10 @@
           <span>Lead Explorer</span>
         </button>
 
-        <button class="nav-item" data-view="crm">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-          <span>Sales CRM</span>
+        <button class="nav-item" data-view="crm" id="nav-btn-crm">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <span>Sales CRM Kanban</span>
+          <span class="badge badge-info" style="font-size:10px; margin-left:auto; padding:2px 6px;">Pipeline</span>
         </button>
 
         <button class="nav-item" data-view="campaigns">
@@ -90,7 +91,37 @@
           <p id="page-subtitle">Real-time MSME discovery, digital deficiency analysis, and pipeline performance</p>
         </div>
 
+        <!-- Active Team Banner -->
+        <div class="team-header-banner">
+          <span class="team-banner-label">Team:</span>
+          <div class="team-chip chip-priyanshu" title="Priyanshu: Overall Coordination, Pipeline Tracking & Team Support">
+            <span class="chip-avatar">P</span>
+            <div class="chip-info">
+              <span class="chip-name">Priyanshu</span>
+              <span class="chip-role">Coordination & Support</span>
+            </div>
+          </div>
+          <div class="team-chip chip-kaushik" title="Kaushik: Lead Outreach, Qualification, 15-min Demo & Advance Closing">
+            <span class="chip-avatar">K</span>
+            <div class="chip-info">
+              <span class="chip-name">Kaushik</span>
+              <span class="chip-role">Sales & Closing</span>
+            </div>
+          </div>
+          <div class="team-chip chip-pushpender" title="Pushpender: Factory Portals, AI Web Engine & Rapid Deployment">
+            <span class="chip-avatar">P</span>
+            <div class="chip-info">
+              <span class="chip-name">Pushpender</span>
+              <span class="chip-role">Tech & Delivery</span>
+            </div>
+          </div>
+        </div>
+
         <div class="top-bar-actions">
+          <button class="btn btn-primary" id="btn-topbar-crm" onclick="app.switchView('crm')" title="Open Sales CRM Kanban Pipeline">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+            Sales CRM Kanban
+          </button>
           <button class="btn btn-secondary" id="btn-export-csv" title="Export matching leads to CSV">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Export CSV
@@ -99,7 +130,7 @@
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             Import CSV
           </button>
-          <button class="btn btn-primary" id="btn-trigger-discovery">
+          <button class="btn btn-secondary" id="btn-trigger-discovery">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             Run Discovery
           </button>
@@ -503,11 +534,87 @@
 
       <!-- VIEW 3: SALES CRM (KANBAN PIPELINE) -->
       <section id="view-crm" class="content-view">
-        <div class="crm-toolbar">
-          <p class="crm-desc">Move qualified leads through the consultative sales cycle. Contact approved prospects with customized English/Hindi briefs.</p>
+        <!-- CRM KPI Stat Cards -->
+        <div class="kpi-grid" style="margin-bottom: 1rem;">
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <span class="kpi-label">Total Leads in CRM</span>
+              <h3 class="kpi-value" id="crm-stat-total">68</h3>
+              <span class="kpi-sub">Verified Indian MSMEs</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <span class="kpi-label">Active Outreach (Kaushik)</span>
+              <h3 class="kpi-value" id="crm-stat-contacted">0</h3>
+              <span class="kpi-sub">Contacted / Replied</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <span class="kpi-label">Demos Scheduled</span>
+              <h3 class="kpi-value" id="crm-stat-demos">0</h3>
+              <span class="kpi-sub">15-min Zoom / Meet</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <span class="kpi-label">Deals Won / In Build (Pushpender)</span>
+              <h3 class="kpi-value" id="crm-stat-won">0</h3>
+              <span class="kpi-sub">Advance Locked & Delivered</span>
+            </div>
+          </div>
         </div>
+
+        <!-- Team Workflow & Handoff Playbook Bar -->
+        <div class="card" style="margin-bottom: 1rem; border-left: 4px solid var(--primary);">
+          <div class="card-body" style="padding: 0.85rem 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size: 1.25rem;">🤝</span>
+                <div>
+                  <strong style="font-size: 0.9rem; color: var(--text-main);">Team Execution Protocol:</strong>
+                  <span style="font-size: 0.825rem; color: #475569;">
+                    <strong>Kaushik</strong> handles calls, demos & advance closing ➔ <strong>Pushpender</strong> builds & deploys factory portal within 48h ➔ <strong>Priyanshu</strong> coordinates pipeline & logs every step.
+                  </span>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-secondary" onclick="app.showPlaybookModal()" style="font-size: 0.8rem;">
+                📖 View 3-Minute Objection Playbook
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRM Toolbar: Team Filter Tabs + Kanban Search -->
+        <div class="crm-toolbar-panel">
+          <div class="team-filter-tabs">
+            <button class="team-tab-btn active" data-filter="ALL" onclick="app.setKanbanFilter('ALL')">
+              All Leads <span class="tab-badge" id="tab-count-all">68</span>
+            </button>
+            <button class="team-tab-btn" data-filter="KAUSHIK" onclick="app.setKanbanFilter('KAUSHIK')">
+              <span class="dot kaushik-dot"></span> Kaushik's Pipeline (Sales & Calls)
+            </button>
+            <button class="team-tab-btn" data-filter="PUSHPENDER" onclick="app.setKanbanFilter('PUSHPENDER')">
+              <span class="dot pushpender-dot"></span> Pushpender's Pipeline (Tech Build)
+            </button>
+            <button class="team-tab-btn" data-filter="PRIYANSHU" onclick="app.setKanbanFilter('PRIYANSHU')">
+              <span class="dot priyanshu-dot"></span> Priyanshu's Watchlist (Coordination)
+            </button>
+          </div>
+
+          <div class="kanban-search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="kanban-search-input" placeholder="Quick search lead name, city, phone..." oninput="app.searchKanban(this.value)">
+            <button class="btn btn-sm btn-secondary" onclick="app.loadCrmKanban()" title="Refresh Kanban Board">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Kanban Board -->
         <div class="kanban-board" id="kanban-board">
-          <!-- Kanban columns generated by app.js -->
+          <!-- Kanban columns generated dynamically by app.js -->
         </div>
       </section>
 
@@ -1034,24 +1141,64 @@
               </div>
             </div>
 
-            <div class="stage-updater-box">
-              <h4>Update Pipeline Stage & Log Note</h4>
-              <div class="form-row">
-                <select id="modal-update-stage" class="select-input">
-                  <option value="DISCOVERED">Discovered</option>
-                  <option value="RESEARCHED">Researched</option>
-                  <option value="QUALIFIED">Qualified</option>
-                  <option value="APPROVED_FOR_CONTACT">Approved for Contact</option>
-                  <option value="CONTACTED">Contacted</option>
-                  <option value="REPLIED">Replied</option>
-                  <option value="MEETING_BOOKED">Meeting Booked</option>
-                  <option value="PROPOSAL_SENT">Proposal Sent</option>
-                  <option value="WON">Won (Customer)</option>
-                  <option value="LOST">Lost</option>
-                  <option value="NURTURE">Nurture</option>
-                </select>
-                <input type="text" id="modal-note-input" class="input-text" placeholder="Add an operational or sales note...">
-                <button class="btn btn-primary" id="btn-save-lead-stage">Save</button>
+            <div class="stage-updater-box" style="background:#f8fafc; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-top:1.25rem;">
+              <h4 style="margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>📝 Record Action Step & Advance Pipeline</span>
+                <span class="badge badge-info">Audit Trail Active</span>
+              </h4>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom:0.75rem;">
+                <div>
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Action Taken By</label>
+                  <select id="modal-log-author" class="select-input" style="width:100%;">
+                    <option value="Kaushik">Kaushik (Sales & Closing)</option>
+                    <option value="Priyanshu">Priyanshu (Coordination)</option>
+                    <option value="Pushpender">Pushpender (Tech & Delivery)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Step Performed</label>
+                  <select id="modal-log-action" class="select-input" style="width:100%;">
+                    <option value="WHATSAPP_SENT">💬 WhatsApp Outreach Sent</option>
+                    <option value="CALL_CONNECTED">📞 Call Connected / Owner Spoke</option>
+                    <option value="CALL_NOT_ANSWERED">📵 Call Not Picked / Busy</option>
+                    <option value="DEMO_SCHEDULED">📅 15-Min Live Demo Scheduled</option>
+                    <option value="DEMO_COMPLETED">🎯 Demo Completed & Price Quoted</option>
+                    <option value="ADVANCE_RECEIVED">💰 50% Token Advance Received</option>
+                    <option value="TECH_HANDOFF">🛠️ Handed Over to Pushpender</option>
+                    <option value="PROJECT_DELIVERED">🚀 Client Site Deployed Live</option>
+                    <option value="FOLLOW_UP_NOTE">📝 General Follow-up Note</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Update Stage</label>
+                  <select id="modal-update-stage" class="select-input" style="width:100%;">
+                    <option value="DISCOVERED">Discovered</option>
+                    <option value="RESEARCHED">Researched</option>
+                    <option value="QUALIFIED">Qualified</option>
+                    <option value="APPROVED_FOR_CONTACT">Approved for Contact</option>
+                    <option value="CONTACTED">Contacted</option>
+                    <option value="REPLIED">Replied</option>
+                    <option value="MEETING_BOOKED">Meeting Booked</option>
+                    <option value="PROPOSAL_SENT">Proposal Sent</option>
+                    <option value="WON">Won (Customer Closed)</option>
+                    <option value="LOST">Lost</option>
+                    <option value="NURTURE">Nurture</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Next Follow-Up Date</label>
+                  <input type="date" id="modal-followup-date" class="input-text" style="width:100%;">
+                </div>
+              </div>
+              <div style="margin-bottom:0.75rem;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Conversation Summary & Notes</label>
+                <textarea id="modal-note-input" class="textarea-input" rows="2" style="width:100%;" placeholder="e.g. Kaushik spoke with owner. Scheduled demo for tomorrow 11 AM."></textarea>
+              </div>
+              <div style="display:flex; justify-content:flex-end;">
+                <button class="btn btn-primary" id="btn-save-lead-stage">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Record Step Permanently
+                </button>
               </div>
             </div>
 

@@ -11,6 +11,8 @@ const app = {
     opportunity_tier: '',
     pipeline_stage: ''
   },
+  kanbanFilter: 'ALL',
+  kanbanSearchQuery: '',
   currentLeadDetail: null,
 
   init() {
@@ -463,12 +465,26 @@ const app = {
       // Audit trail
       const auditContainer = document.getElementById('modal-audit-trail');
       auditContainer.innerHTML = '';
-      (l.audit_history || []).forEach(a => {
-        const d = document.createElement('div');
-        d.className = 'audit-item';
-        d.innerHTML = `<small style="color:#64748b;">${new Date(a.timestamp).toLocaleString()}</small> — <strong>${a.action}</strong>: ${a.details}`;
-        auditContainer.appendChild(d);
-      });
+      const history = l.audit_history || [];
+      if (history.length === 0) {
+        auditContainer.innerHTML = '<p class="text-muted" style="font-size:0.8rem; padding: 0.5rem 0;">No activity steps logged yet. Use the form above to record outreach actions.</p>';
+      } else {
+        history.slice().reverse().forEach(a => {
+          const d = document.createElement('div');
+          d.className = 'audit-item';
+          d.style.cssText = 'padding: 0.65rem 0.85rem; border-left: 3px solid var(--primary); background: #f8fafc; margin-bottom: 0.5rem; border-radius: 4px; border: 1px solid #e2e8f0; border-left-width: 4px;';
+          const authorBadge = a.author ? `<span class="badge badge-info" style="margin-right:0.4rem; font-weight:700;">👤 ${a.author}</span>` : '';
+          const actionBadge = a.action ? `<span class="badge badge-neutral" style="margin-right:0.4rem;">${a.action.replace(/_/g, ' ')}</span>` : '';
+          d.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <div>${authorBadge}${actionBadge}</div>
+              <small style="color:#64748b; font-size:0.75rem;">${new Date(a.timestamp).toLocaleString('en-IN')}</small>
+            </div>
+            <div style="font-size:0.825rem; color:#334155; line-height:1.4;">${a.details || ''}</div>
+          `;
+          auditContainer.appendChild(d);
+        });
+      }
 
       // Digital Assessment tab
       const daContainer = document.getElementById('modal-digital-details');
@@ -593,19 +609,29 @@ const app = {
   async saveLeadStage() {
     if (!this.currentLeadDetail) return;
     const leadId = this.currentLeadDetail.lead.id;
+    const author = document.getElementById('modal-log-author')?.value || 'Kaushik';
+    const action_type = document.getElementById('modal-log-action')?.value || 'FOLLOW_UP_NOTE';
     const stage = document.getElementById('modal-update-stage').value;
+    const follow_up_date = document.getElementById('modal-followup-date')?.value;
     const note = document.getElementById('modal-note-input').value.trim();
 
     try {
       const res = await fetch(`/api/leads/${leadId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pipeline_stage: stage, note: note || undefined })
+        body: JSON.stringify({
+          pipeline_stage: stage,
+          author,
+          action_type,
+          follow_up_date: follow_up_date || undefined,
+          note: note || undefined
+        })
       });
       const data = await res.json();
       if (data.success) {
-        this.showToast('Lead stage updated successfully');
-        this.closeLeadModal();
+        this.showToast(`Step recorded by ${author}!`);
+        // Refresh modal to immediately show newly added audit item
+        await this.openLeadModal(leadId);
         if (this.activeView === 'explorer') this.loadExplorerLeads();
         else if (this.activeView === 'crm') this.loadCrmKanban();
         else if (this.activeView === 'dashboard') this.loadDashboard();
@@ -632,33 +658,134 @@ const app = {
     }
   },
 
+  // Team Kanban Filter and Quick Actions
+  setKanbanFilter(role) {
+    this.kanbanFilter = role;
+    document.querySelectorAll('.team-tab-btn').forEach(btn => {
+      if (btn.getAttribute('data-filter') === role) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    this.loadCrmKanban();
+  },
+
+  searchKanban(query) {
+    this.kanbanSearchQuery = (query || '').toLowerCase().trim();
+    const cards = document.querySelectorAll('.kanban-card');
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      if (!this.kanbanSearchQuery || text.includes(this.kanbanSearchQuery)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  },
+
+  async advanceLeadStageQuick(leadId, currentStage, event) {
+    if (event) event.stopPropagation();
+    
+    const nextMap = {
+      'DISCOVERED': { next: 'QUALIFIED', author: 'Kaushik', action: 'DISCOVERY_CALL_SCHEDULED', note: 'Lead qualified by Kaushik via rapid assessment.' },
+      'QUALIFIED': { next: 'APPROVED_FOR_CONTACT', author: 'Priyanshu', action: 'OFFER_APPROVED', note: 'Outreach campaign offer approved for contact by Priyanshu.' },
+      'APPROVED_FOR_CONTACT': { next: 'CONTACTED', author: 'Kaushik', action: 'WHATSAPP_PITCH_SENT', note: 'Consultative WhatsApp pitch & brochure sent by Kaushik.' },
+      'CONTACTED': { next: 'REPLIED', author: 'Kaushik', action: 'PROMOTER_ENGAGED', note: 'Promoter replied on WhatsApp showing interest in upgrading factory systems.' },
+      'REPLIED': { next: 'MEETING_BOOKED', author: 'Kaushik', action: 'DEMO_COMPLETED', note: '15-minute live screen demo booked with promoter by Kaushik.' },
+      'MEETING_BOOKED': { next: 'WON', author: 'Kaushik', action: 'ADVANCE_TOKEN_RECEIVED', note: 'Client locked! ₹5,000 advance received. Handed over to Pushpender for rapid tech build.' },
+      'WON': { next: 'WON', author: 'Pushpender', action: 'SITE_DEPLOYED_LIVE', note: 'Factory portal & catalog deployed live on domain by Pushpender.' }
+    };
+
+    const target = nextMap[currentStage];
+    if (!target) return;
+
+    try {
+      const res = await fetch(`/api/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_stage: target.next,
+          author: target.author,
+          action_type: target.action,
+          note: target.note
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`Stage advanced to ${target.next.replace(/_/g, ' ')} by ${target.author}!`);
+        await this.loadCrmKanban();
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  showPlaybookModal() {
+    this.switchView('cmo');
+  },
+
   // Sales CRM Kanban Board
   async loadCrmKanban() {
     try {
       const res = await fetch('/api/leads?limit=100');
       const data = await res.json();
+      const allLeads = data.leads || [];
+
+      // Update KPI counters
+      const totalEl = document.getElementById('crm-stat-total');
+      if (totalEl) totalEl.textContent = allLeads.length;
+      const tabAll = document.getElementById('tab-count-all');
+      if (tabAll) tabAll.textContent = allLeads.length;
+
+      const contactedCount = allLeads.filter(l => l.pipeline_stage === 'CONTACTED' || l.pipeline_stage === 'REPLIED').length;
+      const demosCount = allLeads.filter(l => l.pipeline_stage === 'MEETING_BOOKED').length;
+      const wonCount = allLeads.filter(l => l.pipeline_stage === 'WON').length;
+
+      const contEl = document.getElementById('crm-stat-contacted');
+      if (contEl) contEl.textContent = contactedCount;
+      const demosEl = document.getElementById('crm-stat-demos');
+      if (demosEl) demosEl.textContent = demosCount;
+      const wonEl = document.getElementById('crm-stat-won');
+      if (wonEl) wonEl.textContent = wonCount;
+
+      // Filter leads based on team tab
+      let filteredLeads = allLeads;
+      if (this.kanbanFilter === 'KAUSHIK') {
+        filteredLeads = allLeads.filter(l => 
+          ['QUALIFIED', 'APPROVED_FOR_CONTACT', 'CONTACTED', 'REPLIED', 'MEETING_BOOKED'].includes(l.pipeline_stage) ||
+          (l.audit_log && JSON.stringify(l.audit_log).includes('Kaushik'))
+        );
+      } else if (this.kanbanFilter === 'PUSHPENDER') {
+        filteredLeads = allLeads.filter(l => 
+          ['WON', 'MEETING_BOOKED'].includes(l.pipeline_stage) ||
+          (l.audit_log && JSON.stringify(l.audit_log).includes('Pushpender'))
+        );
+      } else if (this.kanbanFilter === 'PRIYANSHU') {
+        filteredLeads = allLeads.filter(l => l.lead_score >= 75 || l.pipeline_stage === 'WON');
+      }
 
       const columns = [
-        { key: 'DISCOVERED', title: 'Discovered' },
-        { key: 'QUALIFIED', title: 'Qualified' },
-        { key: 'APPROVED_FOR_CONTACT', title: 'Approved for Contact' },
-        { key: 'CONTACTED', title: 'Contacted' },
-        { key: 'REPLIED', title: 'Replied' },
-        { key: 'MEETING_BOOKED', title: 'Meeting Booked' },
-        { key: 'WON', title: 'Won (Customer)' }
+        { key: 'DISCOVERED', title: '1. Discovered' },
+        { key: 'QUALIFIED', title: '2. Qualified' },
+        { key: 'APPROVED_FOR_CONTACT', title: '3. Approved' },
+        { key: 'CONTACTED', title: '4. Contacted' },
+        { key: 'REPLIED', title: '5. In Talks' },
+        { key: 'MEETING_BOOKED', title: '6. Demo Scheduled' },
+        { key: 'WON', title: '7. Won & Handover' }
       ];
 
       const board = document.getElementById('kanban-board');
       board.innerHTML = '';
 
       columns.forEach(col => {
-        const colLeads = data.leads.filter(l => l.pipeline_stage === col.key);
+        const colLeads = filteredLeads.filter(l => l.pipeline_stage === col.key);
         const colEl = document.createElement('div');
         colEl.className = 'kanban-column';
         colEl.innerHTML = `
           <div class="kanban-col-header">
             <span>${col.title}</span>
-            <span class="badge badge-neutral">${colLeads.length}</span>
+            <span class="badge ${colLeads.length > 0 ? 'badge-info' : 'badge-neutral'}">${colLeads.length}</span>
           </div>
           <div class="kanban-cards-wrap" id="kanban-cards-${col.key}"></div>
         `;
@@ -666,20 +793,65 @@ const app = {
 
         const cardsWrap = colEl.querySelector('.kanban-cards-wrap');
         colLeads.forEach(lead => {
+          let cleanPhone = (lead.phone || '').replace(/\D/g, '');
+          if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+          const waMsg = encodeURIComponent(`Namaste ${lead.business_name}, this is Kaushik from BharatGrowth Engine. We noticed your factory in ${lead.city} has strong production capacity and we have prepared a custom software brief for your manufacturing workflow.`);
+          const waUrl = cleanPhone.length >= 10 ? `https://wa.me/${cleanPhone}?text=${waMsg}` : '#';
+
+          // Extract last audit log action
+          let auditLog = [];
+          if (typeof lead.audit_log === 'string') {
+            try { auditLog = JSON.parse(lead.audit_log); } catch { auditLog = []; }
+          } else if (Array.isArray(lead.audit_log)) {
+            auditLog = lead.audit_log;
+          }
+          const lastAction = auditLog.length > 0 ? auditLog[auditLog.length - 1] : null;
+
+          // Next stage button label
+          const advanceLabels = {
+            'DISCOVERED': '➔ Qualify',
+            'QUALIFIED': '➔ Approve',
+            'APPROVED_FOR_CONTACT': '➔ Contacted',
+            'CONTACTED': '➔ Replied',
+            'REPLIED': '➔ Book Demo',
+            'MEETING_BOOKED': '➔ Lock Deal',
+            'WON': '🚀 Deploy Live'
+          };
+          const nextBtnText = advanceLabels[col.key] || '➔ Advance';
+
           const card = document.createElement('div');
           card.className = 'kanban-card';
           card.onclick = () => app.openLeadModal(lead.id);
+
           card.innerHTML = `
-            <div class="kanban-card-title">${lead.business_name}</div>
-            <div style="font-size: 0.75rem; color: #64748b;">${lead.city}, ${lead.state}</div>
-            <div class="kanban-card-meta">
+            <div class="kanban-card-header">
+              <div class="kanban-card-title">${lead.business_name}</div>
               <span class="score-badge ${lead.lead_score >= 70 ? 'high' : 'medium'}">${lead.lead_score} pts</span>
-              <span>${lead.phone ? '📞 Phone' : 'No phone'}</span>
+            </div>
+            <div class="kanban-card-sub">📍 ${lead.city}, ${lead.state} • <span style="color:#2563eb;">${lead.industry_category || 'Factory'}</span></div>
+            ${lastAction ? `
+              <div class="kanban-card-audit-snippet">
+                <strong>${lastAction.author || 'Team'}:</strong> ${lastAction.action_type?.replace(/_/g, ' ') || 'Step recorded'}
+              </div>
+            ` : ''}
+            <div class="kanban-card-actions">
+              ${cleanPhone.length >= 10 ? `
+                <a href="${waUrl}" target="_blank" class="btn-card-wa" onclick="event.stopPropagation();" title="Open direct WhatsApp with Kaushik's pitch">
+                  💬 WhatsApp
+                </a>
+              ` : '<span style="font-size:0.7rem; color:#94a3b8;">No phone</span>'}
+              <button class="btn-card-advance" onclick="app.advanceLeadStageQuick('${lead.id}', '${col.key}', event)" title="1-click stage advancement & audit logging">
+                ${nextBtnText}
+              </button>
             </div>
           `;
           cardsWrap.appendChild(card);
         });
       });
+
+      if (this.kanbanSearchQuery) {
+        this.searchKanban(this.kanbanSearchQuery);
+      }
     } catch (err) {
       console.error('Failed to load Kanban CRM:', err);
     }

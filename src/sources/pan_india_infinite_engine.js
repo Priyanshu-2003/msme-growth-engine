@@ -65,35 +65,43 @@ const INDIAN_INDUSTRIAL_HUBS = {
   ]
 };
 
+// Promoter / Founder surnames for authentic Indian business naming
+const PROMOTER_SURNAMES = [
+  "Patel", "Sharma", "Verma", "Gupta", "Iyer", "Rao", "Singh", "Reddy", "Joshi", "Mehta",
+  "Shah", "Agarwal", "Bansal", "Kulkarni", "Deshmukh", "Nair", "Pillai", "Choudhary", "Jain",
+  "Bhardwaj", "Trivedi", "Menon", "Bhatia", "Goyal", "Dutta", "Chatterjee", "Shetty", "Naidu"
+];
+
 // Enterprise Name Prefixes and Suffixes for realistic factory naming
 const NAME_PREFIXES = [
   "Shree", "Sri", "Jai", "Kaveri", "Maruti", "Apex", "Mahavir", "Vishwakarma",
-  "Radhe", "Om", "Pawan", "Swastik", "Navkar", "Ganesh", "Balaji", "Krishna",
-  "Adinath", "Pioneer", "Sterling", "Standard", "Bharat", "Super", "Micro", "Zenith"
+  "Radhe", "Swastik", "Navkar", "Ganesh", "Balaji", "Krishna", "Adinath", "Pioneer",
+  "Sterling", "Standard", "Bharat", "Super", "Micro", "Zenith", "National", "Hindustan",
+  "Dynamic", "Galaxy", "Imperial", "Omega", "Universal", "Delta", "Paramount"
 ];
 
 const NAME_CORES = {
-  A: ["Precision Tool", "Castings", "Engineering Works", "Heavy Fab", "Metaliks", "Techno-Craft", "Forgings", "Machine Tools"],
-  B: ["Agro Foods", "Bio-Processing", "Cold Storage & Mills", "Paddy Processors", "Seed Farm & Extraction"],
-  C: ["Food Products", "Packaged Foods", "Confectionery & Spices", "Dairy & Processing", "Bakery Needs"],
-  D: ["Textiles & Weaving", "Knits & Apparel", "Fabrics & Prints", "Cotton Spinners", "Dyeing & Bleaching"],
-  E: ["Woodcraft Creations", "Timber & Furniture", "Handicrafts & Decor", "Artware Exports", "Living Woods"],
-  F: ["Auto Ancillaries", "Gears & Shafts", "Brake Liners & Fasteners", "Pumps & Motors", "Pneumatics"],
-  G: ["Corrugators & Packaging", "Poly-Pack", "Print-Tech Cartons", "Paper Containers", "Flexible Films"],
-  H: ["Trading & Distribution", "Wholesale Distributors", "Stockists & Supply Corp", "Industrial Supplies"],
-  I: ["Export House", "Global Traders", "International Impex", "Overseas Creations"],
-  J: ["Building Blocks & Pavers", "Ready-Mix & Infra", "Cement Products", "Steel Structurals"],
-  K: ["Diagnostics & Path Lab", "Health Care Clinic", "Diagnostic Imaging", "Bio-Labs"],
-  L: ["Heritage Residency", "Grand Palace Dining", "Comfort Inn & Banquets"],
-  M: ["Super Specialty Store", "Distributors & Mart", "Retailers"],
-  N: ["Skill Academy & Institute", "Technical Training Centre"],
-  O: ["Consultancy & Services", "Techno-Auditors", "Local Solutions"],
-  P: ["Logistics & Warehousing", "Cargo Carriers", "Freight Express"],
-  Q: ["Enterprises", "Industries", "Solutions"]
+  A: ["Precision Tool", "Castings", "Engineering Works", "Heavy Fab", "Metaliks", "Techno-Craft", "Forgings", "Machine Tools", "Laser-Fab", "Toolcraft", "Alloy Dies", "Press-Tech"],
+  B: ["Agro Foods", "Bio-Processing", "Cold Storage & Mills", "Paddy Processors", "Seed Farm & Extraction", "Agro-Nutrients", "Grain Processing", "Flour & Pulses"],
+  C: ["Food Products", "Packaged Foods", "Confectionery & Spices", "Dairy & Processing", "Bakery Needs", "Beverage Processors", "Edible Oils", "Seasoning Mills"],
+  D: ["Textiles & Weaving", "Knits & Apparel", "Fabrics & Prints", "Cotton Spinners", "Dyeing & Bleaching", "Jacquard Weavers", "Yarn Mills", "Garment Exports"],
+  E: ["Woodcraft Creations", "Timber & Furniture", "Handicrafts & Decor", "Artware Exports", "Living Woods", "Modular Interior Fab", "Sheesham Woods"],
+  F: ["Auto Ancillaries", "Gears & Shafts", "Brake Liners & Fasteners", "Pumps & Motors", "Pneumatics", "Die Casting", "Hydraulics & Seals", "Turning Ancillaries"],
+  G: ["Corrugators & Packaging", "Poly-Pack", "Print-Tech Cartons", "Paper Containers", "Flexible Films", "Box Makers", "Laminates & Foil", "Offset Packaging"],
+  H: ["Trading & Distribution", "Wholesale Distributors", "Stockists & Supply Corp", "Industrial Supplies", "B2B Trade Links", "Commercial Stockists"],
+  I: ["Export House", "Global Traders", "International Impex", "Overseas Creations", "World Impex", "Artisan Exports", "Indian Exports Hub"],
+  J: ["Building Blocks & Pavers", "Ready-Mix & Infra", "Cement Products", "Steel Structurals", "Granite & Pavers", "Precast Infra", "Civil Supplies"],
+  K: ["Diagnostics & Path Lab", "Health Care Clinic", "Diagnostic Imaging", "Bio-Labs", "Specialty Medicare", "Clinical Imaging", "Path Care"],
+  L: ["Heritage Residency", "Grand Palace Dining", "Comfort Inn & Banquets", "Royal Haven", "Executive Suites", "Highway Treat"],
+  M: ["Super Specialty Store", "Distributors & Mart", "Retailers", "Commercial Mart", "Mega Stores"],
+  N: ["Skill Academy & Institute", "Technical Training Centre", "Polytechnic Institute", "Vocational Training Centre"],
+  O: ["Consultancy & Services", "Techno-Auditors", "Local Solutions", "Safety & Fire Audits", "Industrial Inspectors"],
+  P: ["Logistics & Warehousing", "Cargo Carriers", "Freight Express", "Supplyline Express", "Bulk Cargo Movers"],
+  Q: ["Enterprises", "Industries", "Solutions", "Technologies", "Manufacturing Corp", "Industrial Hub"]
 };
 
 const NAME_SUFFIXES = [
-  "Pvt Ltd", "Industries", "Enterprises", "Corporation", "Works", "Mfg Co", "Hub"
+  "Pvt Ltd", "Industries", "Enterprises", "Corporation", "Works", "Mfg Co", "Hub", "Fab-Tech", "Engineers", "India"
 ];
 
 // Factory Inventory and BOM Templates by Category
@@ -105,12 +113,33 @@ const INVENTORY_BOM_TEMPLATES = {
     dealer_network: { dealers_count: 14, dispatch_tat_hours: 48 },
     friction: "Sub-assembly WIP stockouts and unrecorded steel sheet offcut wastage"
   },
+  B: {
+    raw_materials: ["Raw Paddy Grain (Type Basmati)", "Food-Grade HDPE Bags", "Anti-Pest Fumigants", "Packaging Spools"],
+    bom_stages: ["Paddy Pre-Cleaning", "Paddy Dehusking & Rubber Roller Milling", "Thickness Grading", "Optical Color Sorting (Sortex)", "Automated 25kg Bagging & Stitching"],
+    scrap_rate_variance: "Controlled variance: 3.2% husk weight loss and broken grain split",
+    dealer_network: { dealers_count: 32, dispatch_tat_hours: 24 },
+    friction: "Moisture content variance during monsoon and manual grain sortex rejects logs"
+  },
+  C: {
+    raw_materials: ["Raw Cumin / Coriander / Turmeric Seeds", "Food Grade Laminate Rolls", "Nitrogen Flushed Pouches"],
+    bom_stages: ["Dry Cleaning & Destoning", "Low Temperature Grinding (LTG)", "Air Classifier Milling", "Vibro Sifter Screening", "Form-Fill-Seal (FFS) Pouch Packing"],
+    scrap_rate_variance: "Controlled variance: 2.8% volatile oil aroma loss and dust extraction filter residue",
+    dealer_network: { dealers_count: 45, dispatch_tat_hours: 18 },
+    friction: "Aroma loss during milling and FMCG distributor batch expiry tracking"
+  },
   D: {
     raw_materials: ["30s / 40s Combed Cotton Yarn", "Spun Polyester Cones", "Reactive Dyes", "Knitting Needles"],
     bom_stages: ["Yarn Creel Loading", "Circular / Jacquard Knitting", "Pre-Treatment & Bleaching", "Lot Dyeing & Compacting", "Rotary Printing & Fabric Inspection"],
     scrap_rate_variance: "Controlled variance: 4.2% cut-waste and lot shading variance",
     dealer_network: { dealers_count: 22, dispatch_tat_hours: 24 },
     friction: "Dye-lot color matching delays and unrecorded fabric roll shrinkage"
+  },
+  E: {
+    raw_materials: ["Kiln-Dried Sheesham Timber Planks", "Epoxy Resin & Hardener", "Heavy Duty Hardware Hinges", "Polyurethane Clear Coat"],
+    bom_stages: ["Timber Moisture Meter Check", "Band Saw Resawing", "Four-Side Planing & Moulding", "Carving / Joinery Assembly", "Multi-Coat Spray Polishing"],
+    scrap_rate_variance: "Controlled variance: 14.5% saw kerf and edge-trim offcuts",
+    dealer_network: { dealers_count: 12, dispatch_tat_hours: 72 },
+    friction: "Wood seasoning moisture defects and handicraft artisan wage dispute tracking"
   },
   F: {
     raw_materials: ["Alloy Steel 20MnCr5", "Forging Billets Grade 1045", "Cutting Coolants", "Heat Treatment Salts"],
@@ -126,12 +155,26 @@ const INVENTORY_BOM_TEMPLATES = {
     dealer_network: { dealers_count: 18, dispatch_tat_hours: 24 },
     friction: "Deckle width trim loss and client custom box-die tracking"
   },
+  H: {
+    raw_materials: ["Bulk Master Cartons", "Industrial Fasteners SKU Palette", "Pallet Shrink Wrap", "Barcoded Bin Shelves"],
+    bom_stages: ["Goods Inward Verification", "Bin Location Putaway", "Sales Order Picking Wave", "Cross-Dock Packing", "B2B Logistics Handover"],
+    scrap_rate_variance: "Controlled variance: 0.8% packaging damage and transit scuffing",
+    dealer_network: { dealers_count: 60, dispatch_tat_hours: 12 },
+    friction: "SKU bin misplacement and multi-dealer credit limit tracking"
+  },
   I: {
     raw_materials: ["Raw Brass Scrap Honey", "Zinc Alloy Ingots", "Buffing Compounds & Clear Lacquers", "Export Master Cartons"],
     bom_stages: ["Induction Melting & Sand Casting", "Runner Cutting & Fettling", "Artisan Hand Chasing & Engraving", "Electroplating & Lacquer Curing", "Drop-Test QC & Barcode Labeling"],
     scrap_rate_variance: "Controlled variance: 5.0% melting oxidation and polishing loss",
     dealer_network: { dealers_count: 8, dispatch_tat_hours: 72 },
     friction: "Weight discrepancies between issued raw metal and finished artisan returns"
+  },
+  J: {
+    raw_materials: ["OPC 53 Grade Cement", "Crushed Stone Sand (M-Sand)", "Coarse Aggregates (10mm/20mm)", "Admixture Plasticizers"],
+    bom_stages: ["Aggregates Bin Hopper Batching", "Twin-Shaft Pan Mixing", "Hydraulic Vibro-Press Compaction", "Water Curing Chamber (28 Days)", "Cube Compressive Strength Testing"],
+    scrap_rate_variance: "Controlled variance: 3.5% corner breakage and transit hairline chipping",
+    dealer_network: { dealers_count: 28, dispatch_tat_hours: 24 },
+    friction: "Cement hydration curing temperature monitoring and site dispatch delays"
   }
 };
 
@@ -139,8 +182,7 @@ const INVENTORY_BOM_TEMPLATES = {
  * Generates an authentic phone number for an Indian state / district
  */
 function generateRealisticPhone(city) {
-  // Common mobile series in India: 98, 94, 97, 88, 80, 93, 70, 91
-  const mobilePrefixes = ["98", "94", "97", "88", "80", "93", "70", "91", "99", "89"];
+  const mobilePrefixes = ["98", "94", "97", "88", "80", "93", "70", "91", "99", "89", "96", "95", "92", "86", "87", "85", "84", "81", "82", "79", "78", "77", "76", "75", "74", "73", "72"];
   const prefix = mobilePrefixes[Math.floor(Math.random() * mobilePrefixes.length)];
   const rest = Math.floor(10000000 + Math.random() * 90000000).toString().substring(0, 8);
   return `${prefix}${rest}`;
@@ -151,33 +193,71 @@ function generateRealisticPhone(city) {
  * for ANY Indian State, District, and Industry Category.
  */
 function generateInfiniteIndianLeads(state = 'Gujarat', city = '', category = 'A', count = 20) {
-  const stateData = INDIAN_INDUSTRIAL_HUBS[state] || INDIAN_INDUSTRIAL_HUBS["Gujarat"];
-  
-  // Pick matching hub or random hub in the state
-  let targetHub = stateData[0];
+  // Flatten all available state hubs if state is 'ALL'
+  const allStates = Object.keys(INDIAN_INDUSTRIAL_HUBS);
+  let availableHubs = [];
+
+  if (!state || state === 'ALL') {
+    allStates.forEach(st => {
+      INDIAN_INDUSTRIAL_HUBS[st].forEach(h => availableHubs.push({ ...h, stateName: st }));
+    });
+  } else {
+    const stateData = INDIAN_INDUSTRIAL_HUBS[state] || INDIAN_INDUSTRIAL_HUBS["Gujarat"];
+    stateData.forEach(h => availableHubs.push({ ...h, stateName: state }));
+  }
+
+  // Filter by city if specified
   if (city) {
-    const found = stateData.find(h => h.city.toLowerCase() === city.toLowerCase());
-    if (found) targetHub = found;
+    const matched = availableHubs.filter(h => h.city.toLowerCase() === city.toLowerCase() || city.toLowerCase().includes(h.city.toLowerCase()));
+    if (matched.length > 0) availableHubs = matched;
   }
 
   const leads = [];
   const generatedPhoneNumbers = new Set();
+  const generatedNames = new Set();
 
   for (let i = 0; i < count; i++) {
+    const targetHub = availableHubs[i % availableHubs.length];
+    const hubState = targetHub.stateName || state;
+
+    // Pick Category (rotate through A-Q if ALL)
+    let catCode = category;
+    if (!catCode || catCode === 'ALL') {
+      const allCats = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'P'];
+      catCode = allCats[i % allCats.length];
+    }
+
+    // Name creation with multi-variant diversity to guarantee 100,000+ unique permutations
     const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
-    const cores = NAME_CORES[category] || NAME_CORES['A'];
+    const cores = NAME_CORES[catCode] || NAME_CORES['A'];
     const core = cores[Math.floor(Math.random() * cores.length)];
     const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
-    
-    // Construct unique company name
-    const businessName = `${prefix} ${core} ${suffix}`;
-    
+    const surname = PROMOTER_SURNAMES[Math.floor(Math.random() * PROMOTER_SURNAMES.length)];
+
+    let businessName = '';
+    const namePattern = i % 4;
+    if (namePattern === 0) {
+      businessName = `${prefix} ${core} ${suffix}`;
+    } else if (namePattern === 1) {
+      businessName = `${targetHub.city} ${core} ${suffix}`;
+    } else if (namePattern === 2) {
+      businessName = `${surname} & Sons ${core}`;
+    } else {
+      businessName = `${prefix} ${surname} ${core}`;
+    }
+
+    // Ensure strict uniqueness in batch
+    if (generatedNames.has(businessName)) {
+      businessName = `${businessName} (Unit ${Math.floor(2 + (i / 10))})`;
+    }
+    generatedNames.add(businessName);
+
     // Pick estate & pincode
     const estate = targetHub.estates[Math.floor(Math.random() * targetHub.estates.length)];
     const pincode = targetHub.pincodes[Math.floor(Math.random() * targetHub.pincodes.length)];
-    const plotNo = Math.floor(10 + Math.random() * 280);
-    const address = `Plot No. ${plotNo}, Shed ${Math.floor(1 + Math.random() * 8)}, ${estate}, ${targetHub.city}, ${state} - ${pincode}`;
-    
+    const plotNo = Math.floor(10 + ((i * 7) % 450));
+    const address = `Plot No. ${plotNo}, Phase ${Math.floor(1 + ((i * 3) % 4))}, ${estate}, ${targetHub.city}, ${hubState} - ${pincode}`;
+
     // Realistic phone number
     let phone = generateRealisticPhone(targetHub.city);
     while (generatedPhoneNumbers.has(phone)) {
@@ -229,11 +309,11 @@ function generateInfiniteIndianLeads(state = 'Gujarat', city = '', category = 'A
 
     leads.push({
       business_name: businessName,
-      industry_category: category,
+      industry_category: catCode,
       subcategory: targetHub.focus[Math.floor(Math.random() * targetHub.focus.length)] || 'Manufacturing & Industrial',
-      entity_type: category === 'I' ? 'EXPORTER' : (category === 'H' ? 'DISTRIBUTOR' : 'MANUFACTURER'),
+      entity_type: catCode === 'I' ? 'EXPORTER' : (catCode === 'H' ? 'DISTRIBUTOR' : 'MANUFACTURER'),
       msme_tier: Math.random() > 0.7 ? 'MEDIUM' : 'SMALL',
-      state: state,
+      state: hubState,
       district: targetHub.district,
       city: targetHub.city,
       pincode: pincode,

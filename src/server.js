@@ -412,7 +412,16 @@ const server = http.createServer(async (req, res) => {
         });
       }
 
-      if (payload.note) {
+      if (payload.action_type) {
+        audit.push({
+          timestamp: now,
+          author: payload.author || 'Kaushik',
+          action: payload.action_type,
+          details: payload.note || `Action ${payload.action_type} recorded by ${payload.author || 'Kaushik'}`
+        });
+      }
+
+      if (payload.note && !payload.action_type) {
         notes.push({
           timestamp: now,
           author: payload.author || 'Sales Rep',
