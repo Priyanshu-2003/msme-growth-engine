@@ -549,8 +549,9 @@ const server = http.createServer(async (req, res) => {
       const city = body.city || 'Surat';
       const state = body.state || 'Gujarat';
       const category = body.category || 'A';
+      const count = parseInt(body.count || 20, 10);
 
-      const result = await runBatchDiscoveryJob(city, state, category);
+      const result = await runBatchDiscoveryJob(city, state, category, count);
       return sendJson(res, 200, result);
     }
 

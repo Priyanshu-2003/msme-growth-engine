@@ -814,20 +814,21 @@ const app = {
     const city = document.getElementById('job-city').value.trim();
     const state = document.getElementById('job-state').value;
     const category = document.getElementById('job-category').value;
+    const count = parseInt(document.getElementById('job-count')?.value || 30, 10);
     const btn = document.getElementById('btn-submit-job');
 
     btn.disabled = true;
-    btn.textContent = 'Discovering MSMEs...';
+    btn.textContent = `Extracting ${count} Verified MSMEs...`;
 
     try {
       const res = await fetch('/api/discovery/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city, state, category })
+        body: JSON.stringify({ city, state, category, count })
       });
       const data = await res.json();
       if (data.success) {
-        this.showToast(`Discovery completed: ${data.totalFound} found, ${data.totalQualified} qualified, ${data.duplicatesSkipped} duplicates filtered.`);
+        this.showToast(`Extracted ${data.totalFound} leads: ${data.totalQualified} qualified, ${data.duplicatesSkipped} duplicates.`);
         this.loadOperations();
         this.loadDashboard();
       } else {

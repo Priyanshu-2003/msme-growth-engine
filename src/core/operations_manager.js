@@ -267,7 +267,7 @@ async function processCandidateLead(db, candidate, settings) {
 /**
  * Executes a batch discovery & ingestion job
  */
-async function runBatchDiscoveryJob(city = 'Surat', state = 'Gujarat', category = 'A') {
+async function runBatchDiscoveryJob(city = 'Surat', state = 'Gujarat', category = 'A', count = 20) {
   const db = getDb();
   const settings = getSettingsMap(db);
   const now = new Date().toISOString();
@@ -280,11 +280,11 @@ async function runBatchDiscoveryJob(city = 'Surat', state = 'Gujarat', category 
       status, total_found, total_qualified, duplicates_skipped,
       error_message, started_at
     ) VALUES (?, ?, ?, ?, ?, 'RUNNING', 0, 0, 0, NULL, ?)
-  `).run(jobId, state, city, category, 'OpenStreetMap India Business Registry', now);
+  `).run(jobId, state, city, category, 'Pan-India Industrial Registry', now);
 
   try {
     const { discoverOsmMsmes } = require('../sources/osm_adapter.js');
-    const discoveryResult = await discoverOsmMsmes(city, category);
+    const discoveryResult = await discoverOsmMsmes(city, category, state, count);
 
     let totalFound = discoveryResult.leads.length;
     let totalQualified = 0;

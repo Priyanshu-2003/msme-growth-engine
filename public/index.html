@@ -600,6 +600,16 @@
                   </select>
                 </div>
 
+                <div class="form-group">
+                  <label>Discovery Batch Volume</label>
+                  <select id="job-count" class="select-input">
+                    <option value="15">15 Leads (Quick Scan)</option>
+                    <option value="30" selected>30 Leads (Standard Hub Extraction)</option>
+                    <option value="50">50 Leads (High Density Cluster)</option>
+                    <option value="100">100 Leads (Deep Industrial Corridor)</option>
+                  </select>
+                </div>
+
                 <button type="submit" class="btn btn-primary" id="btn-submit-job">
                   <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                   Start Discovery Job
