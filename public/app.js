@@ -169,18 +169,18 @@ const app = {
     });
 
     const titles = {
-      dashboard: ['Executive Dashboard', 'Real-time MSME discovery, digital deficiency analysis, and pipeline performance'],
-      cmo: ['AI CMO Command Center', 'Strategic revenue targets, factory software clusters, and conversion velocity playbook'],
-      mantisai: ['Mantis AI Lead Finder', 'Map-first live discovery, local listing audits, and buying signals for Indian factories'],
-      explorer: ['Lead Database & Explorer', 'Filter and prioritize verified Indian enterprises by need, score, and commercial fit'],
-      crm: ['Sales CRM Kanban Pipeline', 'Consultative B2B stages from qualification to closed digital growth packages'],
-      warroom: ["Kaushik's Sales War Room", 'Daily outreach quota, multilingual WhatsApp pitch generator, and objection battlecards'],
-      studio: ["Pushpender's Delivery Studio", '48-Hour deployment SLA queue, factory portal mockup preview, and live domain linkage'],
-      opsdesk: ["Priyanshu's Operations & Audit Console", 'Real-time team execution stream, follow-up SLA alarms, and pipeline quality control'],
-      campaigns: ['Campaign Manager & Queue', 'Personalized English and Hindi outreach approval pipeline'],
-      operations: ['Cluster Jobs & Radar', 'Manage legal discovery connectors, batch ingestions, and background jobs'],
-      reports: ['Revenue & ROI Reports', 'Lead quality by source, conversion rates, and revenue models'],
-      settings: ['Settings & Governance', 'Dynamic 100-point scoring weights and suppression registry']
+      dashboard: ['Dashboard', '68 enterprises'],
+      cmo: ['Growth Strategy', '4 tiers'],
+      mantisai: ['Lead Finder', 'Radar active'],
+      explorer: ['Lead Explorer', '68 leads'],
+      crm: ['CRM Pipeline', '7 stages'],
+      warroom: ["Sales War Room", 'Daily quota: 5'],
+      studio: ["Delivery Studio", '48h SLA'],
+      opsdesk: ["Operations Desk", 'Live audit'],
+      campaigns: ['Campaigns', 'Review queue'],
+      operations: ['Discovery Radar', 'Jobs active'],
+      reports: ['Analytics', 'Revenue stats'],
+      settings: ['Settings', 'Presets']
     };
 
     const [title, sub] = titles[viewName] || ['BharatGrowth OS', ''];

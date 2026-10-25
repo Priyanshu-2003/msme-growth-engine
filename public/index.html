@@ -121,60 +121,42 @@
       <!-- Top Bar -->
       <header class="top-bar">
         <div class="top-bar-left">
-          <h1 id="page-title">Executive Dashboard</h1>
-          <p id="page-subtitle">Real-time MSME discovery, digital deficiency analysis, and pipeline performance</p>
+          <h1 id="page-title">Dashboard</h1>
+          <span id="page-subtitle" class="page-status-pill">Active</span>
         </div>
 
         <!-- Global Spotlight Search Palette Trigger -->
-        <div class="top-bar-search-trigger" onclick="app.openCommandPalette()" title="Press Cmd+K or Ctrl+K">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <span class="search-placeholder">Search leads, actions...</span>
+        <div class="top-bar-search-trigger" onclick="app.openCommandPalette()" title="Press ⌘K or Ctrl+K to search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px; height:15px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="search-placeholder">Search enterprises or press ⌘K...</span>
           <kbd class="kbd-shortcut">⌘K</kbd>
         </div>
 
-        <!-- Active Team Banner -->
-        <div class="team-header-banner">
-          <span class="team-banner-label">Team:</span>
-          <div class="team-chip chip-priyanshu" title="Priyanshu: Overall Coordination, Pipeline Tracking & Team Support">
-            <span class="chip-avatar">P</span>
-            <div class="chip-info">
-              <span class="chip-name">Priyanshu</span>
-              <span class="chip-role">Coordination & Support</span>
+        <div class="top-bar-right">
+          <!-- Active Team Avatar Pill -->
+          <div class="team-header-pill" title="IndusOS Core Operating Team: Priyanshu, Kaushik, Pushpender">
+            <div class="avatar-group">
+              <span class="team-avatar-chip chip-priyanshu" title="Priyanshu (Coordination & Ops)">P</span>
+              <span class="team-avatar-chip chip-kaushik" title="Kaushik (Sales & Closing)">K</span>
+              <span class="team-avatar-chip chip-pushpender" title="Pushpender (Tech & Delivery)">P</span>
             </div>
+            <span class="team-pill-text">3 Online</span>
           </div>
-          <div class="team-chip chip-kaushik" title="Kaushik: Lead Outreach, Qualification, 15-min Demo & Advance Closing">
-            <span class="chip-avatar">K</span>
-            <div class="chip-info">
-              <span class="chip-name">Kaushik</span>
-              <span class="chip-role">Sales & Closing</span>
-            </div>
-          </div>
-          <div class="team-chip chip-pushpender" title="Pushpender: Factory Portals, AI Web Engine & Rapid Deployment">
-            <span class="chip-avatar">P</span>
-            <div class="chip-info">
-              <span class="chip-name">Pushpender</span>
-              <span class="chip-role">Tech & Delivery</span>
-            </div>
-          </div>
-        </div>
 
-        <div class="top-bar-actions">
-          <button class="btn btn-primary" id="btn-topbar-crm" onclick="app.switchView('crm')" title="Open Sales CRM Kanban Pipeline">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-            Sales CRM Kanban
-          </button>
-          <button class="btn btn-secondary" id="btn-export-csv" title="Export matching leads to CSV">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Export CSV
-          </button>
-          <button class="btn btn-secondary" id="btn-import-modal">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            Import CSV
-          </button>
-          <button class="btn btn-secondary" id="btn-trigger-discovery">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            Run Discovery
-          </button>
+          <div class="top-bar-actions">
+            <button class="btn btn-primary btn-sm" onclick="app.openSpeedDialer()" style="background:#059669; border-color:#059669;" title="Launch Kaushik's Speed Dialer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>Dialer</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-import-modal" title="Import Leads CSV">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Import</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-export-csv" title="Export CSV">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Export</span>
+            </button>
+          </div>
         </div>
       </header>
 

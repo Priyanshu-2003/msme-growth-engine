@@ -223,6 +223,7 @@ test('API In-Memory Integration Tests', async (t) => {
     const res = await dispatch('/');
     assert.strictEqual(res.statusCode, 200);
     assert.ok(res.body.includes('IndusOS'));
-    assert.ok(res.body.includes('Executive Dashboard'));
+    assert.ok(res.body.includes('id="page-title"'));
+    assert.ok(res.body.includes('Dashboard'));
   });
 });
