@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS leads (
   buying_signal TEXT,
   maps_rating REAL,
   reviews_count INTEGER DEFAULT 0,
+  is_demo INTEGER DEFAULT 0,
   retention_restrictions TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -56,6 +57,73 @@ CREATE INDEX IF NOT EXISTS idx_leads_industry ON leads(industry_category);
 CREATE INDEX IF NOT EXISTS idx_leads_website_status ON leads(website_status);
 CREATE INDEX IF NOT EXISTS idx_leads_lead_score ON leads(lead_score DESC);
 CREATE INDEX IF NOT EXISTS idx_leads_pipeline_stage ON leads(pipeline_stage);
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id TEXT PRIMARY KEY,
+  user TEXT NOT NULL,
+  action_type TEXT NOT NULL,
+  lead_id TEXT,
+  metadata TEXT DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_action_type ON activity_logs(action_type);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_lead_id ON activity_logs(lead_id);
+
+CREATE TABLE IF NOT EXISTS follow_ups (
+  id TEXT PRIMARY KEY,
+  lead_id TEXT NOT NULL,
+  scheduled_date TEXT NOT NULL,
+  scheduled_time TEXT NOT NULL,
+  follow_up_type TEXT NOT NULL, -- 'CALL' or 'MEETING'
+  notes TEXT,
+  status TEXT DEFAULT 'PENDING', -- 'PENDING', 'COMPLETED', 'CANCELLED'
+  created_at TEXT NOT NULL,
+  created_by TEXT NOT NULL,
+  FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_follow_ups_date ON follow_ups(scheduled_date, status);
+CREATE INDEX IF NOT EXISTS idx_follow_ups_lead ON follow_ups(lead_id);
+
+CREATE TABLE IF NOT EXISTS scripts (
+  id TEXT PRIMARY KEY,
+  script_key TEXT NOT NULL, -- 'cold_call_en', 'cold_call_hi', 'whatsapp_audit_en', 'whatsapp_audit_hi'
+  channel TEXT NOT NULL,    -- 'CALL', 'WHATSAPP', 'EMAIL'
+  language TEXT NOT NULL,   -- 'EN', 'HI', 'GU'
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  created_by TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_scripts_lookup ON scripts(script_key, version DESC);
+
+CREATE TABLE IF NOT EXISTS catalogues (
+  id TEXT PRIMARY KEY,
+  lead_id TEXT,
+  token TEXT NOT NULL UNIQUE,
+  business_name TEXT NOT NULL,
+  tagline TEXT,
+  language TEXT NOT NULL DEFAULT 'EN', -- 'EN', 'HI', 'GU'
+  whatsapp_number TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  google_maps_url TEXT,
+  products TEXT NOT NULL DEFAULT '[]', -- JSON array of product objects
+  verified_badges TEXT DEFAULT '[]',  -- JSON array of client-provided badges
+  meta_description TEXT,
+  is_sample INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_catalogues_token ON catalogues(token);
+CREATE INDEX IF NOT EXISTS idx_catalogues_lead ON catalogues(lead_id);
 
 CREATE TABLE IF NOT EXISTS sources (
   id TEXT PRIMARY KEY,

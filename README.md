@@ -1,3 +1,5 @@
+> ⚠️ **Security Notice: Do not deploy publicly until authentication is implemented (Phase 3).**
+
 # BharatGrowth AI — India-Wide MSME Growth & Lead-Generation Engine
 
 BharatGrowth AI is an intelligent B2B lead discovery, digital need assessment, and sales qualification platform engineered specifically for the Indian MSME ecosystem across all 28 states and 8 union territories.

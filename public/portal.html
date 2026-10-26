@@ -465,14 +465,14 @@
   <!-- Top Sticky Navigation Bar -->
   <header class="top-bar">
     <div style="display:flex; align-items:center; gap:0.75rem;">
-      <span class="brand-pill">
-        <span class="live-dot"></span>
-        <span id="portal-brand-tag">IndusOS Manufacturing Cloud</span>
+      <span class="brand-pill" style="background:rgba(245,158,11,0.15); border-color:#f59e0b; color:#f59e0b;">
+        <span class="live-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
+        <span id="portal-brand-tag">INTERNAL / DEMO SIMULATION ONLY</span>
       </span>
-      <span style="font-size:0.75rem; color:#64748b;">• Live Digital Twin Preview</span>
+      <span style="font-size:0.75rem; color:#94a3b8;">• Factory Simulation Mockup (Not For Client Handover)</span>
     </div>
     <div style="font-size:0.75rem; color:#94a3b8;">
-      Deploying SLA: <strong style="color:var(--accent);">48 Hours</strong>
+      Format: <strong style="color:#f59e0b;">Internal Demo Only</strong>
     </div>
   </header>
 
@@ -671,14 +671,14 @@
     <!-- Promoters Token Advance Box -->
     <section class="advance-lock-card">
       <div class="advance-info">
-        <h3>🚀 Turnkey Factory Go-Live & Custom Domain (.in)</h3>
+        <h3>🚀 Turnkey B2B Catalogue Go-Live & WhatsApp Enquiry Setup</h3>
         <p>
-          Pushpender (Engineering Lead) is ready to deploy this portal live with your official custom domain, dealer logins, and automated WhatsApp order routing within 48 hours for a ₹5,000 token advance.
+          We deploy your official mobile catalogue with WhatsApp enquiry button and Google Business Profile setup within 48 hours for a ₹2,000 token advance (Founding Special: ₹5,999 total).
         </p>
       </div>
       <div>
         <button class="btn-lock-advance" onclick="lockTokenAdvance()">
-          <span>🔒</span> <span>Lock ₹5,000 Advance via UPI</span>
+          <span>🔒</span> <span>Lock ₹2,000 Advance via UPI</span>
         </button>
       </div>
     </section>
@@ -898,8 +898,8 @@ _Calculated in 10s via IndusOS Smart Manufacturing Estimator_`;
     }
 
     function lockTokenAdvance() {
-      const upiUrl = `upi://pay?pa=indusos@icici&pn=IndusOS%20Technologies&am=5000&cu=INR&tn=Token%20Advance%20${encodeURIComponent(portalLead ? portalLead.businessName : 'Enterprise')}`;
-      const msg = `Namaste Kaushik ji, we inspected our live IndusOS Factory Portal for ${portalLead ? portalLead.businessName : 'our enterprise'}. We are ready to lock the ₹5,000 token advance for 48h live custom domain go-live.`;
+      const upiUrl = `upi://pay?pa=indusos@icici&pn=BharatGrowth%20AI&am=2000&cu=INR&tn=Token%20Advance%20${encodeURIComponent(portalLead ? portalLead.businessName : 'Enterprise')}`;
+      const msg = `Namaste, we inspected our live B2B Catalogue for ${portalLead ? portalLead.businessName : 'our enterprise'}. We are ready to lock the ₹2,000 token advance for live catalogue go-live.`;
       const waUrl = `https://wa.me/919876543210?text=${encodeURIComponent(msg)}`;
       window.open(waUrl, '_blank');
     }

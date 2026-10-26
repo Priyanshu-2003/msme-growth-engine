@@ -1,0 +1,262 @@
+/* Mobile-First Minimal B2B Catalogue Styles */
+:root {
+  --primary: #059669;
+  --primary-hover: #047857;
+  --wa-green: #25d366;
+  --wa-dark: #128c7e;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.catalogue-container {
+  max-width: 540px;
+  margin: 0 auto;
+  background-color: var(--bg-card);
+  min-height: 100vh;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Sample banner */
+.sample-banner {
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid #fde047;
+}
+
+/* Header & Hero */
+.catalogue-header {
+  padding: 1.25rem 1rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.business-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+  margin-bottom: 0.25rem;
+}
+
+.business-tagline {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.badges-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.badge-chip {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.quick-contact-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-contact {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.btn-call {
+  background: #f1f5f9;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+}
+
+.btn-wa-header {
+  background: var(--wa-green);
+  color: #ffffff;
+}
+
+/* Products Section */
+.products-section {
+  padding: 1.25rem 1rem;
+}
+
+.section-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.product-img-wrap {
+  width: 100%;
+  height: 200px;
+  background: #f1f5f9;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-body {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.product-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.product-specs {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.product-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  font-size: 0.725rem;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-weight: 600;
+}
+
+.btn-enquire-wa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: 46px;
+  background: var(--wa-green);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37, 211, 102, 0.2);
+}
+
+.btn-enquire-wa:hover {
+  background: var(--wa-dark);
+}
+
+/* Company / Location Section */
+.company-section {
+  padding: 1.25rem 1rem;
+  background: #f8fafc;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.company-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.company-address {
+  font-size: 0.825rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  line-height: 1.45;
+}
+
+.btn-maps {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0 0.85rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e40af;
+  font-size: 0.825rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+/* Footer */
+.catalogue-footer {
+  padding: 1.5rem 1rem 2rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.disclaimer-note {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}

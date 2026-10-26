@@ -135,6 +135,7 @@ Krishna Engineering Works,0261-2223344,,Surat,Gujarat,Auto Components,http://kri
 
 test('Database & Pipeline: Full candidate ingestion, deduplication and batch discovery', async () => {
   // Clean test DB if exists
+  closeDb();
   if (fs.existsSync(TEST_DB_PATH)) {
     fs.unlinkSync(TEST_DB_PATH);
   }

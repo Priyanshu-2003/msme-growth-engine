@@ -3,10 +3,12 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const url = require('node:url');
+const crypto = require('node:crypto');
 const { getDb } = require('./db/index.js');
 const { parseCsvContent } = require('./sources/csv_adapter.js');
 const { processCandidateLead, runBatchDiscoveryJob, getSettingsMap } = require('./core/operations_manager.js');
 const { INDIAN_STATES_AND_UTS, MSME_CATEGORIES } = require('./core/taxonomy.js');
+const { generateCatalogueHtml, exportCatalogueToDisk } = require('./core/catalogue_generator.js');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, '../public');
@@ -368,24 +370,20 @@ const server = http.createServer(async (req, res) => {
           primaryFriction: c.keyPainPoint
         })),
         packages: [
-          { name: "Starter Website & Google Business 3-Pack", price: "₹5,999", target: "Local businesses with No Website", salesCycle: "24-48 hrs" },
-          { name: "B2B Product Catalogue with WhatsApp Ordering", price: "₹7,999", target: "Industrial wholesalers & job-shops", salesCycle: "3-5 days" },
-          { name: "Factory Raw Material Inventory & BOM Tracker", price: "₹24,999", target: "Factories with multiple production stages", salesCycle: "7-14 days" },
-          { name: "Global Export B2B Showcase & Multi-Currency RFQ", price: "₹14,999", target: "Export-oriented garment and handicraft units", salesCycle: "5-10 days" }
+          { name: "B2B Product Catalogue with WhatsApp Ordering (List Price)", price: "₹7,999", target: "MSME manufacturers & wholesalers", salesCycle: "24-48 hrs" },
+          { name: "Founding Client Special (First 3 Clients)", price: "₹5,999", target: "Requires testimonial, 1 referral & case study", salesCycle: "Immediate (₹2,000 advance)" }
         ],
         cmoSummary: {
           currentFunnelEfficiency: totalLeads > 0 ? ((qualifiedLeads / totalLeads) * 100).toFixed(1) + '%' : '0%',
           contactToMeetingRate: contactedLeads > 0 ? ((meetingsBooked / contactedLeads) * 100).toFixed(1) + '%' : '0%',
           dailyOutreachTarget: 25,
-          weeklyRevenueTargetInr: 150000,
-          primaryChannelRecommendation: "Direct WhatsApp Message with 1-Page Interactive Digital Demo followed by Phone Consultation"
+          weeklyRevenueTargetInr: 25000,
+          primaryChannelRecommendation: "Phone Call First, followed by 1-Page WhatsApp Audit upon verbal consent"
         },
         clusterOpportunities,
         topConversionOffers: [
-          { name: "Starter Website & Google Business 3-Pack", priceInr: 5999, conversionSpeed: "Fast (24-48 hrs)", target: "Local businesses with No Website" },
-          { name: "B2B Product Catalogue with WhatsApp Ordering", priceInr: 7999, conversionSpeed: "Fast (3-5 days)", target: "Industrial wholesalers & job-shops" },
-          { name: "Factory Raw Material Inventory & BOM Tracker", priceInr: 24999, conversionSpeed: "Medium (7-14 days)", target: "Factories with multiple production stages" },
-          { name: "Global Export B2B Showcase & Multi-Currency RFQ", priceInr: 14999, conversionSpeed: "Medium (5-10 days)", target: "Export-oriented garment and handicraft units" }
+          { name: "B2B Product Catalogue with WhatsApp Ordering (List Price)", priceInr: 7999, conversionSpeed: "Fast (24-48 hrs)", target: "MSME manufacturers & wholesalers" },
+          { name: "Founding Client Special (First 3 Clients)", priceInr: 5999, conversionSpeed: "Immediate (₹2,000 advance)", target: "Requires testimonial, 1 referral & case study" }
         ]
       });
     }
@@ -455,51 +453,601 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true, message: 'Lead updated successfully' });
     }
 
-    // 4b. Team Unified Activity Feed API
+    // 4b. Team Unified Activity Feed API (Derived directly from activity_logs)
     if (method === 'GET' && pathname === '/api/team/activity') {
       const rows = db.prepare(`
-        SELECT id, business_name, city, state, phone, pipeline_stage, lead_score, audit_history, updated_at
-        FROM leads
-        WHERE audit_history != '[]' AND audit_history IS NOT NULL
-        ORDER BY updated_at DESC
+        SELECT a.id, a.user as author, a.action_type as action, a.lead_id as leadId, a.metadata, a.created_at as timestamp,
+               l.business_name as businessName, l.city, l.state, l.phone, l.lead_score as leadScore, l.pipeline_stage as pipelineStage
+        FROM activity_logs a
+        LEFT JOIN leads l ON a.lead_id = l.id
+        ORDER BY a.created_at DESC
+        LIMIT 50
       `).all();
 
-      const activities = [];
-      for (const r of rows) {
-        let auditList = [];
-        try { auditList = JSON.parse(r.audit_history || '[]'); } catch {}
-        if (Array.isArray(auditList)) {
-          for (const item of auditList) {
-            let author = item.author;
-            if (!author || author === 'Team') {
-              const act = (item.action || '').toUpperCase();
-              if (act.includes('DISCOVER') || act.includes('SCORE') || act.includes('OFFER') || act.includes('COMPLIANCE')) author = 'Priyanshu';
-              else if (act.includes('PORTAL') || act.includes('SITE') || act.includes('DEPLOY')) author = 'Pushpender';
-              else author = 'Kaushik';
-            }
-            activities.push({
-              leadId: r.id,
-              businessName: r.business_name,
-              city: r.city,
-              state: r.state,
-              phone: r.phone,
-              leadScore: r.lead_score,
-              pipelineStage: r.pipeline_stage,
-              author,
-              action: item.action || 'STAGE_CHANGED',
-              details: item.details || item.text || 'Step logged',
-              timestamp: item.timestamp || r.updated_at
-            });
-          }
-        }
-      }
+      const activities = rows.map(r => {
+        let meta = {};
+        try { meta = JSON.parse(r.metadata || '{}'); } catch (e) {}
+        return {
+          id: r.id,
+          leadId: r.leadId,
+          businessName: r.businessName || 'MSME Enterprise',
+          city: r.city || '',
+          state: r.state || '',
+          phone: r.phone || '',
+          leadScore: r.leadScore || 0,
+          pipelineStage: r.pipelineStage || 'DISCOVERED',
+          author: r.author || 'User',
+          action: r.action,
+          details: meta.notes || meta.details || meta.note || `Action ${r.action} recorded`,
+          timestamp: r.timestamp
+        };
+      });
 
-      activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       return sendJson(res, 200, {
         success: true,
         totalEvents: activities.length,
-        activities: activities.slice(0, 50)
+        activities
       });
+    }
+
+    // -------------------------------------------------------------
+    // PHASE 1: CALLING WORKFLOW & COMPLIANCE ENDPOINTS
+    // -------------------------------------------------------------
+
+    // 4b-1. Speed Dialer Queue API (Strictly APPROVED_FOR_CONTACT, not in suppression list, is_demo = 0, legal source only)
+    if (method === 'GET' && pathname === '/api/dialer/queue') {
+      const queue = db.prepare(`
+        SELECT l.*, b.primary_service_offer, b.outreach_call_script_en, b.outreach_call_script_hi
+        FROM leads l
+        LEFT JOIN sales_briefs b ON l.id = b.lead_id
+        LEFT JOIN suppression_list s ON (l.normalized_phone = s.identifier_val OR l.phone = s.identifier_val OR l.normalized_domain = s.identifier_val)
+        WHERE l.pipeline_stage = 'APPROVED_FOR_CONTACT'
+          AND COALESCE(l.is_demo, 0) = 0
+          AND s.id IS NULL
+          AND l.phone IS NOT NULL AND LENGTH(TRIM(l.phone)) >= 8
+          AND l.source_name IN (SELECT name FROM sources WHERE is_active = 1 AND commercial_reuse_allowed = 1)
+        ORDER BY l.lead_score DESC
+        LIMIT 200
+      `).all();
+
+      return sendJson(res, 200, {
+        success: true,
+        count: queue.length,
+        leads: queue,
+        queue
+      });
+    }
+
+    // 4b-2. Speed Calling Outcome & Dial Attempt Logger (With 3s Dedupe Protection)
+    if (method === 'POST' && pathname === '/api/dialer/call') {
+      const body = await parseJsonBody(req);
+      const leadId = body.leadId;
+      const outcome = body.outcome; // 'dial_attempt', 'no_answer', 'wrong_number', 'not_interested', 'call_back', 'send_audit', 'demo_booked'
+      const user = body.user || 'Caller';
+      const notes = (body.notes || '').trim();
+      const now = new Date().toISOString();
+
+      if (!leadId) {
+        return sendJson(res, 400, { error: 'leadId is required' });
+      }
+
+      const outcomeActionMap = {
+        'dial_attempt': 'DIAL_ATTEMPTED',
+        'no_answer': 'CALL_NO_ANSWER',
+        'wrong_number': 'CALL_WRONG_NUMBER',
+        'not_interested': 'CALL_NOT_INTERESTED',
+        'call_back': 'CALL_BACK_REQUESTED',
+        'send_audit': 'CONSENT_AUDIT_GIVEN',
+        'demo_booked': 'DEMO_BOOKED'
+      };
+
+      const actionType = outcomeActionMap[outcome];
+      if (!actionType) {
+        return sendJson(res, 400, { error: `Invalid outcome. Must be one of: ${Object.keys(outcomeActionMap).join(', ')}` });
+      }
+
+      // Double-click protection: Server-side dedupe of identical events within 3000 ms (3 seconds)
+      const recentDup = db.prepare(`
+        SELECT id, created_at FROM activity_logs
+        WHERE lead_id = ? AND user = ? AND action_type = ?
+        ORDER BY created_at DESC LIMIT 1
+      `).get(leadId, user, actionType);
+
+      if (recentDup && (new Date(now).getTime() - new Date(recentDup.created_at).getTime()) < 3000) {
+        return sendJson(res, 200, {
+          success: true,
+          duplicate: true,
+          message: 'Duplicate event debounced (< 3s)',
+          logId: recentDup.id
+        });
+      }
+
+      const logId = `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      db.prepare(`
+        INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(logId, user, actionType, leadId, JSON.stringify({ outcome, notes }), now);
+
+      // Connected call actions
+      const connectedOutcomes = ['not_interested', 'call_back', 'send_audit', 'demo_booked'];
+      if (connectedOutcomes.includes(outcome)) {
+        db.prepare(`
+          INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+          VALUES (?, ?, 'CALL_CONNECTED', ?, ?, ?)
+        `).run(`act_conn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`, user, leadId, JSON.stringify({ outcome, notes }), now);
+      }
+
+      // Stage and next action mapping
+      let targetStage = null;
+      let nextAction = null;
+      if (outcome === 'no_answer' || outcome === 'not_interested' || outcome === 'call_back' || outcome === 'send_audit') {
+        targetStage = 'CONTACTED';
+        nextAction = outcome === 'call_back' ? 'Call back requested by prospect' : (outcome === 'send_audit' ? 'Send WhatsApp Audit Report' : 'Follow up in 48h');
+      } else if (outcome === 'demo_booked') {
+        targetStage = 'MEETING_BOOKED';
+        nextAction = 'Prepare demo for client meeting';
+      }
+
+      if (targetStage) {
+        const lead = db.prepare('SELECT audit_history FROM leads WHERE id = ?').get(leadId);
+        let audit = [];
+        try { audit = JSON.parse(lead?.audit_history || '[]'); } catch (e) {}
+        audit.push({
+          timestamp: now,
+          author: user,
+          action: actionType,
+          details: notes || `Outcome: ${outcome}`
+        });
+
+        db.prepare(`
+          UPDATE leads
+          SET pipeline_stage = ?,
+              next_action = COALESCE(?, next_action),
+              audit_history = ?,
+              updated_at = ?
+          WHERE id = ?
+        `).run(targetStage, nextAction, JSON.stringify(audit), now, leadId);
+      }
+
+      return sendJson(res, 200, {
+        success: true,
+        logId,
+        actionType,
+        leadId,
+        newStage: targetStage
+      });
+    }
+
+    // 4b-3. Speed Calling Counters API (Derived strictly from activity_logs)
+    if (method === 'GET' && pathname === '/api/dialer/stats') {
+      const dialsAttempted = db.prepare("SELECT COUNT(*) as c FROM activity_logs WHERE action_type = 'DIAL_ATTEMPTED'").get().c;
+      const callsConnected = db.prepare("SELECT COUNT(*) as c FROM activity_logs WHERE action_type = 'CALL_CONNECTED'").get().c;
+      const consentGiven = db.prepare("SELECT COUNT(*) as c FROM activity_logs WHERE action_type = 'CONSENT_AUDIT_GIVEN'").get().c;
+      const demosBooked = db.prepare("SELECT COUNT(*) as c FROM activity_logs WHERE action_type = 'DEMO_BOOKED'").get().c;
+
+      return sendJson(res, 200, {
+        success: true,
+        stats: {
+          dialsAttempted,
+          callsConnected,
+          consentGiven,
+          demosBooked
+        }
+      });
+    }
+
+    // 4b-4. Follow-ups Scheduling APIs
+    if (method === 'GET' && pathname === '/api/follow-ups/today') {
+      const todayDate = new Date().toISOString().split('T')[0];
+      const followUps = db.prepare(`
+        SELECT f.*, l.business_name, l.city, l.phone, l.lead_score, l.pipeline_stage
+        FROM follow_ups f
+        JOIN leads l ON f.lead_id = l.id
+        WHERE f.scheduled_date <= ? AND f.status = 'PENDING'
+        ORDER BY f.scheduled_date ASC, f.scheduled_time ASC
+      `).all(todayDate);
+
+      return sendJson(res, 200, { success: true, count: followUps.length, followUps });
+    }
+
+    if (method === 'GET' && pathname === '/api/follow-ups') {
+      const leadId = parsedUrl.query?.leadId;
+      let followUps = [];
+      if (leadId) {
+        followUps = db.prepare('SELECT * FROM follow_ups WHERE lead_id = ? ORDER BY scheduled_date DESC, scheduled_time DESC').all(leadId);
+      } else {
+        followUps = db.prepare(`
+          SELECT f.*, l.business_name, l.city, l.phone
+          FROM follow_ups f
+          JOIN leads l ON f.lead_id = l.id
+          ORDER BY f.scheduled_date ASC, f.scheduled_time ASC
+          LIMIT 50
+        `).all();
+      }
+      return sendJson(res, 200, { success: true, followUps });
+    }
+
+    if (method === 'POST' && pathname === '/api/follow-ups') {
+      const body = await parseJsonBody(req);
+      const { lead_id, scheduled_date, scheduled_time, notes, created_by } = body;
+      const follow_up_type = body.follow_up_type || body.type;
+
+      if (!lead_id || !scheduled_date || !scheduled_time || !follow_up_type) {
+        return sendJson(res, 400, { error: 'lead_id, scheduled_date, scheduled_time, and follow_up_type are required' });
+      }
+
+      const typeUpper = follow_up_type.toUpperCase();
+      if (!['CALL', 'MEETING'].includes(typeUpper)) {
+        return sendJson(res, 400, { error: "follow_up_type must be 'CALL' or 'MEETING'" });
+      }
+
+      // Check lead exists
+      const lead = db.prepare('SELECT id, business_name FROM leads WHERE id = ?').get(lead_id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      const now = new Date().toISOString();
+      const followUpId = `fu_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      const user = created_by || 'Caller';
+
+      db.prepare(`
+        INSERT INTO follow_ups (id, lead_id, scheduled_date, scheduled_time, follow_up_type, notes, status, created_at, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, 'PENDING', ?, ?)
+      `).run(followUpId, lead_id, scheduled_date, scheduled_time, typeUpper, notes || '', now, user);
+
+      // Log to activity_logs
+      db.prepare(`
+        INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+        VALUES (?, ?, 'FOLLOW_UP_SCHEDULED', ?, ?, ?)
+      `).run(`act_fu_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, user, lead_id, JSON.stringify({ followUpId, scheduled_date, scheduled_time, follow_up_type: typeUpper, notes }), now);
+
+      // Update lead
+      db.prepare(`
+        UPDATE leads
+        SET follow_up_date = ?,
+            next_action = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).run(`${scheduled_date} ${scheduled_time}`, `Scheduled ${typeUpper}: ${notes || 'Follow-up'}`, now, lead_id);
+
+      return sendJson(res, 201, { success: true, followUpId, message: 'Follow-up scheduled successfully' });
+    }
+
+    if (method === 'PATCH' && pathname.startsWith('/api/follow-ups/')) {
+      const id = pathname.replace('/api/follow-ups/', '');
+      const body = await parseJsonBody(req);
+      const status = (body.status || 'COMPLETED').toUpperCase();
+
+      if (!['PENDING', 'COMPLETED', 'CANCELLED'].includes(status)) {
+        return sendJson(res, 400, { error: "Status must be PENDING, COMPLETED, or CANCELLED" });
+      }
+
+      db.prepare('UPDATE follow_ups SET status = ? WHERE id = ?').run(status, id);
+      return sendJson(res, 200, {
+        success: true,
+        message: `Follow-up status updated to ${status}`,
+        status,
+        followUp: { id, status }
+      });
+    }
+
+    // 4b-5. Pitch & Script Editing APIs (With 10-Version History)
+    if (method === 'GET' && pathname === '/api/scripts') {
+      const scripts = db.prepare(`
+        SELECT s.* FROM scripts s
+        INNER JOIN (
+          SELECT script_key, MAX(version) as max_v
+          FROM scripts GROUP BY script_key
+        ) mv ON s.script_key = mv.script_key AND s.version = mv.max_v
+        ORDER BY s.script_key ASC
+      `).all();
+      return sendJson(res, 200, { success: true, scripts });
+    }
+
+    if (method === 'GET' && pathname.startsWith('/api/scripts/') && pathname.endsWith('/history')) {
+      const key = pathname.replace('/api/scripts/', '').replace('/history', '');
+      const history = db.prepare('SELECT * FROM scripts WHERE script_key = ? ORDER BY version DESC LIMIT 10').all(key);
+      return sendJson(res, 200, { success: true, scriptKey: key, history });
+    }
+
+    if (method === 'POST' && pathname === '/api/scripts') {
+      const body = await parseJsonBody(req);
+      const script_key = body.script_key || body.key;
+      const { channel, language, title, content, user } = body;
+
+      if (!script_key || !title || !content) {
+        return sendJson(res, 400, { error: 'script_key, title, and content are required' });
+      }
+
+      const current = db.prepare('SELECT MAX(version) as max_v FROM scripts WHERE script_key = ?').get(script_key);
+      const nextVersion = (current?.max_v || 0) + 1;
+      const now = new Date().toISOString();
+      const id = `scr_${script_key}_v${nextVersion}_${Date.now()}`;
+      const author = user || 'Admin';
+
+      db.prepare(`
+        INSERT INTO scripts (id, script_key, channel, language, title, content, version, created_at, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, script_key, channel || 'CALL', language || 'EN', title, content, nextVersion, now, author);
+
+      // Keep only last 10 versions
+      db.prepare(`
+        DELETE FROM scripts
+        WHERE script_key = ? AND id NOT IN (
+          SELECT id FROM scripts WHERE script_key = ? ORDER BY version DESC LIMIT 10
+        )
+      `).run(script_key, script_key);
+
+      // Log script update in activity_logs
+      db.prepare(`
+        INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+        VALUES (?, ?, 'SCRIPT_UPDATED', NULL, ?, ?)
+      `).run(`act_scr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, author, JSON.stringify({ script_key, version: nextVersion, title }), now);
+
+      return sendJson(res, 201, {
+        success: true,
+        message: `Script ${script_key} updated to version ${nextVersion}`,
+        version: nextVersion
+      });
+    }
+
+    // 4b-6. Mark as Live (Replaces simulator with real URL recording)
+    if (method === 'POST' && pathname.startsWith('/api/leads/') && pathname.endsWith('/mark-live')) {
+      const id = pathname.replace('/api/leads/', '').replace('/mark-live', '');
+      const body = await parseJsonBody(req);
+      const liveUrl = (body.liveUrl || body.live_url || '').trim();
+      const notes = (body.notes || '').trim();
+      const user = body.user || 'Engineering';
+
+      if (!liveUrl) {
+        return sendJson(res, 400, { error: 'liveUrl is required' });
+      }
+
+      const now = new Date().toISOString();
+      const lead = db.prepare('SELECT audit_history FROM leads WHERE id = ?').get(id);
+      if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
+
+      let audit = [];
+      try { audit = JSON.parse(lead.audit_history || '[]'); } catch (e) {}
+      audit.push({
+        timestamp: now,
+        author: user,
+        action: 'SITE_MARKED_LIVE',
+        details: `Catalogue marked live at ${liveUrl}. Notes: ${notes || 'None'}`
+      });
+
+      db.prepare(`
+        UPDATE leads
+        SET pipeline_stage = 'WON',
+            live_url = ?,
+            next_action = 'Handover complete - live at ' || ?,
+            audit_history = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).run(liveUrl, liveUrl, JSON.stringify(audit), now, id);
+
+      db.prepare(`
+        INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+        VALUES (?, ?, 'SITE_MARKED_LIVE', ?, ?, ?)
+      `).run(`act_live_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, user, id, JSON.stringify({ liveUrl, notes }), now);
+
+      return sendJson(res, 200, {
+        success: true,
+        status: 'MARKED_LIVE',
+        message: 'Catalogue marked live',
+        liveUrl,
+        lead: { id, live_url: liveUrl, pipeline_stage: 'WON' }
+      });
+    }
+
+    // 4b-7. B2B Mobile Catalogue Management APIs
+    if (method === 'GET' && pathname.startsWith('/api/catalogues/') && pathname.endsWith('/export')) {
+      const token = pathname.replace('/api/catalogues/', '').replace('/export', '').trim();
+      const cat = db.prepare('SELECT * FROM catalogues WHERE token = ? OR id = ?').get(token, token);
+      if (!cat) return sendJson(res, 404, { error: 'Catalogue not found' });
+
+      const catalogueData = {
+        id: cat.id,
+        token: cat.token,
+        business_name: cat.business_name,
+        tagline: cat.tagline,
+        language: cat.language || 'EN',
+        whatsapp_number: cat.whatsapp_number,
+        phone: cat.phone,
+        email: cat.email,
+        address: cat.address,
+        google_maps_url: cat.google_maps_url,
+        products: JSON.parse(cat.products || '[]'),
+        verified_badges: JSON.parse(cat.verified_badges || '[]'),
+        meta_description: cat.meta_description,
+        is_sample: Boolean(cat.is_sample)
+      };
+
+      const exportDir = path.join(__dirname, '../data/exports', `catalogue_${cat.token}`);
+      exportCatalogueToDisk(catalogueData, exportDir);
+
+      return sendJson(res, 200, {
+        success: true,
+        token: cat.token,
+        export_dir: exportDir,
+        files: ['index.html', 'style.css', 'catalogue-data.js', 'HANDOVER_CHECKLIST.md'],
+        message: 'Static catalogue package exported successfully'
+      });
+    }
+
+    if (method === 'GET' && pathname.startsWith('/api/catalogues/')) {
+      const token = pathname.replace('/api/catalogues/', '').trim();
+      const cat = db.prepare('SELECT * FROM catalogues WHERE token = ? OR id = ?').get(token, token);
+      if (!cat) return sendJson(res, 404, { error: 'Catalogue not found' });
+
+      // Strictly sanitize: NEVER leak internal lead fields (lead_score, notes, audit_history, stage, etc.)
+      const sanitized = {
+        id: cat.id,
+        token: cat.token,
+        lead_id: cat.lead_id,
+        business_name: cat.business_name,
+        tagline: cat.tagline,
+        language: cat.language || 'EN',
+        whatsapp_number: cat.whatsapp_number,
+        phone: cat.phone,
+        email: cat.email,
+        address: cat.address,
+        google_maps_url: cat.google_maps_url,
+        products: JSON.parse(cat.products || '[]'),
+        verified_badges: JSON.parse(cat.verified_badges || '[]'),
+        meta_description: cat.meta_description,
+        is_sample: Boolean(cat.is_sample),
+        created_at: cat.created_at,
+        updated_at: cat.updated_at,
+        catalogue_url: `/catalogue/${cat.token}`
+      };
+
+      return sendJson(res, 200, { success: true, catalogue: sanitized });
+    }
+
+    if (method === 'POST' && pathname === '/api/catalogues') {
+      const body = await parseJsonBody(req);
+      if (!body.business_name || !body.business_name.trim()) {
+        return sendJson(res, 400, { error: 'Business name is required' });
+      }
+      if (!body.whatsapp_number || !body.whatsapp_number.trim()) {
+        return sendJson(res, 400, { error: 'WhatsApp phone number is required' });
+      }
+
+      const user = req.headers['x-user-role'] || 'admin';
+      const now = new Date().toISOString();
+      
+      // Validate products (enforce image size limits, alt text requirement)
+      const products = Array.isArray(body.products) ? body.products : [];
+      for (const p of products) {
+        if (p.image_url && p.image_url.startsWith('data:') && p.image_url.length > 2.8 * 1024 * 1024) {
+          return sendJson(res, 400, { error: `Product "${p.name || 'Item'}" image exceeds 2MB limit. Please compress before uploading.` });
+        }
+        if (p.image_url && (!p.alt_text || !p.alt_text.trim())) {
+          p.alt_text = `${p.name || 'Product'} photo`;
+        }
+      }
+
+      let catId = body.id;
+      let token = body.token;
+      let existing = null;
+
+      if (token) {
+        existing = db.prepare('SELECT * FROM catalogues WHERE token = ?').get(token);
+      } else if (catId) {
+        existing = db.prepare('SELECT * FROM catalogues WHERE id = ?').get(catId);
+      } else if (body.lead_id) {
+        existing = db.prepare('SELECT * FROM catalogues WHERE lead_id = ?').get(body.lead_id);
+      }
+
+      if (existing) {
+        token = existing.token;
+        catId = existing.id;
+        db.prepare(`
+          UPDATE catalogues
+          SET business_name = ?,
+              tagline = ?,
+              language = ?,
+              whatsapp_number = ?,
+              phone = ?,
+              email = ?,
+              address = ?,
+              google_maps_url = ?,
+              products = ?,
+              verified_badges = ?,
+              meta_description = ?,
+              is_sample = ?,
+              updated_at = ?
+          WHERE id = ?
+        `).run(
+          body.business_name.trim(),
+          body.tagline || '',
+          body.language || 'EN',
+          body.whatsapp_number.trim(),
+          body.phone || body.whatsapp_number.trim(),
+          body.email || '',
+          body.address || '',
+          body.google_maps_url || '',
+          JSON.stringify(products),
+          JSON.stringify(body.verified_badges || []),
+          body.meta_description || '',
+          body.is_sample ? 1 : 0,
+          now,
+          catId
+        );
+      } else {
+        catId = `cat_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+        token = `cat_${crypto.randomBytes(8).toString('hex')}`;
+        db.prepare(`
+          INSERT INTO catalogues (
+            id, lead_id, token, business_name, tagline, language,
+            whatsapp_number, phone, email, address, google_maps_url,
+            products, verified_badges, meta_description, is_sample,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          catId,
+          body.lead_id || null,
+          token,
+          body.business_name.trim(),
+          body.tagline || '',
+          body.language || 'EN',
+          body.whatsapp_number.trim(),
+          body.phone || body.whatsapp_number.trim(),
+          body.email || '',
+          body.address || '',
+          body.google_maps_url || '',
+          JSON.stringify(products),
+          JSON.stringify(body.verified_badges || []),
+          body.meta_description || '',
+          body.is_sample ? 1 : 0,
+          now,
+          now
+        );
+      }
+
+      // If associated with a lead, update lead's live_url
+      if (body.lead_id) {
+        const liveUrl = `/catalogue/${token}`;
+        db.prepare('UPDATE leads SET live_url = ?, updated_at = ? WHERE id = ?').run(liveUrl, now, body.lead_id);
+      }
+
+      // Log to activity_logs
+      try {
+        db.prepare(`
+          INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+          VALUES (?, ?, 'CATALOGUE_SAVED', ?, ?, ?)
+        `).run(
+          `act_cat_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
+          user,
+          body.lead_id || null,
+          JSON.stringify({ catalogue_id: catId, token, business_name: body.business_name }),
+          now
+        );
+      } catch {}
+
+      const saved = db.prepare('SELECT * FROM catalogues WHERE id = ?').get(catId);
+      const sanitized = {
+        id: saved.id,
+        token: saved.token,
+        lead_id: saved.lead_id,
+        business_name: saved.business_name,
+        tagline: saved.tagline,
+        language: saved.language,
+        whatsapp_number: saved.whatsapp_number,
+        phone: saved.phone,
+        email: saved.email,
+        address: saved.address,
+        google_maps_url: saved.google_maps_url,
+        products: JSON.parse(saved.products || '[]'),
+        verified_badges: JSON.parse(saved.verified_badges || '[]'),
+        meta_description: saved.meta_description,
+        is_sample: Boolean(saved.is_sample),
+        created_at: saved.created_at,
+        updated_at: saved.updated_at,
+        catalogue_url: `/catalogue/${saved.token}`
+      };
+
+      return sendJson(res, 201, { success: true, catalogue: sanitized });
     }
 
     // 4c. Interactive Factory Demo Website Preview Generator
@@ -547,9 +1095,9 @@ const server = http.createServer(async (req, res) => {
       if (!lead) return sendJson(res, 404, { error: 'Lead not found' });
 
       const body = await parseJsonBody(req);
-      const advanceAmount = body.advanceAmount || 5000;
+      const advanceAmount = body.advanceAmount || 2000;
       const paymentRef = body.paymentRef || `UPI_ADV_${Date.now().toString().slice(-6)}`;
-      const note = body.note || `Deal closed by Kaushik. Advance token ₹${advanceAmount} received via ${paymentRef}. Handed over to Pushpender for 48h factory portal deployment.`;
+      const note = body.note || `Deal closed. Advance token ₹${advanceAmount} received via ${paymentRef}. Handed over for B2B mobile catalogue deployment.`;
 
       const now = new Date().toISOString();
       const audit = JSON.parse(lead.audit_history || '[]');
@@ -629,6 +1177,17 @@ const server = http.createServer(async (req, res) => {
       if (state) { whereClauses.push('state = ?'); params.push(state); }
       if (industry) { whereClauses.push('industry_category = ?'); params.push(industry); }
       if (opportunityTier) { whereClauses.push('opportunity_tier = ?'); params.push(opportunityTier); }
+
+      // Exclude demo leads by default
+      if (q.include_demo !== 'true') {
+        whereClauses.push('COALESCE(is_demo, 0) = 0');
+      }
+
+      // Exclude opted-out / suppression list records
+      whereClauses.push(`id NOT IN (
+        SELECT l2.id FROM leads l2
+        JOIN suppression_list s ON (l2.normalized_phone = s.identifier_val OR l2.phone = s.identifier_val OR l2.normalized_domain = s.identifier_val)
+      )`);
 
       const rows = db.prepare(`
         SELECT id, business_name, industry_category, subcategory, state, city, pincode,
@@ -731,6 +1290,11 @@ const server = http.createServer(async (req, res) => {
             updated_at = ?
         WHERE id = ?
       `).run(now, leadId);
+
+      db.prepare(`
+        INSERT INTO activity_logs (id, user, action_type, lead_id, metadata, created_at)
+        VALUES (?, ?, 'OUTREACH_APPROVED', ?, ?, ?)
+      `).run(`act_appr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, 'Admin', leadId, JSON.stringify({ approvedStage: 'APPROVED_FOR_CONTACT' }), now);
 
       return sendJson(res, 200, { success: true, message: `Lead ${leadId} approved for outreach` });
     }
@@ -857,28 +1421,29 @@ const server = http.createServer(async (req, res) => {
       const repliedLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'REPLIED'").all();
       const contactedLeads = db.prepare("SELECT id, business_name, city, state, pipeline_stage, updated_at FROM leads WHERE pipeline_stage = 'CONTACTED'").all();
 
-      const advanceCash = wonLeads.length * 5000;
-      const receivablesDue = wonLeads.length * 13000;
-      const totalAddressablePipeline = totalLeads * 18000;
+      const advanceCash = wonLeads.length * 2000;
+      const receivablesDue = wonLeads.length * 3999;
+      const totalAddressablePipeline = totalLeads * 7999;
       const weighted30Day = Math.round(
-        (wonLeads.length * 18000 * 1.0) +
-        (demoLeads.length * 18000 * 0.60) +
-        (repliedLeads.length * 18000 * 0.35) +
-        (contactedLeads.length * 18000 * 0.15)
+        (wonLeads.length * 5999 * 1.0) +
+        (demoLeads.length * 5999 * 0.60) +
+        (repliedLeads.length * 5999 * 0.35) +
+        (contactedLeads.length * 7999 * 0.15)
       );
 
       const dealLedger = [
-        ...wonLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 5000, balanceDue: 13000, status: 'ADVANCE_LOCKED' })),
-        ...demoLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'DEMO_STAGED' })),
-        ...repliedLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'IN_NEGOTIATION' })),
-        ...contactedLeads.map(l => ({ ...l, dealValue: 18000, advancePaid: 0, balanceDue: 18000, status: 'PITCH_DELIVERED' }))
+        ...wonLeads.map(l => ({ ...l, dealValue: 5999, advancePaid: 2000, balanceDue: 3999, status: 'ADVANCE_LOCKED' })),
+        ...demoLeads.map(l => ({ ...l, dealValue: 5999, advancePaid: 0, balanceDue: 5999, status: 'DEMO_STAGED' })),
+        ...repliedLeads.map(l => ({ ...l, dealValue: 5999, advancePaid: 0, balanceDue: 5999, status: 'IN_NEGOTIATION' })),
+        ...contactedLeads.map(l => ({ ...l, dealValue: 7999, advancePaid: 0, balanceDue: 7999, status: 'PITCH_DELIVERED' }))
       ];
 
       const financialMetrics = {
         totalLeads,
-        packagePrice: 18000,
-        advancePrice: 5000,
-        balancePrice: 13000,
+        packagePrice: 7999,
+        foundingPrice: 5999,
+        advancePrice: 2000,
+        balancePrice: 3999,
         advanceCash,
         receivablesDue,
         totalAddressablePipeline,
@@ -911,18 +1476,18 @@ const server = http.createServer(async (req, res) => {
         state: lead.state,
         phone: lead.phone || 'Phone upon request',
         items: [
-          { desc: 'Factory Inventory & Multi-Stage BOM Scrap Tracking Module', amount: 7500 },
-          { desc: 'B2B WhatsApp Ordering Catalog & Real-Time Dealer Portal', amount: 6500 },
-          { desc: '48-Hour Live Custom Domain (.in) & SSL Deployment', amount: 4000 }
+          { desc: 'Mobile-Friendly B2B Product Catalogue Site', amount: 3999 },
+          { desc: 'Direct WhatsApp Enquiry Integration & Instant Lead Routing', amount: 2000 },
+          { desc: 'Google Business Profile Setup & Local Discovery Verification', amount: 2000 }
         ],
-        subtotal: 18000,
-        gst: 0,
-        totalAmount: 18000,
-        advancePaid: isWon ? 5000 : 0,
-        balanceDue: isWon ? 13000 : 18000,
+        subtotal: 7999,
+        foundingDiscount: 2000,
+        totalAmount: 5999,
+        advancePaid: isWon ? 2000 : 0,
+        balanceDue: isWon ? 3999 : 5999,
         paymentStatus: isWon ? 'ADVANCE_LOCKED' : 'PROFORMA_PENDING',
-        upiId: 'indusos@icici',
-        upiPayLink: `upi://pay?pa=indusos@icici&pn=IndusOS%20Technologies&am=5000&cu=INR&tn=Token%20Advance%20${encodeURIComponent(lead.business_name)}`
+        upiId: 'bharatgrowth@icici',
+        upiPayLink: `upi://pay?pa=bharatgrowth@icici&pn=BharatGrowth%20AI&am=2000&cu=INR&tn=Advance%20${encodeURIComponent(lead.business_name)}`
       };
 
       return sendJson(res, 200, { success: true, invoice: invoiceData });
@@ -963,25 +1528,27 @@ const server = http.createServer(async (req, res) => {
             parameter: 'Mobile & Smartphone Viewport',
             status: hasWeb ? 'PARTIAL' : 'NON_COMPLIANT',
             passed: false,
-            impact: '92% of outstation textile dealers order exclusively from mobile phones; desktop-only pages lose orders'
+            impact: 'Outstation B2B buyers browse and check product ranges on mobile phones; non-mobile pages cause buyers to look elsewhere'
           },
           {
             parameter: 'Instant WhatsApp Commerce Ordering',
             status: 'MISSING',
             passed: false,
-            impact: 'Dealers forced to phone or send unorganized WhatsApp photos; high error rate during peak billing hours'
+            impact: 'Dealers forced to phone or wait for manual WhatsApp photos; high friction during peak business hours'
           }
         ],
         businessLossEstimate: {
-          monthlyInquiriesLost: '15 to 25 Outstation Wholesale Inquiries',
-          weeklyWastedStaffHours: '10–14 Hours spent manual photo sharing',
-          estimatedRevenueLeakage: '₹1,50,000 – ₹3,50,000 / Month'
+          monthlyInquiriesLost: 'Outstation Inquiries Lost to Competitors',
+          weeklyWastedStaffHours: 'Staff time spent manually sharing photos on WhatsApp',
+          estimatedRevenueLeakage: 'Missing Google & Mobile Discovery'
         },
-        recommendedSolution: 'Turnkey 48-Hour B2B Digital Catalogue & Mobile Dealer Portal',
-        packageCost: 18000,
-        tokenAdvance: 5000,
+        recommendedSolution: 'B2B Mobile Catalogue + WhatsApp Enquiry Button + Google Business Profile Setup',
+        packageCost: 7999,
+        foundingCost: 5999,
+        tokenAdvance: 2000,
+        balanceDue: 3999,
         portalUrl: `/portal/${lead.id}`,
-        shareableText: `*DIGITAL MATURITY & DEALER CONVERSION AUDIT*\nEnterprise: *${lead.business_name}* (${lead.city})\nScore: *${lead.lead_score}/100*\n\nCritical Gaps Identified:\n• Online Catalogue: ${hasWeb ? 'Outdated' : 'Missing (Zero presence for outstation buyers)'}\n• WhatsApp Direct PO: Missing (Manual photo sharing friction)\n• Estimated Revenue Leakage: ₹1.5L–₹3.5L/Month\n\nSolution: Live 48h Custom Digital Twin with 1-click WhatsApp ordering. Inspect your demo here: http://localhost:3000/portal/${lead.id}`
+        shareableText: `*DIGITAL MATURITY & BUYER ENQUIRY AUDIT*\nEnterprise: *${lead.business_name}* (${lead.city})\nScore: *${lead.lead_score}/100*\n\nKey Gaps Identified:\n• Online Catalogue: ${hasWeb ? 'Outdated' : 'Missing (Zero discoverability for outstation buyers)'}\n• WhatsApp Direct Enquiry: Missing (Manual photo sharing friction)\n• Google Profile: Needs Optimization\n\nCore Offer: Mobile B2B Catalogue + WhatsApp Button + Google Profile Setup.\nFounding Rate: ₹5,999 (₹2,000 advance). Inspect sample demo: http://localhost:3000/portal/${lead.id}`
       };
 
       return sendJson(res, 200, { success: true, audit: auditData });
@@ -990,6 +1557,36 @@ const server = http.createServer(async (req, res) => {
     // -------------------------------------------------------------
     // STATIC FILE & PORTAL ROUTING
     // -------------------------------------------------------------
+    if (pathname.startsWith('/catalogue/')) {
+      const token = pathname.replace('/catalogue/', '').trim();
+      const cat = db.prepare('SELECT * FROM catalogues WHERE token = ? OR id = ?').get(token, token);
+      if (!cat) {
+        res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end('<!DOCTYPE html><html><head><title>Catalogue Not Found</title></head><body style="font-family:sans-serif;text-align:center;padding:50px;"><h2>Catalogue Not Found</h2><p>The requested B2B product catalogue does not exist or has expired.</p></body></html>');
+      }
+
+      const catalogueData = {
+        id: cat.id,
+        token: cat.token,
+        business_name: cat.business_name,
+        tagline: cat.tagline,
+        language: cat.language || 'EN',
+        whatsapp_number: cat.whatsapp_number,
+        phone: cat.phone,
+        email: cat.email,
+        address: cat.address,
+        google_maps_url: cat.google_maps_url,
+        products: JSON.parse(cat.products || '[]'),
+        verified_badges: JSON.parse(cat.verified_badges || '[]'),
+        meta_description: cat.meta_description,
+        is_sample: Boolean(cat.is_sample)
+      };
+
+      const html = generateCatalogueHtml(catalogueData);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(html);
+    }
+
     if (pathname.startsWith('/portal/')) {
       const portalPath = path.join(PUBLIC_DIR, 'portal.html');
       return fs.readFile(portalPath, (err, content) => {

@@ -16,3 +16,8 @@ npm-debug.log*
 data/*.sqlite-journal
 data/*.sqlite-wal
 data/*.sqlite-shm
+data/backups/
+data/exports/
+tests/*.sqlite
+__pycache__/
+*.pyc

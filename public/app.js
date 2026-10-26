@@ -180,7 +180,7 @@ const app = {
       studio: ["48h SLA Delivery Studio", 'Pushpender • Custom Portal Builds & Deployments'],
       reports: ['Cashflow & Proforma Invoices', 'Priyanshu • ₹25L Pipeline & GST Receipts'],
       opsdesk: ["Operations & Team Audit", 'Priyanshu • Real-Time Action Log & Compliance'],
-      cmo: ['Service Packages & Pricing', '₹18,000 Standard Tier & Retainers'],
+      cmo: ['Service Packages & Pricing', '₹7,999 List / ₹5,999 Founding Special'],
       settings: ['Scoring Weights & Rules', '100-Point Algorithm Calibration']
     };
 
@@ -314,6 +314,8 @@ const app = {
         });
       }
 
+      // Load today's scheduled follow-ups into dashboard widget
+      this.loadTodayFollowUps();
     } catch (err) {
       console.error('Failed to load dashboard:', err);
     }
@@ -391,6 +393,7 @@ const app = {
 
   async openLeadModal(leadId) {
     try {
+      this.currentLeadId = leadId;
       const res = await fetch(`/api/leads/${leadId}`);
       const data = await res.json();
       if (!data.lead) return;
@@ -398,6 +401,8 @@ const app = {
       this.currentLeadDetail = data;
       const l = data.lead;
       const b = data.salesBrief;
+
+      this.loadLeadFollowUps(leadId);
 
       document.getElementById('modal-lead-name').textContent = l.business_name;
       document.getElementById('modal-lead-category').textContent = `Category ${l.industry_category}: ${l.subcategory || 'MSME'}`;
@@ -705,13 +710,13 @@ const app = {
     if (event) event.stopPropagation();
     
     const nextMap = {
-      'DISCOVERED': { next: 'QUALIFIED', author: 'Kaushik', action: 'DISCOVERY_CALL_SCHEDULED', note: 'Lead qualified by Kaushik via rapid assessment.' },
-      'QUALIFIED': { next: 'APPROVED_FOR_CONTACT', author: 'Priyanshu', action: 'OFFER_APPROVED', note: 'Outreach campaign offer approved for contact by Priyanshu.' },
-      'APPROVED_FOR_CONTACT': { next: 'CONTACTED', author: 'Kaushik', action: 'WHATSAPP_PITCH_SENT', note: 'Consultative WhatsApp pitch & brochure sent by Kaushik.' },
-      'CONTACTED': { next: 'REPLIED', author: 'Kaushik', action: 'PROMOTER_ENGAGED', note: 'Promoter replied on WhatsApp showing interest in upgrading factory systems.' },
-      'REPLIED': { next: 'MEETING_BOOKED', author: 'Kaushik', action: 'DEMO_COMPLETED', note: '15-minute live screen demo booked with promoter by Kaushik.' },
-      'MEETING_BOOKED': { next: 'WON', author: 'Kaushik', action: 'ADVANCE_TOKEN_RECEIVED', note: 'Client locked! ₹5,000 advance received. Handed over to Pushpender for rapid tech build.' },
-      'WON': { next: 'WON', author: 'Pushpender', action: 'SITE_DEPLOYED_LIVE', note: 'Factory portal & catalog deployed live on domain by Pushpender.' }
+      'DISCOVERED': { next: 'QUALIFIED', author: 'Caller', action: 'DISCOVERY_CALL_SCHEDULED', note: 'Lead qualified via initial phone check.' },
+      'QUALIFIED': { next: 'APPROVED_FOR_CONTACT', author: 'Admin', action: 'OFFER_APPROVED', note: 'Outreach campaign offer approved for contact.' },
+      'APPROVED_FOR_CONTACT': { next: 'CONTACTED', author: 'Caller', action: 'WHATSAPP_PITCH_SENT', note: 'Consultative introduction & brochure sent.' },
+      'CONTACTED': { next: 'REPLIED', author: 'Caller', action: 'PROMOTER_ENGAGED', note: 'Promoter replied showing interest in catalogue upgrade.' },
+      'REPLIED': { next: 'MEETING_BOOKED', author: 'Caller', action: 'DEMO_COMPLETED', note: '15-minute live screen demo booked with promoter.' },
+      'MEETING_BOOKED': { next: 'WON', author: 'Caller', action: 'ADVANCE_TOKEN_RECEIVED', note: 'Client locked! ₹2,000 advance received. Handed over for catalogue build.' },
+      'WON': { next: 'WON', author: 'Engineering', action: 'SITE_DEPLOYED_LIVE', note: 'Catalogue deployed live on custom domain.' }
     };
 
     const target = nextMap[currentStage];
@@ -1706,7 +1711,7 @@ const app = {
     const cards = {
       1: "Tally handles GST ledgers. But can your factory floor track multi-stage machine shop WIP, raw material scrap weight loss, or send automatic WhatsApp dispatch notifications to dealers? Our solution integrates right alongside Tally.",
       2: "That's exactly why our software connects directly to your WhatsApp! Instead of manually typing quotations or searching paper slips, your buyers tap 1 button to see real-time product specs and submit purchase orders straight to your inventory.",
-      3: "Our total package is ₹18,000. Pushpender on our tech team will dedicate 48 engineering hours to deploy your live portal with your actual machinery specs. The ₹5,000 token advance locks your deployment slot. You test it live on your phone before paying the remaining ₹13,000."
+      3: "Our standard list package is ₹7,999, but for our first 3 founding clients in your sector, it is ₹5,999 in exchange for a testimonial and referral. The ₹2,000 UPI advance covers your domain setup, SSL, and drafting your catalogue. You review the full catalogue live on your phone and verify your WhatsApp enquiries before paying the remaining ₹3,999."
     };
     if (cards[id]) {
       navigator.clipboard.writeText(cards[id]);
@@ -1733,7 +1738,7 @@ const app = {
       if (demosCountEl) demosCountEl.textContent = `${demoLeads.length} Demos`;
 
       const advanceEl = document.getElementById('warroom-advance-locked');
-      if (advanceEl) advanceEl.textContent = `₹${(wonLeads.length * 5000).toLocaleString('en-IN')}`;
+      if (advanceEl) advanceEl.textContent = `₹${(wonLeads.length * 2000).toLocaleString('en-IN')}`;
 
       const closingEl = document.getElementById('warroom-closing-velocity');
       if (closingEl) closingEl.textContent = wonLeads.length > 0 ? '48h SLA' : 'In Pipeline';
@@ -1779,7 +1784,7 @@ const app = {
               <td><span class="badge ${l.pipeline_stage === 'MEETING_BOOKED' ? 'badge-success' : 'badge-warning'}">${l.pipeline_stage.replace(/_/g, ' ')}</span></td>
               <td>
                 <button class="btn btn-xs btn-primary" onclick="app.openDealCloserModal('${l.id}', '${l.business_name.replace(/'/g, "\\'")}')" style="background:#059669; border-color:#059669;">
-                  💰 Lock ₹5,000 Advance
+                  💰 Lock ₹2,000 Advance
                 </button>
                 <button class="btn btn-xs btn-secondary" onclick="app.openLeadModal('${l.id}')">Brief</button>
               </td>
@@ -1822,15 +1827,16 @@ const app = {
             tr.innerHTML = `
               <td><strong>${l.business_name}</strong></td>
               <td>${l.city}, ${l.state}</td>
-              <td><span class="badge badge-info">${l.subcategory || 'BOM & WhatsApp Catalog'}</span></td>
+              <td><span class="badge badge-info">${l.subcategory || 'B2B WhatsApp Catalogue'}</span></td>
               <td><strong style="color:#d97706;">⏱️ 36h 45m left</strong></td>
               <td><span class="badge ${l.pipeline_stage === 'WON' ? 'badge-success' : 'badge-warning'}">${l.pipeline_stage === 'WON' ? 'Ready for Deployment' : 'Demo Staged'}</span></td>
-              <td>
-                <a href="/portal/${l.id}" target="_blank" class="btn btn-xs btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
-                  <span>🌐</span> <span>Live Portal</span>
-                </a>
-                <button class="btn btn-xs btn-secondary" onclick="app.openPortalPreview('${l.id}')">
-                  🔍 Preview
+              <td style="display:flex; gap:4px; flex-wrap:wrap;">
+                <button class="btn btn-xs btn-primary" onclick="app.openCatalogueBuilder('${l.id}')">
+                  📱 Catalogue Builder
+                </button>
+                ${l.live_url ? `<a href="${l.live_url}" target="_blank" class="btn btn-xs btn-outline" style="text-decoration:none;">👁️ Live</a>` : ''}
+                <button class="btn btn-xs btn-outline" onclick="app.openPortalPreview('${l.id}')" title="Old ERP Factory Simulation (Demo Only)" style="color:#64748b;">
+                  ⚙️ Demo
                 </button>
                 <button class="btn btn-xs btn-success" onclick="app.markDeployedLive('${l.id}')">
                   🚀 Mark Live
@@ -1865,7 +1871,7 @@ const app = {
       if (pipeEl) pipeEl.textContent = `${totalCount} MSMEs`;
 
       const advanceTotalEl = document.getElementById('ops-advance-total');
-      if (advanceTotalEl) advanceTotalEl.textContent = `₹${(wonLeads.length * 5000).toLocaleString('en-IN')}`;
+      if (advanceTotalEl) advanceTotalEl.textContent = `₹${(wonLeads.length * 2000).toLocaleString('en-IN')}`;
 
       const eventsEl = document.getElementById('ops-events-count');
       const totalEvents = actData.totalEvents || activities.length;
@@ -1955,7 +1961,7 @@ const app = {
   async executeLockDeal() {
     if (!this.closingLeadId) return;
     const leadId = this.closingLeadId;
-    const advanceAmount = 5000;
+    const advanceAmount = 2000;
     const paymentRef = document.getElementById('closer-payment-ref').value;
     const notes = document.getElementById('closer-handover-notes').value;
 
@@ -1967,7 +1973,7 @@ const app = {
       });
       const data = await res.json();
       if (data.success) {
-        this.showToast('Deal Locked! ₹5,000 Advance recorded & Pushpender alerted!');
+        this.showToast('Deal Locked! ₹2,000 Advance recorded & delivery queued!');
         this.closeDealCloserModal();
         if (this.activeView === 'warroom') this.loadWarRoom();
         else if (this.activeView === 'studio') this.loadStudio();
@@ -2035,6 +2041,371 @@ const app = {
 
   closePortalPreview() {
     document.getElementById('portal-preview-modal').classList.add('hidden');
+  },
+
+  // ==========================================
+  // B2B MOBILE CATALOGUE BUILDER & STOPWATCH (2.11)
+  // ==========================================
+  catStopwatchInterval: null,
+  catStopwatchSeconds: 0,
+
+  toggleCatalogueStopwatch() {
+    const btn = document.getElementById('stopwatch-start-btn');
+    if (this.catStopwatchInterval) {
+      clearInterval(this.catStopwatchInterval);
+      this.catStopwatchInterval = null;
+      if (btn) btn.textContent = '▶ Resume';
+    } else {
+      this.catStopwatchInterval = setInterval(() => {
+        this.catStopwatchSeconds++;
+        const hrs = String(Math.floor(this.catStopwatchSeconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((this.catStopwatchSeconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(this.catStopwatchSeconds % 60).padStart(2, '0');
+        const disp = document.getElementById('catalogue-stopwatch-display');
+        if (disp) disp.textContent = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+      if (btn) btn.textContent = '⏸ Pause';
+    }
+  },
+
+  resetCatalogueStopwatch() {
+    if (this.catStopwatchInterval) {
+      clearInterval(this.catStopwatchInterval);
+      this.catStopwatchInterval = null;
+    }
+    this.catStopwatchSeconds = 0;
+    const disp = document.getElementById('catalogue-stopwatch-display');
+    if (disp) disp.textContent = '00:00:00';
+    const btn = document.getElementById('stopwatch-start-btn');
+    if (btn) btn.textContent = '▶ Start';
+  },
+
+  onCatalogueLangChange() {
+    const lang = document.getElementById('cat-language')?.value || 'EN';
+    const notice = document.getElementById('cat-lang-notice');
+    if (notice) {
+      notice.style.display = lang !== 'EN' ? 'block' : 'none';
+    }
+  },
+
+  openCatalogueBuilderForCurrentLead() {
+    if (this.currentLead && this.currentLead.id) {
+      this.openCatalogueBuilder(this.currentLead.id);
+    } else {
+      this.openCatalogueBuilder('cat_demo_sample_001');
+    }
+  },
+
+  async openCatalogueBuilder(targetIdOrToken) {
+    try {
+      // Clear or reset fields
+      document.getElementById('cat-lead-id').value = '';
+      document.getElementById('cat-token').value = '';
+      document.getElementById('cat-id').value = '';
+      document.getElementById('cat-business-name').value = '';
+      document.getElementById('cat-tagline').value = '';
+      document.getElementById('cat-language').value = 'EN';
+      document.getElementById('cat-whatsapp').value = '';
+      document.getElementById('cat-phone').value = '';
+      document.getElementById('cat-email').value = '';
+      document.getElementById('cat-address').value = '';
+      document.getElementById('cat-maps-url').value = '';
+      document.getElementById('cat-badges').value = '';
+      document.getElementById('cat-meta-desc').value = '';
+      document.getElementById('cat-products-container').innerHTML = '';
+      document.getElementById('cat-save-status').textContent = '';
+      this.onCatalogueLangChange();
+
+      let catData = null;
+
+      // 1. Check if token or ID matches an existing catalogue
+      if (targetIdOrToken) {
+        try {
+          const res = await fetch(`/api/catalogues/${targetIdOrToken}`);
+          const data = await res.json();
+          if (data.success && data.catalogue) {
+            catData = data.catalogue;
+          }
+        } catch {}
+      }
+
+      // 2. If no catalogue found, check if it is a lead ID and pre-populate
+      if (!catData && targetIdOrToken) {
+        try {
+          const res = await fetch(`/api/leads/${targetIdOrToken}`);
+          const data = await res.json();
+          if (data.lead) {
+            const l = data.lead;
+            catData = {
+              lead_id: l.id,
+              business_name: l.business_name || '',
+              tagline: `${l.subcategory || l.industry_category || 'Industrial Manufacturing'} • ${l.city || ''}, ${l.state || ''}`,
+              language: 'EN',
+              whatsapp_number: (l.phone || '').replace(/\D/g, '') || '',
+              phone: l.phone || '',
+              email: l.email || '',
+              address: l.address || `${l.city || ''}, ${l.state || ''}`,
+              google_maps_url: '',
+              verified_badges: [],
+              meta_description: `${l.business_name} wholesale supplier in ${l.city}. Direct WhatsApp RFQ.`,
+              products: [
+                {
+                  id: 'p1',
+                  name: `${l.subcategory || 'Industrial'} Primary Component`,
+                  spec: 'Standard industrial grade | Batch tested',
+                  moq: '100 Units',
+                  price: 'Contact for wholesale rate',
+                  image_url: '',
+                  alt_text: 'Product sample'
+                }
+              ]
+            };
+          }
+        } catch {}
+      }
+
+      // 3. Fallback to sample if nothing loaded
+      if (!catData) {
+        try {
+          const res = await fetch('/api/catalogues/cat_demo_sample_001');
+          const data = await res.json();
+          if (data.success) catData = data.catalogue;
+        } catch {}
+      }
+
+      if (catData) {
+        document.getElementById('cat-lead-id').value = catData.lead_id || '';
+        document.getElementById('cat-token').value = catData.token || '';
+        document.getElementById('cat-id').value = catData.id || '';
+        document.getElementById('cat-business-name').value = catData.business_name || '';
+        document.getElementById('cat-tagline').value = catData.tagline || '';
+        document.getElementById('cat-language').value = catData.language || 'EN';
+        document.getElementById('cat-whatsapp').value = catData.whatsapp_number || '';
+        document.getElementById('cat-phone').value = catData.phone || '';
+        document.getElementById('cat-email').value = catData.email || '';
+        document.getElementById('cat-address').value = catData.address || '';
+        document.getElementById('cat-maps-url').value = catData.google_maps_url || '';
+        document.getElementById('cat-badges').value = Array.isArray(catData.verified_badges) ? catData.verified_badges.join(', ') : '';
+        document.getElementById('cat-meta-desc').value = catData.meta_description || '';
+        this.onCatalogueLangChange();
+
+        const prods = Array.isArray(catData.products) ? catData.products : [];
+        if (prods.length === 0) {
+          this.addCatalogueProductRow();
+        } else {
+          prods.forEach(p => this.addCatalogueProductRow(p));
+        }
+
+        const viewBtn = document.getElementById('cat-view-live-btn');
+        const exportBtn = document.getElementById('cat-export-btn');
+        if (catData.token) {
+          if (viewBtn) viewBtn.disabled = false;
+          if (exportBtn) exportBtn.disabled = false;
+        } else {
+          if (viewBtn) viewBtn.disabled = true;
+          if (exportBtn) exportBtn.disabled = true;
+        }
+      } else {
+        this.addCatalogueProductRow();
+      }
+
+      document.getElementById('catalogue-builder-modal').classList.remove('hidden');
+    } catch (err) {
+      this.showToast(`Error opening catalogue builder: ${err.message}`);
+    }
+  },
+
+  closeCatalogueBuilder() {
+    document.getElementById('catalogue-builder-modal').classList.add('hidden');
+  },
+
+  addCatalogueProductRow(data = {}) {
+    const container = document.getElementById('cat-products-container');
+    if (!container) return;
+
+    const rowId = 'prod_row_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+    const row = document.createElement('div');
+    row.id = rowId;
+    row.style.background = '#f8fafc';
+    row.style.border = '1px solid #cbd5e1';
+    row.style.borderRadius = '6px';
+    row.style.padding = '0.75rem';
+    row.style.position = 'relative';
+
+    row.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <span style="font-weight:700; font-size:0.75rem; color:#475569;">Item #${container.children.length + 1}</span>
+        <button type="button" class="btn btn-xs btn-outline" style="color:#ef4444;" onclick="app.removeCatalogueProductRow('${rowId}')">✕ Remove</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Product Name *</label>
+          <input type="text" class="input-text cat-prod-name" value="${(data.name || '').replace(/"/g, '&quot;')}" placeholder="e.g. 60s Rayon Printed Fabric" style="padding:0.3rem 0.5rem; font-size:0.8rem;">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Specification (GSM, Dimensions, Grade)</label>
+          <input type="text" class="input-text cat-prod-spec" value="${(data.spec || '').replace(/"/g, '&quot;')}" placeholder="e.g. 140 GSM | 44 inch width | Grade A" style="padding:0.3rem 0.5rem; font-size:0.8rem;">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Minimum Order Qty (MOQ)</label>
+          <input type="text" class="input-text cat-prod-moq" value="${(data.moq || '').replace(/"/g, '&quot;')}" placeholder="e.g. 500 Metres" style="padding:0.3rem 0.5rem; font-size:0.8rem;">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Wholesale Rate / Indicative Price</label>
+          <input type="text" class="input-text cat-prod-price" value="${(data.price || '').replace(/"/g, '&quot;')}" placeholder="e.g. ₹68 / Metre" style="padding:0.3rem 0.5rem; font-size:0.8rem;">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:2fr 1fr; gap:0.5rem;">
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Image File (Max 2MB, optional - neutral placeholder if empty)</label>
+          <input type="file" accept="image/*" class="cat-prod-file" onchange="app.handleProductImageUpload(this, '${rowId}')" style="font-size:0.75rem;">
+          <input type="hidden" class="cat-prod-img" value="${data.image_url || ''}">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:#475569; display:block;">Image Alt Text</label>
+          <input type="text" class="input-text cat-prod-alt" value="${(data.alt_text || '').replace(/"/g, '&quot;')}" placeholder="Product description" style="padding:0.3rem 0.5rem; font-size:0.8rem;">
+        </div>
+      </div>
+    `;
+
+    container.appendChild(row);
+  },
+
+  removeCatalogueProductRow(rowId) {
+    const el = document.getElementById(rowId);
+    if (el) el.remove();
+  },
+
+  handleProductImageUpload(inputEl, rowId) {
+    const file = inputEl.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert(`File is ${(file.size / (1024 * 1024)).toFixed(1)}MB. Max allowed is 2.0MB. Please select a smaller photo or compress it.`);
+      inputEl.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const row = document.getElementById(rowId);
+      if (row) {
+        const hiddenImg = row.querySelector('.cat-prod-img');
+        if (hiddenImg) hiddenImg.value = e.target.result;
+        const altInput = row.querySelector('.cat-prod-alt');
+        const nameInput = row.querySelector('.cat-prod-name');
+        if (altInput && !altInput.value) {
+          altInput.value = (nameInput?.value || 'Product') + ' photo';
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  },
+
+  async saveCatalogue() {
+    const bName = document.getElementById('cat-business-name')?.value.trim();
+    const wa = document.getElementById('cat-whatsapp')?.value.trim();
+    if (!bName) return alert('Business / Factory Name is required');
+    if (!wa) return alert('WhatsApp Number is required for buyer enquiries');
+
+    const products = [];
+    const container = document.getElementById('cat-products-container');
+    if (container) {
+      for (const row of container.children) {
+        const name = row.querySelector('.cat-prod-name')?.value.trim();
+        if (name) {
+          products.push({
+            id: 'p_' + Math.random().toString(36).substring(2, 7),
+            name,
+            spec: row.querySelector('.cat-prod-spec')?.value.trim() || '',
+            moq: row.querySelector('.cat-prod-moq')?.value.trim() || '',
+            price: row.querySelector('.cat-prod-price')?.value.trim() || '',
+            image_url: row.querySelector('.cat-prod-img')?.value || '',
+            alt_text: row.querySelector('.cat-prod-alt')?.value.trim() || `${name} photo`
+          });
+        }
+      }
+    }
+
+    const badgesRaw = document.getElementById('cat-badges')?.value || '';
+    const badges = badgesRaw.split(',').map(b => b.trim()).filter(Boolean);
+
+    const payload = {
+      lead_id: document.getElementById('cat-lead-id')?.value || null,
+      token: document.getElementById('cat-token')?.value || null,
+      id: document.getElementById('cat-id')?.value || null,
+      business_name: bName,
+      tagline: document.getElementById('cat-tagline')?.value.trim() || '',
+      language: document.getElementById('cat-language')?.value || 'EN',
+      whatsapp_number: wa,
+      phone: document.getElementById('cat-phone')?.value.trim() || wa,
+      email: document.getElementById('cat-email')?.value.trim() || '',
+      address: document.getElementById('cat-address')?.value.trim() || '',
+      google_maps_url: document.getElementById('cat-maps-url')?.value.trim() || '',
+      verified_badges: badges,
+      meta_description: document.getElementById('cat-meta-desc')?.value.trim() || '',
+      is_sample: document.getElementById('cat-lead-id')?.value ? 0 : 1,
+      products
+    };
+
+    const statusEl = document.getElementById('cat-save-status');
+    if (statusEl) statusEl.textContent = 'Saving...';
+
+    try {
+      const res = await fetch('/api/catalogues', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) {
+        if (statusEl) statusEl.textContent = 'Save failed';
+        return alert(data.error || 'Failed to save catalogue');
+      }
+
+      const cat = data.catalogue;
+      document.getElementById('cat-token').value = cat.token;
+      document.getElementById('cat-id').value = cat.id;
+      if (statusEl) statusEl.textContent = '✓ Saved successfully!';
+
+      const viewBtn = document.getElementById('cat-view-live-btn');
+      const exportBtn = document.getElementById('cat-export-btn');
+      if (viewBtn) viewBtn.disabled = false;
+      if (exportBtn) exportBtn.disabled = false;
+
+      this.showToast('Catalogue saved and live URL generated!');
+      if (this.activeView === 'studio') this.loadStudio();
+    } catch (err) {
+      if (statusEl) statusEl.textContent = 'Error';
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  viewLiveCatalogue() {
+    const token = document.getElementById('cat-token')?.value;
+    if (token) {
+      window.open(`/catalogue/${token}`, '_blank');
+    }
+  },
+
+  async exportCurrentCatalogue() {
+    const token = document.getElementById('cat-token')?.value;
+    if (!token) return alert('Please save catalogue first to generate a token');
+
+    try {
+      const res = await fetch(`/api/catalogues/${token}/export`);
+      const data = await res.json();
+      if (data.success) {
+        alert(`Static catalogue package exported successfully!\n\nFolder: ${data.export_dir}\nFiles generated:\n- index.html (Works offline!)\n- style.css\n- catalogue-data.js\n- HANDOVER_CHECKLIST.md\n\nYou can zip and deliver this folder to the client.`);
+        this.showToast('Static offline catalogue exported!');
+      } else {
+        alert(data.error || 'Failed to export');
+      }
+    } catch (err) {
+      this.showToast(`Export error: ${err.message}`);
+    }
   },
 
   async markDeployedLive(leadId) {
@@ -2195,15 +2566,12 @@ const app = {
 
   async openSpeedDialer() {
     try {
-      const res = await fetch('/api/leads?limit=60');
+      await this.loadDialerStats();
+      const res = await fetch('/api/dialer/queue');
       const data = await res.json();
-      const all = data.leads || [];
-      this.dialerLeads = all.filter(l => l.pipeline_stage !== 'WON' && l.phone && l.phone.trim().length >= 8);
+      this.dialerLeads = data.leads || data.queue || [];
       if (this.dialerLeads.length === 0) {
-        this.dialerLeads = all.filter(l => l.pipeline_stage !== 'WON');
-      }
-      if (this.dialerLeads.length === 0) {
-        return this.showToast('No active leads available for speed dialing.');
+        return this.showToast('No approved leads available in outbound queue (leads must have status APPROVED_FOR_CONTACT).');
       }
       this.dialerIndex = 0;
       this.renderCurrentDialerLead();
@@ -2214,6 +2582,60 @@ const app = {
     } catch (err) {
       this.showToast(`Error launching dialer: ${err.message}`);
     }
+  },
+
+  async loadDialerStats() {
+    try {
+      const res = await fetch('/api/dialer/stats');
+      const data = await res.json();
+      if (data && data.stats) {
+        const s = data.stats;
+        const dEl = document.getElementById('dialer-stat-dials');
+        const cEl = document.getElementById('dialer-stat-connected');
+        const csEl = document.getElementById('dialer-stat-consent');
+        const dmEl = document.getElementById('dialer-stat-demos');
+        if (dEl) dEl.textContent = s.dialsAttempted || 0;
+        if (cEl) cEl.textContent = s.callsConnected || 0;
+        if (csEl) csEl.textContent = s.consentGiven || 0;
+        if (dmEl) dmEl.textContent = s.demosBooked || 0;
+      }
+    } catch (e) {
+      console.warn('Failed to load dialer stats:', e);
+    }
+  },
+
+  async triggerDialAttempt(e) {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l) return;
+    try {
+      await fetch('/api/dialer/call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leadId: l.id,
+          outcome: 'dial_attempt',
+          user: 'Caller'
+        })
+      });
+      await this.loadDialerStats();
+    } catch (err) {
+      console.warn('Failed to log dial attempt:', err);
+    }
+  },
+
+  copyDialerPhoneNumber() {
+    if (this.dialerLeads.length === 0) return;
+    const l = this.dialerLeads[this.dialerIndex];
+    if (!l || !l.phone) {
+      return this.showToast('No phone number recorded for this lead');
+    }
+    const cleanPhone = (l.phone || '').trim();
+    navigator.clipboard.writeText(cleanPhone).then(() => {
+      this.showToast(`📋 Copied ${cleanPhone} to clipboard!`);
+    }).catch(() => {
+      this.showToast(`Phone: ${cleanPhone}`);
+    });
   },
 
   closeSpeedDialer() {
@@ -2274,21 +2696,21 @@ const app = {
       box.innerHTML = `
         <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 1: "We already use Tally for accounting"</div>
         <p style="margin:0; color:#713f12;">
-          <em>"Bilkul sir! Tally is excellent for accounts and GST filing. But Tally does NOT give your 12+ distributors a mobile catalog to place real-time re-orders, nor does it track real-time workshop scrap loss on assembly lines. IndusOS connects directly alongside your Tally without replacing it. Can we do a 15-minute live screen walkthrough today?"</em>
+          <em>"Bilkul sir! Tally is excellent for accounts and GST filing. But Tally does NOT give your buyers a mobile-friendly catalogue to browse products and send direct WhatsApp enquiries. We connect alongside your existing setup without changing anything. Can I show you a 2-minute live demo on your phone?"</em>
         </p>
       `;
     } else if (num === 2) {
       box.innerHTML = `
         <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 2: "Dealers simply call us on phone or send WhatsApp photo"</div>
         <p style="margin:0; color:#713f12;">
-          <em>"Sir, jab dealer phone karte hain ya rough paper slip bhejte hain, wrong item dispatch aur rate confusion hota hai. With our WhatsApp ordering catalog, your dealer taps 3 items on phone, PO generates in 10 seconds, and your dispatch team gets exact specs. Zero return friction."</em>
+          <em>"Sir, jab dealer photo bhejte hain ya call karte hain, repetitive questions aate hain. With our catalogue, your buyer sees specifications and clicks 'Enquire on WhatsApp' with item details already typed out. Zero friction, instant enquiries."</em>
         </p>
       `;
     } else if (num === 3) {
       box.innerHTML = `
-        <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 3: "Why pay ₹5,000 advance before full deployment?"</div>
+        <div style="font-weight:700; color:#854d0e; margin-bottom:4px;">🛡️ Battlecard 3: "Why pay ₹2,000 advance before full delivery?"</div>
         <p style="margin:0; color:#713f12;">
-          <em>"Sir, ₹5,000 is merely a token commitment for your factory custom domain (.in) and staging server provisioning by Pushpender. You inspect the fully working BOM portal within 48 hours; only when you are 100% satisfied do you release the ₹13,000 balance."</em>
+          <em>"Sir, ₹2,000 covers your domain registration, SSL security, and initial catalogue drafting. You inspect the complete working mobile catalogue within 14 days; only when you are satisfied do you release the ₹3,999 balance."</em>
         </p>
       `;
     }
@@ -2302,7 +2724,7 @@ const app = {
     let cleanPhone = (l.phone || '').replace(/\D/g, '');
     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-    const waPitch = `Namaste ${l.business_name}, this is Kaushik from IndusOS Technologies.\n\nWe noticed your manufacturing facility in ${l.city} has active production capacity. We built a specialized factory BOM scrap tracking module and 1-click WhatsApp catalog for your dealers.\n\nCan we share a 15-minute live screen walkthrough today?`;
+    const waPitch = `Namaste! As discussed over our call regarding ${l.business_name} in ${l.city}:\n\nWe specialize in setting up mobile-friendly B2B product catalogues with direct WhatsApp enquiry buttons and Google Business Profile setup for manufacturers.\n\nOur founding client package is ₹5,999 (₹2,000 advance to begin, balance on delivery).\n\nWould you like me to share a 1-minute live demo link customized for your products?`;
     const waUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waPitch)}`;
 
     // Open WhatsApp Web in new tab
@@ -2315,16 +2737,17 @@ const app = {
 
     // Record audit activity
     try {
-      await fetch(`/api/leads/${l.id}`, {
-        method: 'PATCH',
+      await fetch(`/api/dialer/call`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pipeline_stage: 'CONTACTED',
-          author: 'Kaushik',
-          action_type: 'WHATSAPP_PITCH_SENT',
-          note: 'Kaushik dispatched direct WhatsApp Web outreach pitch with custom factory proposition.'
+          leadId: l.id,
+          outcome: 'send_audit',
+          notes: 'Dispatched direct WhatsApp Web outreach pitch with catalogue proposition.',
+          user: 'Caller'
         })
       });
+      await this.loadDialerStats();
       this.showToast(`🚀 Dispatched WhatsApp Web to ${l.business_name} & logged audit trail!`);
     } catch (err) {
       this.showToast('WhatsApp Web launched!');
@@ -2336,7 +2759,7 @@ const app = {
     const l = this.dialerLeads[this.dialerIndex];
     if (!l) return;
 
-    document.getElementById('dialer-progress-tag').textContent = `Lead ${this.dialerIndex + 1} of ${this.dialerLeads.length} • Rapid Outreach & Qualification`;
+    document.getElementById('dialer-progress-tag').textContent = `Lead ${this.dialerIndex + 1} of ${this.dialerLeads.length} • Approved Outbound Queue`;
     document.getElementById('dialer-business-name').textContent = l.business_name;
     document.getElementById('dialer-lead-loc').textContent = `📍 ${l.city}, ${l.state} • ${l.subcategory || 'Manufacturing'}`;
     
@@ -2363,9 +2786,9 @@ const app = {
 
     const track = document.getElementById('dialer-talk-track');
     if (l.website_status === 'NO_WEBSITE_FOUND') {
-      track.textContent = `"Namaste ji, Kaushik here from IndusOS. We noticed ${l.business_name} has strong factory capacity in ${l.city} but zero live digital presence on Google Maps for bulk B2B buyers. We generated a live 48-Hour factory portal mockup with your catalog and WhatsApp ordering to show you..."`;
+      track.textContent = `"Namaste ji, this is BharatGrowth AI calling regarding ${l.business_name}. We noticed you have manufacturing in ${l.city} but no mobile-friendly catalogue on Google for buyers to find you. We set up official catalogues with WhatsApp enquiry buttons..."`;
     } else {
-      track.textContent = `"Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility in ${l.city} handles multi-stage assembly. Most units in your cluster face raw material scrap loss and dealer ordering friction. We built a 1-click mobile portal for your factory..."`;
+      track.textContent = `"Namaste ji, this is BharatGrowth AI. We noticed ${l.business_name} in ${l.city} has active production. Are your buyers able to easily view your products and enquire directly on WhatsApp? We set up mobile-friendly catalogues within 14 days..."`;
     }
   },
 
@@ -2374,7 +2797,7 @@ const app = {
     const l = this.dialerLeads[this.dialerIndex];
     if (!l) return;
     const portalUrl = `${window.location.origin}/portal/${l.id}`;
-    const text = `Namaste ${l.business_name}, we generated a 100% live mobile digital twin of your factory with an interactive WhatsApp ordering catalog and scrap leakage calculator. Test your live portal here: ${portalUrl}`;
+    const text = `Namaste ${l.business_name}, we generated a mobile catalogue preview for your business with direct WhatsApp enquiry buttons: ${portalUrl}`;
     navigator.clipboard.writeText(text).then(() => {
       this.showToast('🔗 Copied 1-Click Prospect Portal WhatsApp invite link!');
     }).catch(() => {
@@ -2405,51 +2828,344 @@ const app = {
     const l = this.dialerLeads[this.dialerIndex];
     if (!l) return;
 
-    if (outcome === 'won') {
-      this.closeSpeedDialer();
-      this.openDealCloserModal(l.id, l.business_name);
-      return;
-    }
+    // Prevent double-click: disable buttons temporarily
+    const container = document.getElementById('dialer-outcomes-container');
+    const buttons = container ? container.querySelectorAll('button') : [];
+    buttons.forEach(b => b.disabled = true);
 
-    const outcomeMap = {
-      no_answer: {
-        stage: 'CONTACTED',
-        action: 'FOLLOW_UP_SCHEDULED',
-        note: 'Kaushik called promoter: Phone busy / no answer. Follow-up automatically scheduled in 2 hours.'
-      },
-      whatsapp: {
-        stage: 'CONTACTED',
-        action: 'WHATSAPP_PITCH_SENT',
-        note: 'Kaushik sent consultative WhatsApp pitch with BOM and scrap loss brief.'
-      },
-      demo: {
-        stage: 'MEETING_BOOKED',
-        action: 'DEMO_COMPLETED',
-        note: '15-minute live screen demo booked with factory owner!'
-      }
-    };
-
-    const sel = outcomeMap[outcome];
-    if (!sel) return;
+    const noteInput = document.getElementById('dialer-outcome-note');
+    const note = noteInput ? noteInput.value.trim() : '';
 
     try {
-      const res = await fetch(`/api/leads/${l.id}`, {
-        method: 'PATCH',
+      const res = await fetch('/api/dialer/call', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pipeline_stage: sel.stage,
-          author: 'Kaushik',
-          action_type: sel.action,
-          note: sel.note
+          leadId: l.id,
+          outcome,
+          notes: note,
+          user: 'Caller'
+        })
+      });
+      const data = await res.json();
+      if (noteInput) noteInput.value = '';
+
+      if (data.duplicate) {
+        this.showToast('Duplicate click ignored (debounced < 3s)');
+      } else {
+        this.showToast(`Logged outcome '${outcome}' for ${l.business_name}`);
+      }
+
+      await this.loadDialerStats();
+
+      // If callback requested, open schedule modal
+      if (outcome === 'call_back') {
+        this.openScheduleModal(l.id, l.business_name, note || 'Callback requested');
+      }
+
+      if (this.activeView === 'warroom') this.loadWarRoom();
+      else if (this.activeView === 'crm') this.loadCrmKanban();
+      else if (this.activeView === 'dashboard') this.loadDashboard();
+
+      this.dialerNext();
+    } catch (err) {
+      this.showToast(`Error recording outcome: ${err.message}`);
+    } finally {
+      setTimeout(() => {
+        buttons.forEach(b => b.disabled = false);
+      }, 500);
+    }
+  },
+
+  // Today's Follow-ups and Scheduling
+  async loadTodayFollowUps() {
+    try {
+      const res = await fetch('/api/follow-ups/today');
+      const data = await res.json();
+      const followUps = data.followUps || [];
+
+      const countBadge = document.getElementById('dashboard-followups-count');
+      if (countBadge) countBadge.textContent = `${followUps.length} Scheduled`;
+
+      const tbody = document.getElementById('dashboard-followups-tbody');
+      if (!tbody) return;
+
+      if (followUps.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:1.25rem;">No follow-ups due today. Log callbacks from the Speed Dialer HUD.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = followUps.map(f => `
+        <tr>
+          <td><strong style="color:#0f172a;">${this.escapeHtml(f.scheduled_time)}</strong></td>
+          <td>
+            <a href="#" onclick="event.preventDefault(); app.openLeadModal('${f.lead_id}')" style="font-weight:600; color:#2563eb; text-decoration:none;">
+              ${this.escapeHtml(f.business_name || 'Enterprise')}
+            </a>
+          </td>
+          <td>${this.escapeHtml(f.city || '-')}</td>
+          <td>
+            <a href="tel:${this.escapeHtml(f.phone || '')}" onclick="app.triggerDialAttempt(event)" style="color:#15803d; text-decoration:none; font-weight:600;">
+              📞 ${this.escapeHtml(f.phone || 'No phone')}
+            </a>
+          </td>
+          <td><span class="badge ${f.follow_up_type === 'MEETING' ? 'badge-primary' : 'badge-info'}">${f.follow_up_type}</span></td>
+          <td style="max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${this.escapeHtml(f.notes || '')}">
+            ${this.escapeHtml(f.notes || '-')}
+          </td>
+          <td><span class="badge ${f.status === 'COMPLETED' ? 'badge-success' : 'badge-warning'}">${f.status}</span></td>
+          <td>
+            <button class="btn btn-xs btn-success" onclick="app.completeFollowUp('${f.id}')" title="Mark as Completed">
+              ✅ Done
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.warn('Failed to load today follow-ups:', e);
+    }
+  },
+
+  async completeFollowUp(id) {
+    try {
+      const res = await fetch(`/api/follow-ups/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast('Follow-up marked as completed!');
+        this.loadTodayFollowUps();
+        if (this.currentLeadId) this.loadLeadFollowUps(this.currentLeadId);
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  openScheduleModal(leadId, leadName, defaultNotes = '') {
+    const modal = document.getElementById('schedule-modal');
+    if (!modal) return;
+    document.getElementById('schedule-lead-id').value = leadId || '';
+    document.getElementById('schedule-lead-name').value = leadName || (leadId ? 'Selected Lead' : 'Select Lead');
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('schedule-date').value = today;
+    document.getElementById('schedule-time').value = '15:00';
+    document.getElementById('schedule-notes').value = defaultNotes;
+    
+    modal.classList.remove('hidden');
+  },
+
+  closeScheduleModal() {
+    const modal = document.getElementById('schedule-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  scheduleForCurrentModalLead() {
+    if (!this.currentLeadId) return;
+    const leadName = document.getElementById('modal-lead-name')?.textContent || '';
+    this.openScheduleModal(this.currentLeadId, leadName);
+  },
+
+  async submitFollowUp(event) {
+    if (event) event.preventDefault();
+    const leadId = document.getElementById('schedule-lead-id').value;
+    const date = document.getElementById('schedule-date').value;
+    const time = document.getElementById('schedule-time').value;
+    const type = document.getElementById('schedule-type').value;
+    const notes = document.getElementById('schedule-notes').value;
+
+    if (!leadId) {
+      return this.showToast('Please select a lead first.');
+    }
+    if (!date || !time) {
+      return this.showToast('Please provide both date and time.');
+    }
+
+    try {
+      const res = await fetch('/api/follow-ups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lead_id: leadId,
+          scheduled_date: date,
+          scheduled_time: time,
+          follow_up_type: type,
+          notes,
+          created_by: 'Caller'
         })
       });
       const data = await res.json();
       if (data.success) {
-        this.showToast(`Logged outcome for ${l.business_name}!`);
-        if (this.activeView === 'warroom') this.loadWarRoom();
+        this.showToast('🗓️ Follow-up scheduled successfully!');
+        this.closeScheduleModal();
+        this.loadTodayFollowUps();
+        if (this.currentLeadId) this.loadLeadFollowUps(this.currentLeadId);
+      } else {
+        this.showToast(`Failed: ${data.error || 'Server error'}`);
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  async loadLeadFollowUps(leadId) {
+    const listEl = document.getElementById('modal-lead-followups-list');
+    if (!listEl) return;
+    try {
+      const res = await fetch(`/api/follow-ups?leadId=${leadId}`);
+      const data = await res.json();
+      const list = data.followUps || [];
+      if (list.length === 0) {
+        listEl.innerHTML = `<span style="color:#94a3b8;">No pending follow-ups for this lead.</span>`;
+        return;
+      }
+      listEl.innerHTML = list.map(f => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0; border-bottom:1px solid #e2e8f0;">
+          <div>
+            <strong>${this.escapeHtml(f.scheduled_date)} ${this.escapeHtml(f.scheduled_time)}</strong>
+            <span class="badge ${f.follow_up_type === 'MEETING' ? 'badge-primary' : 'badge-info'}" style="margin-left:0.35rem;">${f.follow_up_type}</span>
+            <div style="color:#475569; margin-top:2px;">${this.escapeHtml(f.notes || 'No notes')}</div>
+          </div>
+          <div>
+            ${f.status === 'COMPLETED' ? '<span class="badge badge-success">Completed</span>' : `<button class="btn btn-xs btn-secondary" onclick="app.completeFollowUp('${f.id}')">Mark Done</button>`}
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      listEl.innerHTML = `<span style="color:#ef4444;">Failed to load follow-ups</span>`;
+    }
+  },
+
+  // Mark as Live Modal Management
+  openMarkLiveModal(leadId, leadName) {
+    const modal = document.getElementById('mark-live-modal');
+    if (!modal) return;
+    document.getElementById('marklive-lead-id').value = leadId;
+    document.getElementById('marklive-lead-name').value = leadName || `Lead ${leadId}`;
+    document.getElementById('marklive-url').value = `https://clientportal-${leadId.slice(0, 6)}.in`;
+    document.getElementById('marklive-notes').value = '';
+    modal.classList.remove('hidden');
+  },
+
+  closeMarkLiveModal() {
+    const modal = document.getElementById('mark-live-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  async submitMarkLive(event) {
+    if (event) event.preventDefault();
+    const leadId = document.getElementById('marklive-lead-id').value;
+    const liveUrl = document.getElementById('marklive-url').value.trim();
+    const notes = document.getElementById('marklive-notes').value.trim();
+
+    if (!leadId || !liveUrl) {
+      return this.showToast('Please provide a valid live URL');
+    }
+
+    try {
+      const res = await fetch(`/api/leads/${leadId}/mark-live`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ live_url: liveUrl, notes, user: 'Engineering' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`🌐 Live catalogue URL recorded for lead!`);
+        this.closeMarkLiveModal();
+        if (this.activeView === 'studio') this.loadStudioView();
         else if (this.activeView === 'crm') this.loadCrmKanban();
-        else if (this.activeView === 'reports') this.loadReports();
-        this.dialerNext();
+      } else {
+        this.showToast(`Error: ${data.error || 'Server error'}`);
+      }
+    } catch (err) {
+      this.showToast(`Error: ${err.message}`);
+    }
+  },
+
+  markDeployedLive(leadId, leadName) {
+    this.openMarkLiveModal(leadId, leadName);
+  },
+
+  // Script & Pitch Editor Management
+  openScriptEditor() {
+    const modal = document.getElementById('script-editor-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    this.loadSelectedScript();
+  },
+
+  closeScriptEditor() {
+    const modal = document.getElementById('script-editor-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  async loadSelectedScript() {
+    const key = document.getElementById('script-key-select')?.value || 'pitch_textiles';
+    try {
+      const res = await fetch(`/api/scripts/${key}/history`);
+      const data = await res.json();
+      const history = data.history || [];
+
+      const current = history[0];
+      if (current) {
+        document.getElementById('script-current-version-tag').textContent = `v${current.version} (Updated: ${current.created_at.slice(0, 10)})`;
+        document.getElementById('script-title-input').value = current.title || '';
+        document.getElementById('script-content-input').value = current.content || '';
+      } else {
+        document.getElementById('script-current-version-tag').textContent = 'v1 (Default)';
+        document.getElementById('script-title-input').value = 'B2B Catalogue Outbound Pitch';
+        document.getElementById('script-content-input').value = 'Namaste {{business_name}} ji, we noticed your manufacturing unit in {{city}}...';
+      }
+
+      const histContainer = document.getElementById('script-history-container');
+      if (histContainer) {
+        if (history.length === 0) {
+          histContainer.innerHTML = '<span style="color:#94a3b8;">No version history stored yet.</span>';
+        } else {
+          histContainer.innerHTML = history.map(h => `
+            <div style="display:flex; justify-content:space-between; padding:0.25rem 0; border-bottom:1px solid #f1f5f9;">
+              <span><strong>v${h.version}</strong> • ${this.escapeHtml(h.title)} (${this.escapeHtml(h.created_by)})</span>
+              <span style="color:#94a3b8;">${h.created_at.slice(0, 16).replace('T', ' ')}</span>
+            </div>
+          `).join('');
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load script history:', e);
+    }
+  },
+
+  async saveCurrentScript() {
+    const key = document.getElementById('script-key-select')?.value || 'pitch_textiles';
+    const title = document.getElementById('script-title-input')?.value.trim();
+    const content = document.getElementById('script-content-input')?.value.trim();
+
+    if (!title || !content) {
+      return this.showToast('Please provide both title and content for the script');
+    }
+
+    try {
+      const res = await fetch('/api/scripts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script_key: key,
+          channel: 'CALL',
+          language: 'EN',
+          title,
+          content,
+          user: 'Admin'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(`✅ Script updated to version ${data.version}!`);
+        this.loadSelectedScript();
+      } else {
+        this.showToast(`Error: ${data.error || 'Server error'}`);
       }
     } catch (err) {
       this.showToast(`Error: ${err.message}`);
@@ -2639,11 +3355,11 @@ _Engineering Lead: Pushpender | Client Relations: Kaushik | Operations: Priyansh
       { id: 'act-explorer', icon: '🏭', title: 'Verified MSME Database', sub: 'Sourcing • Search & filter 139 manufacturing enterprises', action: () => { app.closeCommandPalette(); app.switchView('explorer'); } },
       { id: 'act-crm', icon: '📋', title: 'Sales Pipeline Kanban', sub: 'Sales • 7-stage visual deal flow & revenue velocity', action: () => { app.closeCommandPalette(); app.switchView('crm'); } },
       { id: 'act-studio', icon: '🛠️', title: "48h SLA Delivery Studio", sub: 'Pushpender • Custom client portal builds & SLA clock', action: () => { app.closeCommandPalette(); app.switchView('studio'); } },
-      { id: 'act-reports', icon: '💰', title: 'Cashflow & Proforma Invoices', sub: 'Priyanshu • ₹25L pipeline, advances & GST receipts', action: () => { app.closeCommandPalette(); app.switchView('reports'); } },
+      { id: 'act-reports', icon: '💰', title: 'Cashflow & Proforma Invoices', sub: 'Finance • ₹2,000 advances, invoices & proforma receipts', action: () => { app.closeCommandPalette(); app.switchView('reports'); } },
       { id: 'act-opsdesk', icon: '🚨', title: "Operations & Team Audit", sub: 'Priyanshu • Live activity stream & compliance log', action: () => { app.closeCommandPalette(); app.switchView('opsdesk'); } },
       { id: 'act-mantis', icon: '🗺️', title: 'Maps Cluster Scanner', sub: 'Sourcing • Live discovery radar across industrial hubs', action: () => { app.closeCommandPalette(); app.switchView('mantisai'); } },
       { id: 'act-dashboard', icon: '📊', title: 'Executive Dashboard', sub: 'Overview • Macro revenue & regional state KPIs', action: () => { app.closeCommandPalette(); app.switchView('dashboard'); } },
-      { id: 'act-cmo', icon: '📦', title: 'Service Packages & Pricing', sub: 'Strategy • ₹18,000 standard factory package & retainers', action: () => { app.closeCommandPalette(); app.switchView('cmo'); } },
+      { id: 'act-cmo', icon: '📦', title: 'Service Packages & Pricing', sub: 'Strategy • ₹7,999 list / ₹5,999 founding special', action: () => { app.closeCommandPalette(); app.switchView('cmo'); } },
       { id: 'act-campaigns', icon: '💬', title: 'WhatsApp Draft Approvals', sub: 'Sales • Review multi-lingual templates queue', action: () => { app.closeCommandPalette(); app.switchView('campaigns'); } },
       { id: 'act-operations', icon: '📥', title: 'CSV Data Ingestion', sub: 'Sourcing • Batch CSV import & deduplication', action: () => { app.closeCommandPalette(); app.switchView('operations'); } },
       { id: 'act-settings', icon: '⚙️', title: 'Scoring Weights & Rules', sub: 'Governance • 100-point algorithm calibration', action: () => { app.closeCommandPalette(); app.switchView('settings'); } }
@@ -2757,7 +3473,7 @@ _Engineering Lead: Pushpender | Client Relations: Kaushik | Operations: Priyansh
         }
       }
 
-      // Kaushik's Live Calling HUD Hotkeys: [1], [2], [3], [4], [Space], [←], [→]
+      // Outbound Calling HUD Hotkeys: [1], [2], [3], [4], [5], [6], [Space], [←], [→]
       const dialerModal = document.getElementById('speed-dialer-modal');
       const isDialerActive = dialerModal && !dialerModal.classList.contains('hidden');
       const isInputFocused = document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
@@ -2768,13 +3484,19 @@ _Engineering Lead: Pushpender | Client Relations: Kaushik | Operations: Priyansh
           this.recordDialerOutcome('no_answer');
         } else if (e.key === '2') {
           e.preventDefault();
-          this.recordDialerOutcome('whatsapp');
+          this.recordDialerOutcome('wrong_number');
         } else if (e.key === '3') {
           e.preventDefault();
-          this.recordDialerOutcome('demo');
+          this.recordDialerOutcome('not_interested');
         } else if (e.key === '4') {
           e.preventDefault();
-          this.recordDialerOutcome('won');
+          this.recordDialerOutcome('call_back');
+        } else if (e.key === '5') {
+          e.preventDefault();
+          this.recordDialerOutcome('send_audit');
+        } else if (e.key === '6') {
+          e.preventDefault();
+          this.recordDialerOutcome('demo_booked');
         } else if (e.code === 'Space') {
           e.preventDefault();
           this.toggleCallTimer();

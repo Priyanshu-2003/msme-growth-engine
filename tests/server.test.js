@@ -225,7 +225,8 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.ok(res.json.financialMetrics);
     const fm = res.json.financialMetrics;
     assert.ok(fm.totalAddressablePipeline > 0);
-    assert.strictEqual(fm.packagePrice, 18000);
+    assert.strictEqual(fm.packagePrice, 7999);
+    assert.strictEqual(fm.foundingPrice, 5999);
     assert.ok(Array.isArray(fm.dealLedger));
   });
 
@@ -237,7 +238,8 @@ test('API In-Memory Integration Tests', async (t) => {
     assert.strictEqual(res.json.success, true);
     assert.ok(res.json.invoice);
     assert.ok(res.json.invoice.invoiceNumber.startsWith('INDUS-'));
-    assert.strictEqual(res.json.invoice.totalAmount, 18000);
+    assert.strictEqual(res.json.invoice.subtotal, 7999);
+    assert.strictEqual(res.json.invoice.totalAmount, 5999);
     assert.ok(res.json.invoice.upiPayLink.startsWith('upi://pay?'));
   });
 

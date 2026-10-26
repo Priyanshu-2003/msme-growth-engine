@@ -12,6 +12,11 @@ const INDIAN_INDUSTRIAL_HUBS = {
     { city: "Morbi", district: "Morbi", estates: ["Trajpar GIDC", "Wankaner Ceramic Zone", "Halvad Road Industrial Area"], pincodes: ["363641", "363642"], focus: ["Ceramic Tiles", "Sanitaryware", "Quartz Stone Processing", "Cardboard Packaging"] },
     { city: "Vadodara", district: "Vadodara", estates: ["Makarpura GIDC", "Nandesari Industrial Estate", "Savli GIDC"], pincodes: ["390010", "391340"], focus: ["Switchgear & Electricals", "Heavy Fabrication", "Pharma Formulations"] }
   ],
+  "Andhra Pradesh": [
+    { city: "Visakhapatnam", district: "Visakhapatnam", estates: ["Autonagar Gajuwaka", "Gambheeram SEZ", "Duvvada VSEZ"], pincodes: ["530012", "530046"], focus: ["Marine Processing", "Heavy Steel Fabrication", "Pharma Intermediates"] },
+    { city: "Vijayawada", district: "NTR", estates: ["Autonagar Vijayawada", "Kondapalli Industrial Estate"], pincodes: ["520007", "521228"], focus: ["Commercial Vehicle Body Building", "Corrugated Cartons", "Agro Equipment"] },
+    { city: "Guntur", district: "Guntur", estates: ["Autonagar Guntur", "Perecherla Industrial Zone"], pincodes: ["522001", "522009"], focus: ["Cotton Ginning & Baling", "Chilli Processing & Cold Storage", "Spice Oils"] }
+  ],
   "Maharashtra": [
     { city: "Pune", district: "Pune", estates: ["Bhosari MIDC", "Chakan Industrial Corridor Phase III", "Pimpri MIDC", "Markal Industrial Area"], pincodes: ["411026", "410501", "411018"], focus: ["Auto Press Tooling", "Hydraulic Cylinders", "Sheet Metal Fabrication", "Injection Moulding"] },
     { city: "Aurangabad", district: "Chhatrapati Sambhajinagar", estates: ["Waluj MIDC", "Chikalthana MIDC", "Shendra Industrial Area"], pincodes: ["431136", "431006"], focus: ["Auto Ancillaries", "Machine Tools", "Beer & Beverage Bottling", "Pharmaceuticals"] },
@@ -202,8 +207,10 @@ function generateInfiniteIndianLeads(state = 'Gujarat', city = '', category = 'A
       INDIAN_INDUSTRIAL_HUBS[st].forEach(h => availableHubs.push({ ...h, stateName: st }));
     });
   } else {
-    const stateData = INDIAN_INDUSTRIAL_HUBS[state] || INDIAN_INDUSTRIAL_HUBS["Gujarat"];
-    stateData.forEach(h => availableHubs.push({ ...h, stateName: state }));
+    const stateData = INDIAN_INDUSTRIAL_HUBS[state];
+    const hubList = stateData || INDIAN_INDUSTRIAL_HUBS["Gujarat"];
+    const actualState = stateData ? state : "Gujarat";
+    hubList.forEach(h => availableHubs.push({ ...h, stateName: actualState }));
   }
 
   // Filter by city if specified

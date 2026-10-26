@@ -63,8 +63,8 @@
           <span>CSV Data Ingestion</span>
         </button>
 
-        <!-- PILLAR 2: SALES & OUTREACH (KAUSHIK) -->
-        <div class="nav-section-label">2. SALES OUTREACH • KAUSHIK</div>
+        <!-- PILLAR 2: SALES & OUTREACH -->
+        <div class="nav-section-label">2. SALES & OUTBOUND CALLING</div>
 
         <button class="nav-item" data-view="warroom">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -83,17 +83,17 @@
           <span>WhatsApp Draft Approvals</span>
         </button>
 
-        <!-- PILLAR 3: TECH DELIVERY (PUSHPENDER) -->
-        <div class="nav-section-label">3. TECH DELIVERY • PUSHPENDER</div>
+        <!-- PILLAR 3: TECH DELIVERY -->
+        <div class="nav-section-label">3. TECH DELIVERY & CATALOGUES</div>
 
         <button class="nav-item" data-view="studio">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-          <span>48h SLA Delivery Studio</span>
+          <span>Delivery & Setup Studio</span>
           <span class="badge badge-warning" style="font-size:10px; margin-left:auto; padding:2px 6px;">Portals</span>
         </button>
 
-        <!-- PILLAR 4: CASHFLOW & OPS (PRIYANSHU) -->
-        <div class="nav-section-label">4. CASHFLOW & OPS • PRIYANSHU</div>
+        <!-- PILLAR 4: CASHFLOW & OPS -->
+        <div class="nav-section-label">4. CASHFLOW & OPERATIONS</div>
 
         <button class="nav-item" data-view="reports">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
@@ -144,14 +144,14 @@
         </div>
 
         <div class="top-bar-right">
-          <!-- Active Team Avatar Pill -->
-          <div class="team-header-pill" title="IndusOS Core Operating Team: Priyanshu, Kaushik, Pushpender">
+          <!-- Active Team Role Pill -->
+          <div class="team-header-pill" title="Active Operating Roles: Admin, Sales Caller, Delivery">
             <div class="avatar-group">
-              <span class="team-avatar-chip chip-priyanshu" title="Priyanshu (Coordination & Ops)">P</span>
-              <span class="team-avatar-chip chip-kaushik" title="Kaushik (Sales & Closing)">K</span>
-              <span class="team-avatar-chip chip-pushpender" title="Pushpender (Tech & Delivery)">P</span>
+              <span class="team-avatar-chip chip-priyanshu" title="Admin / Operations">A</span>
+              <span class="team-avatar-chip chip-kaushik" title="Sales / Outbound Caller">S</span>
+              <span class="team-avatar-chip chip-pushpender" title="Delivery / Engineering">D</span>
             </div>
-            <span class="team-pill-text">3 Online</span>
+            <span class="team-pill-text">Team Active</span>
           </div>
 
           <div class="top-bar-actions">
@@ -285,6 +285,43 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Follow-ups & Scheduled Queue -->
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3 style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+                <span>📅 Today's Follow-ups & Scheduled Calls</span>
+                <span class="badge badge-info" id="dashboard-followups-count">0 Scheduled</span>
+              </h3>
+              <p class="header-hint" style="margin-top:2px;">Scheduled callbacks and live demos from outbound calls.</p>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="app.openScheduleModal(null, '')" style="background:#2563eb; border-color:#2563eb;">
+              ➕ Schedule Follow-up
+            </button>
+          </div>
+          <div class="card-body no-padding">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Enterprise / Business</th>
+                    <th>City</th>
+                    <th>Phone</th>
+                    <th>Type</th>
+                    <th>Notes</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-followups-tbody">
+                  <tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:1.5rem;">No follow-ups due today. Log callbacks from the Speed Dialer.</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1217,10 +1254,10 @@
 
               <div class="battlecard-item">
                 <div class="battlecard-header">
-                  <strong>3. "Why pay ₹5,000 advance before seeing the full website?"</strong>
+                  <strong>3. "Why pay ₹2,000 advance before seeing the full website?"</strong>
                   <button class="btn btn-xs btn-secondary" onclick="app.copyBattlecard(3)">Copy</button>
                 </div>
-                <p class="battlecard-text">"Our total package is ₹18,000. Pushpender on our tech team will dedicate 48 engineering hours to deploy your live portal with your actual machinery specs. The ₹5,000 token advance locks your deployment slot. You test it live on your phone before paying the remaining ₹13,000."</p>
+                <p class="battlecard-text">"Our standard list package is ₹7,999, but for our first 3 founding clients in your sector, it is ₹5,999 in exchange for a testimonial and referral. The ₹2,000 UPI advance covers your domain setup, SSL, and drafting your catalogue. You review the full catalogue live on your phone and verify your WhatsApp enquiries before paying the remaining ₹3,999."</p>
               </div>
             </div>
           </div>
@@ -1231,7 +1268,7 @@
           <div class="card-header">
             <div>
               <h3>🔥 High-Intent Deals Ready for Closing (Advance Token)</h3>
-              <p class="header-hint">Promoters who have attended a demo or responded on WhatsApp. Lock the ₹5,000 advance to trigger Pushpender's tech build.</p>
+              <p class="header-hint">Promoters who have attended a demo or responded on WhatsApp. Lock the ₹2,000 advance to trigger catalogue build.</p>
             </div>
             <button class="btn btn-primary" onclick="app.openSpeedDialer()" style="background:#059669; border-color:#059669; display:flex; align-items:center; gap:0.4rem;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -1300,9 +1337,14 @@
               <h3>💻 Pushpender's Active Build & Deployment Queue</h3>
               <p class="header-hint">Every closed deal flows here immediately. Pushpender generates custom factory portals, links WhatsApp order forms, and deploys live within 48h.</p>
             </div>
-            <button class="btn btn-secondary" onclick="app.previewSamplePortal()">
-              🌐 Open Sample Factory Portal Preview
-            </button>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="btn btn-primary" onclick="app.openCatalogueBuilder('cat_demo_sample_001')">
+                📱 Open B2B Catalogue Builder
+              </button>
+              <button class="btn btn-secondary" onclick="app.previewSamplePortal()">
+                ⚙️ Internal Factory Demo (Old)
+              </button>
+            </div>
           </div>
           <div class="card-body no-padding">
             <div class="table-responsive">
@@ -1404,6 +1446,11 @@
           </div>
         </div>
       </section>
+
+      <!-- UI Security Notice Footer -->
+      <footer class="app-security-footer" style="padding: 0.85rem 1.5rem; background: #fffbeb; border-top: 1px solid #fef3c7; color: #92400e; font-size: 0.8rem; text-align: center; font-weight: 500;">
+        ⚠️ Security Notice: Do not deploy publicly until authentication is implemented (Phase 3).
+      </footer>
     </main>
 
     <!-- LEAD DETAIL MODAL / DRAWER -->
@@ -1571,9 +1618,9 @@
                 <div>
                   <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Action Taken By</label>
                   <select id="modal-log-author" class="select-input" style="width:100%;">
-                    <option value="Kaushik">Kaushik (Sales & Closing)</option>
-                    <option value="Priyanshu">Priyanshu (Coordination)</option>
-                    <option value="Pushpender">Pushpender (Tech & Delivery)</option>
+                    <option value="Caller">Outbound Caller (Sales)</option>
+                    <option value="Admin">Operations & Admin</option>
+                    <option value="Engineering">Delivery Engineer</option>
                   </select>
                 </div>
                 <div>
@@ -1585,8 +1632,8 @@
                     <option value="DEMO_SCHEDULED">📅 15-Min Live Demo Scheduled</option>
                     <option value="DEMO_COMPLETED">🎯 Demo Completed & Price Quoted</option>
                     <option value="ADVANCE_RECEIVED">💰 50% Token Advance Received</option>
-                    <option value="TECH_HANDOFF">🛠️ Handed Over to Pushpender</option>
-                    <option value="PROJECT_DELIVERED">🚀 Client Site Deployed Live</option>
+                    <option value="TECH_HANDOFF">🛠️ Handed Over to Delivery</option>
+                    <option value="PROJECT_DELIVERED">🌐 Catalogue Marked Live</option>
                     <option value="FOLLOW_UP_NOTE">📝 General Follow-up Note</option>
                   </select>
                 </div>
@@ -1613,13 +1660,24 @@
               </div>
               <div style="margin-bottom:0.75rem;">
                 <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.25rem;">Conversation Summary & Notes</label>
-                <textarea id="modal-note-input" class="textarea-input" rows="2" style="width:100%;" placeholder="e.g. Kaushik spoke with owner. Scheduled demo for tomorrow 11 AM."></textarea>
+                <textarea id="modal-note-input" class="textarea-input" rows="2" style="width:100%;" placeholder="e.g. Spoke with owner. Scheduled demo for tomorrow 11 AM."></textarea>
               </div>
               <div style="display:flex; justify-content:flex-end;">
                 <button class="btn btn-primary" id="btn-save-lead-stage">
                   <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   Record Step Permanently
                 </button>
+              </div>
+            </div>
+
+            <!-- Scheduled Follow-ups Box for Current Lead -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.85rem; margin-top:1rem; margin-bottom:1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <span style="font-size:0.8rem; font-weight:700; color:#1e293b;">📅 Scheduled Follow-ups</span>
+                <button type="button" class="btn btn-xs btn-secondary" onclick="app.scheduleForCurrentModalLead()">➕ Schedule</button>
+              </div>
+              <div id="modal-lead-followups-list" style="font-size:0.775rem; color:#64748b;">
+                No pending follow-ups for this lead.
               </div>
             </div>
 
@@ -1651,6 +1709,7 @@
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             Send Email
           </a>
+          <button class="btn btn-outline" id="btn-modal-catalogue" onclick="app.openCatalogueBuilderForCurrentLead()">📱 B2B Catalogue</button>
           <button class="btn btn-secondary" id="btn-modal-cancel">Close</button>
           <button class="btn btn-primary" id="btn-modal-approve">Approve for Outreach</button>
         </div>
@@ -1683,16 +1742,16 @@
       </div>
     </div>
 
-    <!-- PORTAL PREVIEW MODAL (Pushpender's Live Factory Website Mockup) -->
+    <!-- PORTAL PREVIEW MODAL (Pushpender's Live Factory Website Mockup - Internal Simulation Only) -->
     <div id="portal-preview-modal" class="modal-overlay hidden">
       <div class="modal-dialog" style="max-width: 900px; max-height: 90vh;">
         <div class="modal-header" style="background:#0f172a; color:#ffffff;">
           <div>
             <div style="display:flex; align-items:center; gap:0.5rem;">
-              <span class="badge" style="background:#10b981; color:#ffffff; font-size:10px;">LIVE MOCKUP</span>
-              <h3 id="preview-factory-title" style="color:#ffffff; margin:0;">Factory Portal Preview</h3>
+              <span class="badge" style="background:#f59e0b; color:#ffffff; font-size:10px;">INTERNAL / DEMO ONLY</span>
+              <h3 id="preview-factory-title" style="color:#ffffff; margin:0;">Internal Factory Simulation (Demo Only)</h3>
             </div>
-            <p id="preview-factory-sub" style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Built & Deployed by Pushpender (Tech & Delivery) • 48-Hour SLA Guarantee</p>
+            <p id="preview-factory-sub" style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Internal simulation only. For client delivery, use the B2B Mobile Catalogue Builder below.</p>
           </div>
           <button class="modal-close" onclick="app.closePortalPreview()" style="color:#ffffff;">&times;</button>
         </div>
@@ -1705,7 +1764,7 @@
               <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f59e0b;"></span>
               <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
               <div style="background:#ffffff; padding:0.2rem 0.75rem; border-radius:20px; border:1px solid #cbd5e1; flex:1; margin-left:0.5rem; font-family:monospace;">
-                🔒 https://<span id="preview-domain-name">clientfactory.in</span>
+                🔒 https://<span id="preview-domain-name">clientfactory.in</span> [DEMO SIMULATION]
               </div>
             </div>
 
@@ -1747,8 +1806,165 @@
           </div>
         </div>
         <div class="modal-footer" style="background:#f1f5f9;">
-          <span style="font-size:0.8rem; color:#64748b;">Ready to deploy this portal live in 48 hours.</span>
+          <span style="font-size:0.8rem; color:#64748b;">Internal factory simulation only. Not intended for client handover.</span>
           <button class="btn btn-secondary" onclick="app.closePortalPreview()">Close Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2B MOBILE CATALOGUE BUILDER MODAL (Phase 2 Item A - 2.11) -->
+    <div id="catalogue-builder-modal" class="modal-overlay hidden">
+      <div class="modal-dialog" style="max-width: 900px; max-height: 92vh; display: flex; flex-direction: column;">
+        <div class="modal-header" style="background:#0f172a; color:#ffffff;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="badge" style="background:#059669; color:#ffffff; font-size:10px;">CLIENT DELIVERY</span>
+              <h3 style="color:#ffffff; margin:0;">📱 B2B Mobile Catalogue Builder & Export</h3>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+              Build a mobile-first catalogue for WhatsApp buyers. Export as offline static files anytime.
+            </p>
+          </div>
+          <button class="modal-close" onclick="app.closeCatalogueBuilder()" style="color:#ffffff;">&times;</button>
+        </div>
+
+        <div class="modal-body" style="background:#f8fafc; padding:1.25rem; overflow-y:auto; flex:1;">
+          <!-- Time-Test Stopwatch & Step Checklist (Requirement 10) -->
+          <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <span style="font-weight:700; font-size:0.875rem; color:#0f172a;">⏱️ Fill-Time Stopwatch (Self-Test Mode)</span>
+                <p style="font-size:0.725rem; color:#64748b; margin:2px 0 0 0;">
+                  Measure exact time to fill client data. Do not make "under 2 hours" marketing claims until verified.
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div id="catalogue-stopwatch-display" style="font-family:monospace; font-size:1.25rem; font-weight:700; background:#f1f5f9; padding:0.25rem 0.75rem; border-radius:6px; color:#0f172a;">
+                  00:00:00
+                </div>
+                <button class="btn btn-xs btn-primary" id="stopwatch-start-btn" onclick="app.toggleCatalogueStopwatch()">▶ Start</button>
+                <button class="btn btn-xs btn-secondary" onclick="app.resetCatalogueStopwatch()">↺ Reset</button>
+              </div>
+            </div>
+
+            <!-- 5-Step Delivery Checklist -->
+            <div style="margin-top:0.75rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.5rem; font-size:0.75rem;">
+              <label style="display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="chk-step-1"> 1. Basic Info
+              </label>
+              <label style="display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="chk-step-2"> 2. WhatsApp No.
+              </label>
+              <label style="display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="chk-step-3"> 3. Products (Spec/MOQ)
+              </label>
+              <label style="display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="chk-step-4"> 4. Google Maps Link
+              </label>
+              <label style="display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="chk-step-5"> 5. Zero Fake Claims
+              </label>
+            </div>
+          </div>
+
+          <!-- Core Catalogue Fields -->
+          <input type="hidden" id="cat-lead-id">
+          <input type="hidden" id="cat-token">
+          <input type="hidden" id="cat-id">
+
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Business / Factory Name *</label>
+              <input type="text" id="cat-business-name" class="input-text" placeholder="e.g. Mahavir Textiles & Fabrics">
+            </div>
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Language</label>
+              <select id="cat-language" class="select-input" onchange="app.onCatalogueLangChange()">
+                <option value="EN">English (Default)</option>
+                <option value="HI">Hindi (हिंदी) - ⚠️ Needs native review</option>
+                <option value="GU">Gujarati (ગુજરાતી) - ⚠️ Needs native review</option>
+              </select>
+              <span id="cat-lang-notice" style="font-size:0.7rem; color:#d97706; display:none; margin-top:2px;">
+                ⚠️ Non-English translations are template drafts. A native speaker must review copy before client handover.
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.8rem;">Tagline / Core Specialization</label>
+            <input type="text" id="cat-tagline" class="input-text" placeholder="e.g. Wholesale Polyester & Jacquard Fabric Manufacturer">
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">WhatsApp Number *</label>
+              <input type="text" id="cat-whatsapp" class="input-text" placeholder="e.g. 919825100001 (or 91XXXXXXXXXX)">
+              <span style="font-size:0.68rem; color:#64748b;">Receives direct product enquiries</span>
+            </div>
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Calling Phone (Optional)</label>
+              <input type="text" id="cat-phone" class="input-text" placeholder="e.g. +91 261 2450000">
+            </div>
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Public Email (Optional)</label>
+              <input type="email" id="cat-email" class="input-text" placeholder="e.g. contact@business.com">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Physical Factory / Office Address</label>
+              <input type="text" id="cat-address" class="input-text" placeholder="e.g. Plot 42, GIDC Sachin Industrial Area, Surat, Gujarat 394230">
+            </div>
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.8rem;">Google Maps URL</label>
+              <input type="url" id="cat-maps-url" class="input-text" placeholder="e.g. https://maps.google.com/?q=...">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.8rem;">Verified Badges (Client-Provided Only - No Fabricated Claims)</label>
+            <input type="text" id="cat-badges" class="input-text" placeholder="Comma-separated: e.g. Client-Verified GST Registered, Factory Premises Verified">
+            <span style="font-size:0.68rem; color:#64748b;">Leave empty if client hasn't provided verifiable documents. Never invent awards, ISO ratings or years in business.</span>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.8rem;">Meta Description (WhatsApp Link Previews)</label>
+            <input type="text" id="cat-meta-desc" class="input-text" placeholder="e.g. B2B Wholesale fabric supplier in Surat. Tap to enquire directly on WhatsApp.">
+          </div>
+
+          <!-- Product Items Repeater -->
+          <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <div>
+                <h4 style="margin:0; font-size:0.875rem; color:#0f172a;">📦 Products & Specifications (Mobile Grid)</h4>
+                <span style="font-size:0.7rem; color:#64748b;">Photos are optional (neutral placeholder used if empty). Max 2MB per photo. Client-supplied photos only.</span>
+              </div>
+              <button class="btn btn-xs btn-primary" onclick="app.addCatalogueProductRow()">+ Add Product</button>
+            </div>
+
+            <div id="cat-products-container" style="display:flex; flex-direction:column; gap:0.75rem;">
+              <!-- Dynamically populated rows -->
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="background:#f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button class="btn btn-secondary" onclick="app.closeCatalogueBuilder()">Close</button>
+            <span id="cat-save-status" style="font-size:0.75rem; color:#059669; font-weight:600;"></span>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button class="btn btn-outline" id="cat-view-live-btn" onclick="app.viewLiveCatalogue()" disabled>
+              👁️ View Live Catalogue
+            </button>
+            <button class="btn btn-secondary" id="cat-export-btn" onclick="app.exportCurrentCatalogue()" disabled>
+              📦 Export Static Package
+            </button>
+            <button class="btn btn-success" onclick="app.saveCatalogue()">
+              💾 Save Catalogue
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1759,26 +1975,25 @@
         <div class="modal-header" style="border-bottom: 2px solid #059669;">
           <div>
             <h3 style="color:#059669; margin:0;">💰 Lock Deal & Collect Advance</h3>
-            <p style="font-size:0.775rem; color:#64748b; margin-top:2px;">Kaushik's Closing Desk: Record the ₹5,000 token advance & handover to Pushpender.</p>
+            <p style="font-size:0.775rem; color:#64748b; margin-top:2px;">Closing Desk: Record the ₹2,000 token advance & handover to delivery.</p>
           </div>
           <button class="modal-close" onclick="app.closeDealCloserModal()">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>Promoter / Factory Name</label>
+            <label>Promoter / Business Name</label>
             <input type="text" id="closer-lead-name" class="input-text" readonly style="background:#f8fafc; font-weight:700;">
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
             <div class="form-group">
               <label>Advance Token Received</label>
-              <input type="text" id="closer-advance-amount" class="input-text" value="₹5,000" style="font-weight:700; color:#059669;">
+              <input type="text" id="closer-advance-amount" class="input-text" value="₹2,000" style="font-weight:700; color:#059669;">
             </div>
             <div class="form-group">
               <label>Agreed Package Total</label>
               <select id="closer-package-price" class="select-input">
-                <option value="18000">₹18,000 (Standard Factory Suite)</option>
-                <option value="25000">₹25,000 (Multi-Stage BOM Suite)</option>
-                <option value="15000">₹15,000 (Export Digital Showcase)</option>
+                <option value="5999" selected>₹5,999 (Founding Client Special - ₹2,000 Adv)</option>
+                <option value="7999">₹7,999 (Standard B2B Catalogue List)</option>
               </select>
             </div>
           </div>
@@ -1787,32 +2002,32 @@
             <input type="text" id="closer-payment-ref" class="input-text" placeholder="e.g. UPI/GooglePay Ref #402919482910">
           </div>
           <div class="form-group">
-            <label>Pushpender Handover Instructions</label>
-            <textarea id="closer-handover-notes" class="textarea-input" rows="3" placeholder="e.g. Promoter wants Hindi/English portal, 8 registered dealers in Rajkot, machine shop scrap variance tracking."></textarea>
+            <label>Delivery & Setup Instructions</label>
+            <textarea id="closer-handover-notes" class="textarea-input" rows="3" placeholder="e.g. Promoter wants Hindi/English catalogue, 8 registered product lines, and WhatsApp ordering button configured."></textarea>
           </div>
           <div class="alert-box" style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:0.65rem 0.85rem; font-size:0.775rem; color:#065f46;">
-            ✅ <strong>Automatic Workflow Action:</strong> This updates the lead to <strong>WON</strong>, records an immutable audit entry by <strong>Kaushik</strong>, and alerts <strong>Pushpender</strong> to begin the 48-Hour deployment countdown.
+            ✅ <strong>Automatic Workflow Action:</strong> This updates the lead to <strong>WON</strong>, records an immutable audit entry in activity logs, and transitions to Delivery setup.
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" onclick="app.closeDealCloserModal()">Cancel</button>
           <button class="btn btn-primary" id="btn-confirm-lock-deal" onclick="app.executeLockDeal()" style="background:#059669; border-color:#059669;">
-            🚀 Lock Deal & Handover to Pushpender
+            🚀 Lock Deal & Handover to Delivery
           </button>
         </div>
       </div>
     </div>
 
-    <!-- SPEED DIALER MODAL (Kaushik's High-Velocity Calling Console & HUD) -->
+    <!-- SPEED DIALER MODAL (Outbound Calling Console & HUD) -->
     <div id="speed-dialer-modal" class="modal-overlay hidden">
-      <div class="modal-dialog" style="max-width: 680px;">
+      <div class="modal-dialog" style="max-width: 720px;">
         <div class="modal-header" style="border-bottom: 2px solid #059669; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <h3 style="color:#059669; margin:0; display:flex; align-items:center; gap:0.5rem;">
-              <span>⚡ Kaushik's Outbound Calling HUD</span>
+              <span>⚡ Outbound Calling HUD</span>
               <span class="hud-live-tag">● LIVE CALL</span>
             </h3>
-            <p id="dialer-progress-tag" style="font-size:0.775rem; color:#64748b; margin-top:2px;">Lead 1 of 10 • Rapid Outreach & Qualification</p>
+            <p id="dialer-progress-tag" style="font-size:0.775rem; color:#64748b; margin-top:2px;">Lead 1 of 10 • Approved Outbound Queue</p>
           </div>
           <div style="display:flex; align-items:center; gap:0.75rem;">
             <div class="calling-timer-pill">
@@ -1822,7 +2037,27 @@
             <button class="modal-close" onclick="app.closeSpeedDialer()">&times;</button>
           </div>
         </div>
-        <div class="modal-body" style="padding: 1.5rem;">
+        <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+          <!-- Live Real-Time Activity Log Counters -->
+          <div class="dialer-stats-bar" style="display:flex; gap:0.75rem; justify-content:space-between; margin-bottom:1rem; background:#f8fafc; border:1px solid #e2e8f0; padding:0.6rem 0.9rem; border-radius:8px; font-size:0.8rem; font-weight:600;">
+            <div style="display:flex; align-items:center; gap:0.35rem;">
+              <span>📞 Dials:</span>
+              <span id="dialer-stat-dials" style="color:#0f172a; font-weight:800;">0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.35rem;">
+              <span>🤝 Connected:</span>
+              <span id="dialer-stat-connected" style="color:#2563eb; font-weight:800;">0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.35rem;">
+              <span>✅ Consent Given:</span>
+              <span id="dialer-stat-consent" style="color:#059669; font-weight:800;">0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.35rem;">
+              <span>🗓️ Demos Booked:</span>
+              <span id="dialer-stat-demos" style="color:#7c3aed; font-weight:800;">0</span>
+            </div>
+          </div>
+
           <div class="dialer-lead-hero">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div>
@@ -1835,7 +2070,11 @@
             <div class="dialer-phone-box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px; color:#15803d; flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               <span class="dialer-phone-number" id="dialer-phone-display">+91 00000 00000</span>
-              <a id="dialer-direct-call-btn" href="#" onclick="app.startCallTimer()" class="btn btn-sm btn-primary" style="background:#15803d; border-color:#15803d; text-decoration:none;">📞 Call Now</a>
+              <a id="dialer-direct-call-btn" href="tel:+910000000000" onclick="app.triggerDialAttempt(event)" class="btn btn-sm btn-primary" style="background:#15803d; border-color:#15803d; text-decoration:none;">📞 Click-to-Call</a>
+              <button onclick="app.copyDialerPhoneNumber()" class="btn btn-sm btn-secondary" style="color:#15803d; border-color:#86efac; background:#f0fdf4; display:flex; align-items:center; gap:0.35rem;" title="Copy Phone Number to clipboard">
+                <span>📋</span>
+                <span>Copy Number</span>
+              </button>
               <button onclick="app.launchWhatsAppWebDirect()" class="btn btn-sm btn-secondary" style="color:#059669; border-color:#a7f3d0; background:#f0fdf4; display:flex; align-items:center; gap:0.35rem;" title="1-Click Launch WhatsApp Web with personalized pitch preloaded">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 <span>WhatsApp Web</span>
@@ -1853,11 +2092,12 @@
 
           <!-- Interactive Objection Battlecards Bar -->
           <div class="hud-objection-bar" style="margin-bottom:0.75rem;">
-            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">⚡ Instant HUD Battlecards:</span>
+            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">⚡ Instant Objection Battlecards:</span>
             <div style="display:flex; gap:0.4rem; margin-top:0.35rem; flex-wrap:wrap;">
               <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(1)">🛡️ 1: "We use Tally"</button>
               <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(2)">🛡️ 2: "WhatsApp Ordering"</button>
-              <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(3)">🛡️ 3: "Why ₹5k Advance?"</button>
+              <button class="btn btn-xs btn-hud-objection" onclick="app.showDialerObjection(3)">🛡️ 3: "Why Advance?"</button>
+              <button class="btn btn-xs btn-hud-objection" onclick="app.openScriptEditor()" style="margin-left:auto; background:#f1f5f9; color:#475569;">✏️ Edit Pitches</button>
             </div>
           </div>
 
@@ -1867,47 +2107,198 @@
           </div>
 
           <!-- Quick Talk Track & Gap Hook -->
-          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.85rem 1rem; margin-bottom:1.25rem;">
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.85rem 1rem; margin-bottom:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
               <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">🎯 15-Second Opening Hook</span>
               <span style="font-size:0.725rem; color:#059669; font-weight:600;">Tailored to Factory Profile</span>
             </div>
             <p id="dialer-talk-track" style="font-size:0.85rem; color:#1e293b; margin:0; line-height:1.45;">
-              "Namaste ji, Kaushik here from IndusOS. We noticed your manufacturing facility has active production but no direct WhatsApp catalog for your 12+ dealers to place repeat orders. We built a live mobile portal mockup to show you..."
+              "Namaste ji, this is BharatGrowth AI. We reviewed your manufacturing unit and noticed your factory has active production but no direct WhatsApp catalog for dealers to place enquiries..."
             </p>
           </div>
 
-          <!-- Outcome Buttons with Key Legends -->
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">Log Call Outcome & Advance</span>
-            <span style="font-size:0.7rem; color:#94a3b8;">Hotkeys: [1] [2] [3] [4]</span>
+          <!-- Optional short note input -->
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size:0.75rem; font-weight:600; color:#64748b; display:block; margin-bottom:0.25rem;">Outcome Short Note (Optional)</label>
+            <input type="text" id="dialer-outcome-note" placeholder="e.g. Owner requested call after 4 PM, or agreed to receive PDF sample" class="input-text" style="width:100%; font-size:0.825rem; padding:0.4rem 0.65rem;">
           </div>
-          <div class="dialer-outcomes-grid">
+
+          <!-- Standard 6 Call Outcomes -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.05em;">Log Call Outcome & Advance</span>
+            <span style="font-size:0.7rem; color:#94a3b8;">Hotkeys: [1] [2] [3] [4] [5] [6]</span>
+          </div>
+          <div class="dialer-outcomes-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.5rem;" id="dialer-outcomes-container">
             <button class="btn-outcome no-answer" onclick="app.recordDialerOutcome('no_answer')">
               <span style="font-size:1.1rem;">❌</span>
               <span>[1] No Answer / Busy</span>
-              <small style="font-size:10px; opacity:0.8;">Schedule 2h retry</small>
+              <small style="font-size:10px; opacity:0.8;">Stage: Contacted</small>
             </button>
-            <button class="btn-outcome whatsapp" onclick="app.recordDialerOutcome('whatsapp')">
-              <span style="font-size:1.1rem;">💬</span>
-              <span>[2] WhatsApp Sent</span>
-              <small style="font-size:10px; opacity:0.8;">Mark as Contacted</small>
+            <button class="btn-outcome wrong-number" onclick="app.recordDialerOutcome('wrong_number')" style="border-left:3px solid #64748b;">
+              <span style="font-size:1.1rem;">❓</span>
+              <span>[2] Wrong Number</span>
+              <small style="font-size:10px; opacity:0.8;">Mark Invalid</small>
             </button>
-            <button class="btn-outcome demo" onclick="app.recordDialerOutcome('demo')">
+            <button class="btn-outcome not-interested" onclick="app.recordDialerOutcome('not_interested')" style="border-left:3px solid #ef4444;">
+              <span style="font-size:1.1rem;">🛑</span>
+              <span>[3] Not Interested</span>
+              <small style="font-size:10px; opacity:0.8;">Log Objection</small>
+            </button>
+            <button class="btn-outcome call-back" onclick="app.recordDialerOutcome('call_back')" style="border-left:3px solid #f59e0b;">
+              <span style="font-size:1.1rem;">⏰</span>
+              <span>[4] Call Back Later</span>
+              <small style="font-size:10px; opacity:0.8;">Schedule Reminder</small>
+            </button>
+            <button class="btn-outcome send-audit" onclick="app.recordDialerOutcome('send_audit')" style="border-left:3px solid #059669;">
+              <span style="font-size:1.1rem;">📑</span>
+              <span>[5] Consent: Send Audit</span>
+              <small style="font-size:10px; opacity:0.8;">WhatsApp Report Consent</small>
+            </button>
+            <button class="btn-outcome demo" onclick="app.recordDialerOutcome('demo_booked')" style="border-left:3px solid #7c3aed;">
               <span style="font-size:1.1rem;">🗓️</span>
-              <span>[3] Demo Booked</span>
-              <small style="font-size:10px; opacity:0.8;">Stage: Meeting Booked</small>
-            </button>
-            <button class="btn-outcome won" onclick="app.recordDialerOutcome('won')">
-              <span style="font-size:1.1rem;">💰</span>
-              <span>[4] Lock ₹5k Advance</span>
-              <small style="font-size:10px; opacity:0.9;">Handover to Pushpender</small>
+              <span>[6] Demo Booked</span>
+              <small style="font-size:10px; opacity:0.8;">Meeting Booked</small>
             </button>
           </div>
         </div>
         <div class="modal-footer" style="display:flex; justify-content:space-between;">
           <button class="btn btn-secondary" onclick="app.dialerPrev()">◀ [←] Previous</button>
           <button class="btn btn-secondary" onclick="app.dialerNext()">Skip / Next [→] ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOLLOW-UP SCHEDULING MODAL -->
+    <div id="schedule-modal" class="modal-overlay hidden" onclick="if(event.target === this) app.closeScheduleModal()">
+      <div class="modal-dialog" style="max-width: 480px;">
+        <div class="modal-header" style="border-bottom: 2px solid #2563eb; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0; color:#1e3a8a;">🗓️ Schedule Follow-up</h3>
+            <p id="schedule-modal-subtitle" style="font-size:0.75rem; color:#64748b; margin-top:2px;">Set a callback or meeting reminder</p>
+          </div>
+          <button class="modal-close" onclick="app.closeScheduleModal()">&times;</button>
+        </div>
+        <form onsubmit="app.submitFollowUp(event)">
+          <div class="modal-body" style="padding: 1.25rem;">
+            <input type="hidden" id="schedule-lead-id">
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Enterprise / Prospect</label>
+              <input type="text" id="schedule-lead-name" class="input-text" readonly style="background:#f8fafc; font-weight:600;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+              <div class="form-group">
+                <label style="font-size:0.75rem; font-weight:600; color:#475569;">Date *</label>
+                <input type="date" id="schedule-date" class="input-text" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size:0.75rem; font-weight:600; color:#475569;">Time *</label>
+                <input type="time" id="schedule-time" class="input-text" required value="11:00">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Interaction Type *</label>
+              <select id="schedule-type" class="select-input" style="width:100%;">
+                <option value="CALL" selected>📞 Phone Callback</option>
+                <option value="MEETING">🗓️ Screen Demo / Meeting</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0.5rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Follow-up Notes</label>
+              <textarea id="schedule-notes" class="textarea-input" rows="2" placeholder="e.g. Call back after shift ends; review WhatsApp audit findings together."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="app.closeScheduleModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-followup" style="background:#2563eb; border-color:#2563eb;">Save Follow-up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MARK AS LIVE MODAL -->
+    <div id="mark-live-modal" class="modal-overlay hidden" onclick="if(event.target === this) app.closeMarkLiveModal()">
+      <div class="modal-dialog" style="max-width: 500px;">
+        <div class="modal-header" style="border-bottom: 2px solid #059669; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0; color:#065f46;">🌐 Mark Catalogue as Live</h3>
+            <p style="font-size:0.75rem; color:#64748b; margin-top:2px;">Record live URL & handover notes</p>
+          </div>
+          <button class="modal-close" onclick="app.closeMarkLiveModal()">&times;</button>
+        </div>
+        <form onsubmit="app.submitMarkLive(event)">
+          <div class="modal-body" style="padding: 1.25rem;">
+            <input type="hidden" id="marklive-lead-id">
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Enterprise Name</label>
+              <input type="text" id="marklive-lead-name" class="input-text" readonly style="background:#f8fafc; font-weight:600;">
+            </div>
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Live Deployed URL *</label>
+              <input type="url" id="marklive-url" class="input-text" required placeholder="https://clientname-catalogue.in" style="font-family:monospace; font-weight:600;">
+            </div>
+            <div class="form-group" style="margin-bottom:0.5rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Handover & Setup Notes</label>
+              <textarea id="marklive-notes" class="textarea-input" rows="2" placeholder="e.g. Connected to owner's WhatsApp number + Google Business Profile verified."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="app.closeMarkLiveModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-confirm-mark-live" style="background:#059669; border-color:#059669;">Confirm Live Deployment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SCRIPT & PITCH EDITOR MODAL (10-Version History) -->
+    <div id="script-editor-modal" class="modal-overlay hidden" onclick="if(event.target === this) app.closeScriptEditor()">
+      <div class="modal-dialog" style="max-width: 640px;">
+        <div class="modal-header" style="border-bottom: 2px solid #4f46e5; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0; color:#312e81;">✏️ Sales Script & Pitch Editor</h3>
+            <p style="font-size:0.75rem; color:#64748b; margin-top:2px;">Runtime versioned pitches with template variables (Last 10 versions preserved)</p>
+          </div>
+          <button class="modal-close" onclick="app.closeScriptEditor()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 1.25rem;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Select Pitch Key</label>
+              <select id="script-key-select" class="select-input" onchange="app.loadSelectedScript()" style="width:100%;">
+                <option value="pitch_textiles">Textiles (Surat/Ludhiana) - pitch_textiles</option>
+                <option value="pitch_metals">Metals & Fabrication - pitch_metals</option>
+                <option value="pitch_plastics">Plastics & Polymers - pitch_plastics</option>
+                <option value="pitch_generic">Generic MSME Offer - pitch_generic</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Current Version</label>
+              <div id="script-current-version-tag" style="padding:0.45rem 0.75rem; background:#f1f5f9; border-radius:6px; font-size:0.85rem; font-weight:700; color:#1e293b;">v1</div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label style="font-size:0.75rem; font-weight:600; color:#475569;">Pitch Title</label>
+            <input type="text" id="script-title-input" class="input-text" style="width:100%; font-weight:600;">
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:#475569;">Pitch Template Content</label>
+              <span style="font-size:0.7rem; color:#6366f1;">Available variables: {{business_name}}, {{city}}, {{subcategory}}</span>
+            </div>
+            <textarea id="script-content-input" class="textarea-input" rows="5" style="width:100%; font-family:inherit; line-height:1.45;"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0.5rem;">
+            <label style="font-size:0.75rem; font-weight:600; color:#475569;">Previous 10 Versions History</label>
+            <div id="script-history-container" style="max-height:130px; overflow-y:auto; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:0.5rem; font-size:0.75rem;">
+              <p style="color:#94a3b8; margin:0;">Loading history...</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:#64748b;">Saved versions apply immediately to live calls.</span>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="app.closeScriptEditor()">Close</button>
+            <button type="button" class="btn btn-primary" onclick="app.saveCurrentScript()" style="background:#4f46e5; border-color:#4f46e5;">Save New Version</button>
+          </div>
         </div>
       </div>
     </div>
